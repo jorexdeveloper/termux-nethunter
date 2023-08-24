@@ -63,10 +63,10 @@ Options:
 
 ## Install XFCE for Mini and Nano installations
 
-Download and execute the installer script (`install-xfce.sh`) or copy and paste below commands in **NetHunter**.
+Copy and paste below commands in **NetHunter**.
 
 ```
-apt update -y && apt upgrade -y && apt install wget -y && wget https://raw.githubusercontent.com/jorexdeveloper/Install-NetHunter-Termux/main/install-xfce.sh && bash install-xfce.sh
+sudo apt install -y xfce* tightvncserver dbus-x11
 ```
 
 ### LICENSE
