@@ -1,4 +1,4 @@
-# Install-NetHunter-Termux
+# Install NetHunter In Termux
 
 Install Kali NetHunter in Termux.
 
