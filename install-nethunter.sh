@@ -260,15 +260,15 @@ function create_vnc_launcher() {
 		#!/bin/bash -e
 
 		depth=24
-		display=0
+		display=1
 		width=720
 		height=1600
 		orientation=landscape
 
 		function check_user() {
 		    if [ "\${USER}" = "root" ] || [ "\$EUID" -eq 0 ] || [ "\$(whoami)" = "root" ]; then
-		        display=1 && export DISPLAY=\${display}
-		        read -p "[!] Warning: You are starting VNC as root user, some applications are not meant to be run as root and may not work properly. Do you want to continue? y/N" -n 1 REPLY && echo && [[ ! "\${REPLY}" =~ ^(y|Y)\$ ]] && exit 1
+		        display=0 && export DISPLAY=\${display}
+		        read -p "[!] Warning: You are starting VNC as root user, some applications are not meant to be run as root and may not work properly. Do you want to continue? y/N" -n 1 REPLY && echo && case \${REPLY} in y|Y) ;; *) exit 1 ;; esac
 		    fi
 		}
 
@@ -321,7 +321,7 @@ function create_vnc_launcher() {
 		}
 
 		function print_usage() {
-		    echo "Usage: $(basename $0) [--potrait] [--landscape] [-p,--password] [-s,--start] [-k,--kill]"
+		    echo "Usage: \$(basename $0) [--potrait] [--landscape] [-p,--password] [-s,--start] [-k,--kill]"
 		    echo "Options:"
 		    echo "  --potrait"
 		    echo "          Use potrait orientation."
@@ -476,7 +476,7 @@ function tweak_audio() {
 
 # Tweak: Sets a static display across the system
 function tweak_display() {
-	echo -e "export DISPLAY=:0" > $CHROOT/etc/profile.d/display.sh
+	echo -e "export DISPLAY=:1" > $CHROOT/etc/profile.d/display.sh
 }
 
 # Tweak: Sets variables required by jdk
