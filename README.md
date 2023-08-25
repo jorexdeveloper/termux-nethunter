@@ -4,7 +4,7 @@ Install Kali NetHunter in Termux.
 
 ## Installation
 
-Download and execute the installer script (`install-nethunter.sh`) or copy and paste below commands in **Termux**.
+Download and execute the installer script (**install-nethunter.sh**) or copy and paste below commands in **Termux**.
 
 ```
 apt update -y && apt upgrade -y && apt install wget -y && wget https://raw.githubusercontent.com/jorexdeveloper/Install-NetHunter-Termux/main/install-nethunter.sh && bash install-nethunter.sh
