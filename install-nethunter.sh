@@ -186,35 +186,35 @@ function create_launcher() {
 	NH_LAUNCHER=${HOME}/bin/nethunter
 	NH_SHORTCUT=${HOME}/bin/nh
 	cat > $NH_LAUNCHER <<- EOF
-#!/data/data/com.termux/files/usr/bin/bash -e
+		#!/data/data/com.termux/files/usr/bin/bash -e
 
-# For enabling audio playing in distro, for rooted user: pulseaudio --start --system
-pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
+		# For enabling audio playing in distro, for rooted user: pulseaudio --start --system
+		pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
 
-# unset LD_PRELOAD in case termux-exec is installed
-unset LD_PRELOAD
+		# unset LD_PRELOAD in case termux-exec is installed
+		unset LD_PRELOAD
 
-# Workaround for Libreoffice, also needs to bind a fake /proc/version
-[ ! -f kali-armhf/root/.version ] && touch kali-armhf/root/.version
+		# Workaround for Libreoffice, also needs to bind a fake /proc/version
+		[ ! -f kali-armhf/root/.version ] && touch kali-armhf/root/.version
 
-# Command to start distro
-command="proot \
-         --link2symlink \
-             --kill-on-exit \
-         --root-id \
-         --rootfs=\${HOME}/kali-armhf \
-          --bind=/dev \
-          --bind=/proc \
-         --bind=kali-armhf/root:/dev/shm \
-         --bind=\$([ ! -z "\${INTERNAL_STORAGE}" ] && echo "\${INTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd0 \
-         --bind=\$([ ! -z "\${EXTERNAL_STORAGE}" ] && echo "\${EXTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd1 \
-         --cwd=/ \
-             /usr/bin/env -i \
-            TERM=\${TERM} \
-            LANG=C.UTF-8 \
-            /usr/bin/login \
-        "
-exec \${command}
+		# Command to start distro
+		command="proot \
+		         --link2symlink \
+		         --kill-on-exit \
+		         --root-id \
+		         --rootfs=\${HOME}/kali-armhf \
+		         --bind=/dev \
+		         --bind=/proc \
+		         --bind=kali-armhf/root:/dev/shm \
+		         --bind=\$([ ! -z "\${INTERNAL_STORAGE}" ] && echo "\${INTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd0 \
+		         --bind=\$([ ! -z "\${EXTERNAL_STORAGE}" ] && echo "\${EXTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd1 \
+		         --cwd=/ \
+		            /usr/bin/env -i \
+		            TERM=\${TERM} \
+		            LANG=C.UTF-8 \
+		            /usr/bin/login \
+		        "
+		exec \${command}
 	EOF
 	chmod 700 $NH_LAUNCHER
 	if [ -L ${NH_SHORTCUT} ]; then
@@ -370,31 +370,43 @@ function print_help() {
 
 # Prompts parsed message and returns response as 0/1
 function ask() {
-	# http://djm.me/ask
+	# Set prompt depending on default value
+	if [ "${2:-}" = "Y" ]; then
+		local prompt="Y/n"
+		local default="Y"
+	elif [ "${2:-}" = "N" ]; then
+		local prompt="y/N"
+		local default="N"
+	else
+		local prompt="y/n"
+		local default=""
+	fi
+	printf "\n"
+	# Ask
+	local retries=3
 	while true; do
-		if [ "${2:-}" = "Y" ]; then
-			prompt="Y/n"
-			default=Y
-		elif [ "${2:-}" = "N" ]; then
-			prompt="y/N"
-			default=N
+		if [ ${retries} -eq 3 ]; then
+			printf "\r${CYAN}[${YELLOW}?${CYAN}] ${1} ${prompt}: ${RESET}"
 		else
-			prompt="y/n"
-			default=
+			printf "\r${RED}[${YELLOW}${retries}${RED}] ${1} ${prompt}: ${RESET}"
 		fi
-		# Ask the question
-		printf "\n${CYAN}[${YELLOW}?${CYAN}] ${1} [${prompt}] ${RESET}"
-		read -n 1 REPLY
-		# Default?
-		if [ -z "$REPLY" ]; then
-			REPLY=${default}
+		read -n 1 reply
+		# Set default value?
+		if [ -z "${reply}" ]; then
+			reply=${default}
 		fi
-		printf "\n${RESET}"
-		# Check if the reply is valid
-		case "$REPLY" in
-			Y* | y*) return 0 ;;
-			N* | n*) return 1 ;;
+		case "${reply}" in
+			Y | y) unset reply && printf "\n" && return 0 ;;
+			N | n) unset reply && printf "\n" && return 1 ;;
 		esac
+		# Ask return 3rd time if default value is set
+		((retries--))
+		if [ ! -z "${default}" ] && [ ${retries} -eq 0 ]; then # && [[ ${default} =~ ^(Y|N|y|n)$ ]]; then
+			case "${default}" in
+				Y | y) unset reply && printf "\n" && return 0 ;;
+				N | n) unset reply && printf "\n" && return 1 ;;
+			esac
+		fi
 	done
 }
 
@@ -416,11 +428,14 @@ function tweaks() {
 		if ${i} &> /dev/null; then
 			printf "\n${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n"
 		else
-			printf "${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
+			printf "\n${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
 		fi
 		((descrnum++))
 	done
-	local descrnum=0
+	TMP_LOGIN_COMMAND="proot --link2symlink --root-id --rootfs=${CHROOT} --bind=${CHROOT}/root:/dev/shm --cwd=/"
+	if ask "Set default shell for user kali." "N"; then
+		tweak_default_shell && printf "${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n" || printf "${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
+	fi
 	if ask "Set UID and GID for user kali to match that of Termux." "N"; then
 		if tweak_uid &> /dev/null; then
 			printf "${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n"
@@ -429,7 +444,7 @@ function tweaks() {
 		fi
 	fi
 	if ask "Set Time Zone and Local Time." "N"; then
-		tweak_zoneinfo
+		tweak_zoneinfo && printf "${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n" || printf "${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
 	fi
 }
 
@@ -486,12 +501,24 @@ function tweak_dns() {
 	EOF
 }
 
+# Tweak: Sets the default shell for user 'kali'
+function tweak_default_shell() {
+	local shells=("bash" "zsh" "fish" "dash" "powershell" "tcsh" "csh" "ksh")
+	printf "\n${CYAN}[${YELLOW}*${CYAN}] Enter default shell for user ${YELLOW}kali${CYAN}. i.e bash${RESET}\n"
+	printf "\n${CYAN}[${YELLOW}?${CYAN}] Shell: ${RESET}" && read shell
+	if [[ "${shells[*]}" == *"${shell}"* ]] && [ -f "$CHROOT/usr/bin/${shell}" ]; then
+		${TMP_LOGIN_COMMAND} /usr/bin/chsh -s /usr/bin/${shell} kali
+	else
+		printf "\n${RED}[${YELLOW}!${RED}] '${shell}' not found.${RESET}" && ask "Try again." "N" && tweak_default_shell
+	fi
+}
+
 # Tweak: Sets Time Zone and Local Time
 function tweak_zoneinfo() {
-	printf "\n${CYAN}[${YELLOW}*${CYAN}] Input time zone i.e America/New_York.${RESET}\n"
+	printf "\n${CYAN}[${YELLOW}*${CYAN}] Enter time zone i.e ${YELLOW}America/New_York${CYAN}.${RESET}\n"
 	printf "\n${CYAN}[${YELLOW}?${CYAN}] Zone: ${RESET}" && read zone
 	if [ -f "$CHROOT/usr/share/zoneinfo/${zone}" ]; then
-		echo "${zone}" > ${CHROOT}/etc/timezone && nethunter -r ln -fs -T /usr/share/zoneinfo/${zone} /etc/localtime
+		echo "${zone}" > ${CHROOT}/etc/timezone && ${TMP_LOGIN_COMMAND} /usr/bin/ln -fs -T /usr/share/zoneinfo/${zone} /etc/localtime
 	else
 		printf "\n${RED}[${YELLOW}!${RED}] '${zone}' not found.${RESET}" && ask "Try again." "N" && tweak_zoneinfo
 	fi
@@ -501,8 +528,8 @@ function tweak_zoneinfo() {
 function tweak_uid() {
 	local USRID=$(id -u)
 	local GRPID=$(id -g)
-	nethunter -p kali kali usermod -u $USRID kali &> /dev/null
-	nethunter -p kali kali groupmod -g $GRPID kali &> /dev/null
+	${TMP_LOGIN_COMMAND} /usr/sbin/usermod -u ${USRID} kali
+	${TMP_LOGIN_COMMAND} /usr/sbin/groupmod -g ${GRPID} kali
 }
 
 ################################################################################
@@ -557,6 +584,7 @@ extract_rootfs
 create_launcher
 create_vnc_launcher
 cleanup
+# Make some tweaks
 tweaks
 printf "\n${GREEN}[${YELLOW}*${GREEN}] Installation process complete.${RESET}\n"
 
