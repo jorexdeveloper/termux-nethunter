@@ -10,6 +10,12 @@ Download and execute the installer script (**install-nethunter.sh**) or copy and
 apt update -y && apt upgrade -y && apt install wget -y && wget https://raw.githubusercontent.com/jorexdeveloper/Install-NetHunter-Termux/main/install-nethunter.sh && bash install-nethunter.sh
 ```
 
+**OR**
+
+```
+apt update -y && apt upgrade -y && apt install curl && curl -sL https://raw.githubusercontent.com/jorexdeveloper/Install-NetHunter-Termux/main/install-nethunter.sh | bash
+```
+
 The program also displays help information with option (`-h | --help`) to guide you further.
 
 ```
