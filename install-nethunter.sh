@@ -141,23 +141,25 @@ function check_fs() {
 # Sets KEEP_IMAGE
 function get_rootfs() {
 	unset KEEP_IMAGE
-	if [ -z $KEEP_CHROOT ] && [ -f ${IMAGE_NAME} ]; then
-		if ask "Existing image file found. Delete and download a new one." "N"; then
-			printf "${RED}[${YELLOW}!${RED}] Deleting image file...${RESET}\n"
-			rm -f ${IMAGE_NAME}
-		else
-			printf "${YELLOW}[${RED}!${YELLOW}] Using existing rootfs archive${RESET}\n"
-			KEEP_IMAGE=1
-			return
+	if [ -z ${KEEP_CHROOT} ]; then
+		if [ -f ${IMAGE_NAME} ]; then
+			if ask "Existing image file found. Delete and download a new one." "N"; then
+				printf "${RED}[${YELLOW}!${RED}] Deleting image file...${RESET}\n"
+				rm -f ${IMAGE_NAME}
+			else
+				printf "${YELLOW}[${RED}!${YELLOW}] Using existing rootfs archive${RESET}\n"
+				KEEP_IMAGE=1
+				return
+			fi
 		fi
+		# Download rootfs
+		printf "${CYAN}[${YELLOW}*${CYAN}] Downloading rootfs...${RESET}\n"
+		wget ${EXTRA_ARGS} --continue "${BASE_URL}/${IMAGE_NAME}"
+		# Download SHA
+		printf "${CYAN}[${YELLOW}*${CYAN}] Downloading SHA... ${RESET}\n"
+		[ -f ${SHA_NAME} ] && rm -f ${SHA_NAME}
+		wget ${EXTRA_ARGS} --continue "${BASE_URL}/${SHA_NAME}"
 	fi
-	# Download rootfs
-	printf "${CYAN}[${YELLOW}*${CYAN}] Downloading rootfs...${RESET}\n"
-	wget ${EXTRA_ARGS} --continue "${BASE_URL}/${IMAGE_NAME}"
-	# Download SHA
-	printf "${CYAN}[${YELLOW}*${CYAN}] Downloading SHA... ${RESET}\n"
-	[ -f ${SHA_NAME} ] && rm -f ${SHA_NAME}
-	wget ${EXTRA_ARGS} --continue "${BASE_URL}/${SHA_NAME}"
 }
 
 # Verifies SHA
@@ -184,67 +186,36 @@ function create_launcher() {
 	NH_LAUNCHER=${HOME}/bin/nethunter
 	NH_SHORTCUT=${HOME}/bin/nh
 	cat > $NH_LAUNCHER <<- EOF
-		#!/data/data/com.termux/files/usr/bin/bash -e
+#!/data/data/com.termux/files/usr/bin/bash -e
 
-		cd \${HOME}
+# For enabling audio playing in distro, for rooted user: pulseaudio --start --system
+pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
 
-		# For enabling audio playing in distro, for rooted user: pulseaudio --start --system
-		pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
+# unset LD_PRELOAD in case termux-exec is installed
+unset LD_PRELOAD
 
-		# unset LD_PRELOAD in case termux-exec is installed
-		unset LD_PRELOAD
+# Workaround for Libreoffice, also needs to bind a fake /proc/version
+[ ! -f kali-armhf/root/.version ] && touch kali-armhf/root/.version
 
-		# Workaround for Libreoffice, also needs to bind a fake /proc/version
-		[ ! -f ${CHROOT}/root/.version ] && touch ${CHROOT}/root/.version
-
-		# Process command line args
-		for option in \$@; do
-		    case \${option} in
-		    "-r"|"--root") ROOT=1; shift ;;
-		    esac
-		done
-
-		# Set user
-		if [ -z \${ROOT}  ] && grep -q "kali" "${CHROOT}/etc/passwd"; then
-		    # Set default user
-		    user="kali"
-		    home="/home/\${user}"
-		else
-		    # Set root user
-		    user="root"
-		    home="/\${user}"
-		fi
-
-		# Command to start disto
-		command="proot \\
-		         --link2symlink \\
-		         --kill-on-exit \\
-		         --root-id \\
-		         --rootfs=${CHROOT} \\
-		         --bind=/dev \\
-		         --bind=/proc \\
-		         --bind=${CHROOT}/root:/dev/shm \\
-		         --bind=\$([ ! -z "\${INTERNAL_STORAGE}" ] && echo "\${INTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd0 \\
-		         --bind=\$([ ! -z "\${EXTERNAL_STORAGE}" ] && echo "\${EXTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd1 \\
-		         --cwd=\$home \\
-		            /usr/bin/env -i \\
-		            HOME=\${home} \\
-		            PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/usr/games:/usr/local/games \\
-		            TERM=\${TERM} \\
-		            LANG=C.UTF-8 \\
-		            /usr/bin/login \\
-		        "
-
-		# Command to execute in distro
-		cmd="\$@"
-
-		if [ "\$#" == "0" ]; then
-		    exec \$command # Without args, start interactive shell
-		else
-		    \$command -c "\$cmd" # With args, execute them and exit
-		fi
+# Command to start distro
+command="proot \
+         --link2symlink \
+             --kill-on-exit \
+         --root-id \
+         --rootfs=\${HOME}/kali-armhf \
+          --bind=/dev \
+          --bind=/proc \
+         --bind=kali-armhf/root:/dev/shm \
+         --bind=\$([ ! -z "\${INTERNAL_STORAGE}" ] && echo "\${INTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd0 \
+         --bind=\$([ ! -z "\${EXTERNAL_STORAGE}" ] && echo "\${EXTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd1 \
+         --cwd=/ \
+             /usr/bin/env -i \
+            TERM=\${TERM} \
+            LANG=C.UTF-8 \
+            /usr/bin/login \
+        "
+exec \${command}
 	EOF
-
 	chmod 700 $NH_LAUNCHER
 	if [ -L ${NH_SHORTCUT} ]; then
 		rm -f ${NH_SHORTCUT}
@@ -386,12 +357,15 @@ function cleanup() {
 # Prints usage instructions
 function print_help() {
 	printf "\n\n"
-	printf "${GREEN}[${YELLOW}=${GREEN}] Kali NetHunter for Termux installed successfully${RESET}\n\n"
+	printf "${GREEN}[${YELLOW}=${GREEN}] Kali NetHunter installed successfully${RESET}\n\n"
 	printf "${GREEN}[${YELLOW}*${GREEN}] Usage:${RESET}\n"
-	printf "${GREEN}[${YELLOW}+${GREEN}] nethunter             # To start NetHunter CLI.${RESET}\n"
-	printf "${GREEN}[${YELLOW}+${GREEN}] nethunter -r | --root # To run NetHunter as root user.${RESET}\n"
-	printf "${GREEN}[${YELLOW}+${GREEN}] nh                    # Shortcut for nethunter command.${RESET}\n"
-	printf "${GREEN}[${YELLOW}+${GREEN}] Use 'vnc' in NetHunter to launch VNC Server${RESET}\n\n"
+	printf "${GREEN}[${YELLOW}+${GREEN}] ${YELLOW}nh${GREEN} | ${YELLOW}nethunter${RESET}\n"
+	printf "${GREEN}[${YELLOW}+${GREEN}]         Start NetHunter CLI.${RESET}\n\n"
+	printf "${GREEN}[${YELLOW}+${GREEN}] Use '${YELLOW}vnc${GREEN}' in NetHunter to launch VNC Server${RESET}\n\n"
+	printf "${GREEN}[${YELLOW}*${GREEN}] Login Information:${RESET}\n"
+	printf "${GREEN}[${YELLOW}*${GREEN}] User: ${YELLOW}kali${RESET}\n"
+	printf "${GREEN}[${YELLOW}*${GREEN}] Password: ${YELLOW}kali${RESET}\n"
+	printf "${GREEN}[${YELLOW}*${GREEN}] Visit https://github.com/jorexdeveloper/Install-NetHunter-Termux for documentation.${RESET}\n"
 }
 
 # Prompts parsed message and returns response as 0/1
@@ -426,28 +400,35 @@ function ask() {
 
 # General prompt for all tweaks
 function tweaks() {
+	printf "\n${CYAN}[${YELLOW}*${CYAN}] Making some tweaks.${RESET}\n"
 	## These descriptions must be in order of the args supplied in the loop
 	local bug_descriptions=(
-		"Prevents creation of links in read only file system"
-		"Fixes sudo and adds user 'kali' to sudoers list"
-		"Sets the pulse audio server to enable audio output"
-		"Sets a static display across the system"
-		"Sets variables required by jdk (For ARMhf only)"
-		"Sets dns settings"
-		"Changes uid and gid of user 'kali' to that of termux"
+		"Granting root permissions to user kali."
+		"Preventing creation of links in read only file system."
+		"Setting static display for the system."
+		"Settting pulse audio server."
+		"Setting DNS settings."
+		"Setting up jdk variables."
 	)
 	local descrnum=0
-	for i in tweak_profile_bash tweak_sudo tweak_audio tweak_display tweak_java tweak_dns tweak_uid; do
-		if printf "\n${CYAN}[${YELLOW}*${CYAN}] ${bug_descriptions[${descrnum}]}${RESET}" && ask "${i}:" "Y"; then
-			if ${i} &> /dev/null; then
-				printf "${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n"
-			else
-				printf "${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
-			fi
+	for i in tweak_sudo tweak_profile_bash tweak_display tweak_audio tweak_dns tweak_java; do
+		printf "\n${CYAN}[${YELLOW}*${CYAN}] ${bug_descriptions[${descrnum}]}${RESET}"
+		if ${i} &> /dev/null; then
+			printf "\n${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n"
+		else
+			printf "${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
 		fi
 		((descrnum++))
 	done
-	if ask "Set Time Zone and Local Time." "Y"; then
+	local descrnum=0
+	if ask "Set UID and GID for user kali to match that of Termux." "N"; then
+		if tweak_uid &> /dev/null; then
+			printf "${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n"
+		else
+			printf "${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
+		fi
+	fi
+	if ask "Set Time Zone and Local Time." "N"; then
 		tweak_zoneinfo
 	fi
 }
@@ -493,6 +474,7 @@ function tweak_java() {
 		EOF
 	else
 		printf "${RED}[${YELLOW}!${RED}] Unknown architecture.${RESET}\n"
+		return 1
 	fi
 }
 
@@ -519,8 +501,8 @@ function tweak_zoneinfo() {
 function tweak_uid() {
 	local USRID=$(id -u)
 	local GRPID=$(id -g)
-	nethunter -r usermod -u $USRID kali &> /dev/null
-	nethunter -r groupmod -g $GRPID kali &> /dev/null
+	nethunter -p kali kali usermod -u $USRID kali &> /dev/null
+	nethunter -p kali kali groupmod -g $GRPID kali &> /dev/null
 }
 
 ################################################################################
@@ -575,10 +557,8 @@ extract_rootfs
 create_launcher
 create_vnc_launcher
 cleanup
-printf "\n${GREEN}[${YELLOW}*${GREEN}] Installation process complete.${RESET}\n"
-
-# Make some tweaks
 tweaks
+printf "\n${GREEN}[${YELLOW}*${GREEN}] Installation process complete.${RESET}\n"
 
 # Print a help message
 print_help
