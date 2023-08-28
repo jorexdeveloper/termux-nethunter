@@ -183,9 +183,10 @@ function extract_rootfs() {
 
 # Creates a script to launch NetHunter
 function create_launcher() {
+	printf "\n${C}[${Y}*${C}] Creating NetHunter launcher...${N}\n"
 	NH_LAUNCHER=${HOME}/bin/nethunter
 	NH_SHORTCUT=${HOME}/bin/nh
-	cat > $NH_LAUNCHER <<- EOF
+	mkdir -p $(dirname ${NH_LAUNCHER}) && cat > $NH_LAUNCHER <<- EOF
 		#!/data/data/com.termux/files/usr/bin/bash -e
 
 		# For enabling audio playing in distro, for rooted user: pulseaudio --start --system
@@ -227,6 +228,7 @@ function create_launcher() {
 
 # Creates a script to start vnc for NetHunter
 function create_vnc_launcher() {
+	printf "\n${C}[${Y}*${C}] Creating VNC launcher...${N}\n"
 	mkdir -p $CHROOT/usr/local/bin && VNC_LAUNCHER=${CHROOT}/usr/local/bin/vnc && cat > $VNC_LAUNCHER <<- EOF
 		#!/bin/bash -e
 
@@ -591,9 +593,7 @@ extract_rootfs
 create_launcher
 create_vnc_launcher
 cleanup
-# Make some tweaks
 tweaks
 printf "\n${G}[${Y}*${G}] Installation process complete.${N}\n"
 
-# Print a help message
 print_help
