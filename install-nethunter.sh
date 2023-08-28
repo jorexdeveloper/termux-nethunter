@@ -150,14 +150,14 @@ function get_rootfs() {
 			KEEP_IMAGE=1
 			return
 		fi
-		# Download rootfs
-		printf "${CYAN}[${YELLOW}*${CYAN}] Downloading rootfs...${RESET}\n"
-		wget ${EXTRA_ARGS} --continue "${BASE_URL}/${IMAGE_NAME}"
-		# Download SHA
-		printf "${CYAN}[${YELLOW}*${CYAN}] Downloading SHA... ${RESET}\n"
-		[ -f ${SHA_NAME} ] && rm -f ${SHA_NAME}
-		wget ${EXTRA_ARGS} --continue "${BASE_URL}/${SHA_NAME}"
 	fi
+	# Download rootfs
+	printf "${CYAN}[${YELLOW}*${CYAN}] Downloading rootfs...${RESET}\n"
+	wget ${EXTRA_ARGS} --continue "${BASE_URL}/${IMAGE_NAME}"
+	# Download SHA
+	printf "${CYAN}[${YELLOW}*${CYAN}] Downloading SHA... ${RESET}\n"
+	[ -f ${SHA_NAME} ] && rm -f ${SHA_NAME}
+	wget ${EXTRA_ARGS} --continue "${BASE_URL}/${SHA_NAME}"
 }
 
 # Verifies SHA
@@ -232,7 +232,7 @@ function create_launcher() {
 		            PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/usr/games:/usr/local/games \\
 		            TERM=\${TERM} \\
 		            LANG=C.UTF-8 \\
-		            sudo -u \${user} /usr/bin/bash --login \\
+		            /usr/bin/login \\
 		        "
 
 		# Command to execute in distro
