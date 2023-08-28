@@ -29,39 +29,39 @@
 
 # Prints version and exits
 function print_version() {
-	printf "${YELLOW}Kali NetHunter Installer${CYAN}, version ${VERSION}${RESET}\n"
-	printf "${CYAN}Copyright (C) 2023 Jore.${RESET}\n"
-	printf "${CYAN}License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>${RESET}\n"
+	printf "${Y}Kali NetHunter Installer${C}, version ${VERSION}${N}\n"
+	printf "${C}Copyright (C) 2023 Jore.${N}\n"
+	printf "${C}License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>${N}\n"
 	printf "\n"
-	printf "${CYAN}This is free software; you are free to change and redistribute it.${RESET}\n"
-	printf "${CYAN}There is NO WARRANTY, to the extent permitted by law.${RESET}\n"
+	printf "${C}This is free software; you are free to change and redistribute it.${N}\n"
+	printf "${C}There is NO WARRANTY, to the extent permitted by law.${N}\n"
 }
 
 # Prints usage of program
 function print_usage() {
-	printf "${CYAN}Usage: ${YELLOW}$(basename $0) [--no-check-certificate] [-h,--help] [-v,--version]${RESET}\n"
-	printf "${CYAN}Options:${RESET}\n"
-	printf "${CYAN}  --no-check-certificate${RESET}\n"
-	printf "${CYAN}          This option is passed to 'wget' while downloading files.${RESET}\n"
-	printf "${CYAN}  -h, --help${RESET}\n"
-	printf "${CYAN}          Print this message and exit.${RESET}\n"
-	printf "${CYAN}  -v. --version${RESET}\n"
-	printf "${CYAN}          Print version and exit.${RESET}\n"
+	printf "${C}Usage: ${Y}$(basename $0) [--no-check-certificate] [-h,--help] [-v,--version]${N}\n"
+	printf "${C}Options:${N}\n"
+	printf "${C}  --no-check-certificate${N}\n"
+	printf "${C}          This option is passed to 'wget' while downloading files.${N}\n"
+	printf "${C}  -h, --help${N}\n"
+	printf "${C}          Print this message and exit.${N}\n"
+	printf "${C}  -v. --version${N}\n"
+	printf "${C}          Print version and exit.${N}\n"
 }
 
 # Prints Kali banner
 function print_banner() {
 	clear
-	printf "${GREEN}\t╻┏ ┏━┓╻  ╻   ┏┓╻┏━╸╺┳╸╻ ╻╻ ╻┏┓╻╺┳╸┏━╸┏━┓${RESET}\n"
-	printf "${GREEN}\t┣┻┓┣━┫┃  ┃╺━╸┃┗┫┣╸  ┃ ┣━┫┃ ┃┃┗┫ ┃ ┣╸ ┣┳┛${RESET}\n"
-	printf "${GREEN}\t╹ ╹╹ ╹┗━╸╹   ╹ ╹┗━╸ ╹ ╹ ╹┗━┛╹ ╹ ╹ ┗━╸╹┗╸${RESET}\n"
-	printf "${YELLOW}\t\t\tby Jore${RESET}\n\n"
+	printf "${G}\t╻┏ ┏━┓╻  ╻   ┏┓╻┏━╸╺┳╸╻ ╻╻ ╻┏┓╻╺┳╸┏━╸┏━┓${N}\n"
+	printf "${G}\t┣┻┓┣━┫┃  ┃╺━╸┃┗┫┣╸  ┃ ┣━┫┃ ┃┃┗┫ ┃ ┣╸ ┣┳┛${N}\n"
+	printf "${G}\t╹ ╹╹ ╹┗━╸╹   ╹ ╹┗━╸ ╹ ╹ ╹┗━┛╹ ╹ ╹ ┗━╸╹┗╸${N}\n"
+	printf "${Y}\t\t\tby Jore${N}\n\n"
 }
 
 # Gets system architecture or exits script if unsupported
 # Sets SYS_ARCH LIB_GCC_PATH
 function check_arch() {
-	printf "${CYAN}\n[${YELLOW}*${CYAN}] Checking device architecture...${RESET}\n"
+	printf "${C}\n[${Y}*${C}] Checking device architecture...${N}\n"
 	case $(getprop ro.product.cpu.abi) in
 		arm64-v8a)
 			SYS_ARCH=arm64
@@ -72,7 +72,7 @@ function check_arch() {
 			LIB_GCC_PATH=/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1
 			;;
 		*)
-			printf "${RED}[${YELLOW}!${RED}] Unsupported architecture\n\n${RESET}\n"
+			printf "${R}[${Y}!${R}] Unsupported architecture\n\n${N}\n"
 			exit 1
 			;;
 	esac
@@ -80,17 +80,17 @@ function check_arch() {
 
 # Installs required dependencies
 function check_dependencies() {
-	printf "${CYAN}\n[${YELLOW}*${CYAN}] Checking package dependencies...${RESET}\n"
+	printf "${C}\n[${Y}*${C}] Checking package dependencies...${N}\n"
 	## Workaround for termux-app issue #1283 (https://github.com/termux/termux-app/issues/1283)
 	## apt update -y &> /dev/null
 	apt-get update -y &> /dev/null || apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade -y &> /dev/null
 	for i in wget proot tar pulseaudio; do
 		if [ -e $PREFIX/bin/$i ]; then
-			printf "${GREEN}[${YELLOW}=${GREEN}] $i is OK${RESET}\n"
+			printf "${G}[${Y}=${G}] $i is OK${N}\n"
 		else
-			printf "${CYAN}[${YELLOW}*${CYAN}] Installing ${i}...${RESET}\n"
+			printf "${C}[${Y}*${C}] Installing ${i}...${N}\n"
 			apt install -y $i &> /dev/null || {
-				printf "${RED}[${YELLOW}!${RED}] Failed to install ${i}.\n Exiting.\n${RESET}"
+				printf "${R}[${Y}!${R}] Failed to install ${i}.\n Exiting.\n${N}"
 				exit 1
 			}
 		fi
@@ -101,21 +101,21 @@ function check_dependencies() {
 # Sets CHROOT IMAGE_NAME SHA_NAME
 function select_image() {
 	if [[ ${SYS_ARCH} == "arm64" ]]; then
-		printf "\n${GREEN}  [${YELLOW}1${GREEN}] ${CYAN}NetHunter ARM64 (full)${RESET}\n"
-		printf "\n${GREEN}  [${YELLOW}2${GREEN}] ${CYAN}NetHunter ARM64 (mini)${RESET}\n"
-		printf "\n${GREEN}  [${YELLOW}3${GREEN}] ${CYAN}NetHunter ARM64 (nano)${RESET}\n"
+		printf "\n${G}  [${Y}1${G}] ${C}NetHunter ARM64 (full)${N}\n"
+		printf "\n${G}  [${Y}2${G}] ${C}NetHunter ARM64 (mini)${N}\n"
+		printf "\n${G}  [${Y}3${G}] ${C}NetHunter ARM64 (nano)${N}\n"
 	elif [[ ${SYS_ARCH} == "armhf" ]]; then
-		printf "\n${GREEN}  [${YELLOW}1${GREEN}] ${CYAN}NetHunter ARMhf (full)${RESET}\n"
-		printf "\n${GREEN}  [${YELLOW}2${GREEN}] ${CYAN}NetHunter ARMhf (mini)${RESET}\n"
-		printf "\n${GREEN}  [${YELLOW}3${GREEN}] ${CYAN}NetHunter ARMhf (nano)${RESET}\n"
+		printf "\n${G}  [${Y}1${G}] ${C}NetHunter ARMhf (full)${N}\n"
+		printf "\n${G}  [${Y}2${G}] ${C}NetHunter ARMhf (mini)${N}\n"
+		printf "\n${G}  [${Y}3${G}] ${C}NetHunter ARMhf (nano)${N}\n"
 	fi
-	printf "${CYAN}\n[${YELLOW}*${CYAN}] Enter the image you want to install: ${RESET}"
+	printf "${C}\n[${Y}*${C}] Enter the image you want to install: ${N}"
 	read -n 1 CHOICE 2> /dev/null
 	case $CHOICE in
-		1) printf "\n${GREEN}[${YELLOW}=${GREEN}] Full selected${RESET}\n" && CHOICE="full" ;;
-		2) printf "\n${GREEN}[${YELLOW}=${GREEN}] Mini selected${RESET}\n" && CHOICE="minimal" ;;
-		3) printf "\n${GREEN}[${YELLOW}=${GREEN}] Nano selected${RESET}\n" && CHOICE="nano" ;;
-		*) printf "\n${GREEN}[${YELLOW}=${GREEN}] Mini selected${RESET}\n" && CHOICE="minimal" ;;
+		1) printf "\n${G}[${Y}=${G}] Full selected${N}\n" && CHOICE="full" ;;
+		2) printf "\n${G}[${Y}=${G}] Mini selected${N}\n" && CHOICE="minimal" ;;
+		3) printf "\n${G}[${Y}=${G}] Nano selected${N}\n" && CHOICE="nano" ;;
+		*) printf "\n${G}[${Y}=${G}] Mini selected${N}\n" && CHOICE="minimal" ;;
 	esac
 	CHROOT="kali-${SYS_ARCH}"
 	IMAGE_NAME="kalifs-${SYS_ARCH}-${CHOICE}.tar.xz"
@@ -128,10 +128,10 @@ function check_fs() {
 	unset KEEP_CHROOT
 	if [ -d ${CHROOT} ]; then
 		if ask "Existing rootfs directory found. Delete and create a new one?" "N"; then
-			printf "${RED}[${YELLOW}!${RED}] Deleting rootfs directory...${RESET}\n"
+			printf "${R}[${Y}!${R}] Deleting rootfs directory...${N}\n"
 			rm -rf ${CHROOT}
 		else
-			printf "${YELLOW}[${RED}!${YELLOW}] Using existing rootfs directory.${RESET}\n"
+			printf "${Y}[${R}!${Y}] Using existing rootfs directory.${N}\n"
 			KEEP_CHROOT=1
 		fi
 	fi
@@ -144,19 +144,19 @@ function get_rootfs() {
 	if [ -z ${KEEP_CHROOT} ]; then
 		if [ -f ${IMAGE_NAME} ]; then
 			if ask "Existing image file found. Delete and download a new one." "N"; then
-				printf "${RED}[${YELLOW}!${RED}] Deleting image file...${RESET}\n"
+				printf "${R}[${Y}!${R}] Deleting image file...${N}\n"
 				rm -f ${IMAGE_NAME}
 			else
-				printf "${YELLOW}[${RED}!${YELLOW}] Using existing rootfs archive${RESET}\n"
+				printf "${Y}[${R}!${Y}] Using existing rootfs archive${N}\n"
 				KEEP_IMAGE=1
 				return
 			fi
 		fi
 		# Download rootfs
-		printf "${CYAN}[${YELLOW}*${CYAN}] Downloading rootfs...${RESET}\n"
+		printf "${C}[${Y}*${C}] Downloading rootfs...${N}\n"
 		wget ${EXTRA_ARGS} --continue "${BASE_URL}/${IMAGE_NAME}"
 		# Download SHA
-		printf "${CYAN}[${YELLOW}*${CYAN}] Downloading SHA... ${RESET}\n"
+		printf "${C}[${Y}*${C}] Downloading SHA... ${N}\n"
 		[ -f ${SHA_NAME} ] && rm -f ${SHA_NAME}
 		wget ${EXTRA_ARGS} --continue "${BASE_URL}/${SHA_NAME}"
 	fi
@@ -165,9 +165,9 @@ function get_rootfs() {
 # Verifies SHA
 function verify_sha() {
 	if [ -z $KEEP_CHROOT ]; then
-		printf "\n${CYAN}[${YELLOW}*${CYAN}] Verifying integrity of rootfs archive...${RESET}\n"
+		printf "\n${C}[${Y}*${C}] Verifying integrity of rootfs archive...${N}\n"
 		sha512sum -c $SHA_NAME &> /dev/null || {
-			printf "${RED}[${YELLOW}!${RED}] Rootfs corrupted. Please run this installer again or download the file manually.${RESET}\n"
+			printf "${R}[${Y}!${R}] Rootfs corrupted. Please run this installer again or download the file manually.${N}\n"
 			exit 1
 		}
 	fi
@@ -176,7 +176,7 @@ function verify_sha() {
 # Extracts rootfs if it was downloaded
 function extract_rootfs() {
 	if [ -z $KEEP_CHROOT ]; then
-		printf "\n${CYAN}[${YELLOW}*${CYAN}] Extracting rootfs...${RESET}\n"
+		printf "\n${C}[${Y}*${C}] Extracting rootfs...${N}\n"
 		proot --link2symlink tar -xf $IMAGE_NAME 2> /dev/null
 	fi
 }
@@ -231,14 +231,13 @@ function create_vnc_launcher() {
 		#!/bin/bash -e
 
 		depth=24
-		display=1
 		width=720
 		height=1600
 		orientation=landscape
+		display=\$(echo \${DISPLAY} | cut -d : -f 2)
 
 		function check_user() {
 		    if [ "\${USER}" = "root" ] || [ "\$EUID" -eq 0 ] || [ "\$(whoami)" = "root" ]; then
-		        display=0 && export DISPLAY=\${display}
 		        read -p "[!] Warning: You are starting VNC as root user, some applications are not meant to be run as root and may not work properly. Do you want to continue? y/N" -n 1 REPLY && echo && case \${REPLY} in y|Y) ;; *) exit 1 ;; esac
 		    fi
 		}
@@ -277,7 +276,7 @@ function create_vnc_launcher() {
 		        export HOME=\${HOME}
 		        export USER=\${USER}
 		        LD_PRELOAD=${LIB_GCC_PATH}
-		        # You can start with nohup
+		        # You can use nohup
 		        vncserver :\$display -geometry \$geometry -depth \$depth -name remote-desktop && echo -e "\n[*] VNC Server started successfully."
 		    else
 		        set_passwd && start_server
@@ -285,7 +284,7 @@ function create_vnc_launcher() {
 		}
 
 		function kill_server() {
-		    [ -f "/bin/pulseaudio" ] && pulseaudio --kill || pkill pulseaudio
+		    # [ -f "/bin/pulseaudio" ] && pulseaudio --kill || pkill pulseaudio
 		    clean_tmp
 		    vncserver -clean -kill :\$display
 		    return \$?
@@ -312,8 +311,7 @@ function create_vnc_launcher() {
 		##               Entry Point              ##
 		############################################
 
-		[[ "\$@" == "" ]] && args="--start" || args="\$@"
-		for option in \$args; do
+		for option in \$@; do
 		    case \$option in
 		        "--potrait")
 		            orientation=potrait
@@ -323,12 +321,13 @@ function create_vnc_launcher() {
 		            ;;
 		        "-p"|"--password")
 		            set_passwd
+		            exit
 		            ;;
 		        "-s"|"--start")
-		            check_user && clean_tmp && set_geometry && start_server
 		            ;;
 		        "-k"|"--kill")
 		            kill_server
+		            exit
 		            ;;
 		        "-h"|"--help")
 		            print_usage
@@ -341,6 +340,7 @@ function create_vnc_launcher() {
 		            ;;
 		    esac
 		done
+		check_user && clean_tmp && set_geometry && start_server
 		unset depth display width height name orientation geometry
 	EOF
 	chmod 700 $VNC_LAUNCHER
@@ -357,15 +357,15 @@ function cleanup() {
 # Prints usage instructions
 function print_help() {
 	printf "\n\n"
-	printf "${GREEN}[${YELLOW}=${GREEN}] Kali NetHunter installed successfully${RESET}\n\n"
-	printf "${GREEN}[${YELLOW}*${GREEN}] Usage:${RESET}\n"
-	printf "${GREEN}[${YELLOW}+${GREEN}] ${YELLOW}nh${GREEN} | ${YELLOW}nethunter${RESET}\n"
-	printf "${GREEN}[${YELLOW}+${GREEN}]         Start NetHunter CLI.${RESET}\n\n"
-	printf "${GREEN}[${YELLOW}+${GREEN}] Use '${YELLOW}vnc${GREEN}' in NetHunter to launch VNC Server${RESET}\n\n"
-	printf "${GREEN}[${YELLOW}*${GREEN}] Login Information:${RESET}\n"
-	printf "${GREEN}[${YELLOW}*${GREEN}] User: ${YELLOW}kali${RESET}\n"
-	printf "${GREEN}[${YELLOW}*${GREEN}] Password: ${YELLOW}kali${RESET}\n"
-	printf "${GREEN}[${YELLOW}*${GREEN}] Visit https://github.com/jorexdeveloper/Install-NetHunter-Termux for documentation.${RESET}\n"
+	printf "${G}[${Y}=${G}] Kali NetHunter installed successfully${N}\n\n"
+	printf "${G}[${Y}*${G}] Usage:${N}\n"
+	printf "${G}[${Y}+${G}] ${Y}nh${G} | ${Y}nethunter${N}\n"
+	printf "${G}[${Y}+${G}]         Start NetHunter CLI.${N}\n\n"
+	printf "${G}[${Y}+${G}] Use '${Y}vnc${G}' in NetHunter to launch VNC Server${N}\n\n"
+	printf "${G}[${Y}*${G}] Login Information:${N}\n"
+	printf "${G}[${Y}*${G}] User: ${Y}kali${N}\n"
+	printf "${G}[${Y}*${G}] Password: ${Y}kali${N}\n"
+	printf "${G}[${Y}*${G}] Visit https://github.com/jorexdeveloper/Install-NetHunter-Termux for documentation.${N}\n"
 }
 
 # Prompts parsed message and returns response as 0/1
@@ -386,9 +386,9 @@ function ask() {
 	local retries=3
 	while true; do
 		if [ ${retries} -eq 3 ]; then
-			printf "\r${CYAN}[${YELLOW}?${CYAN}] ${1} ${prompt}: ${RESET}"
+			printf "\r${C}[${Y}?${C}] ${1} ${prompt}: ${N}"
 		else
-			printf "\r${RED}[${YELLOW}${retries}${RED}] ${1} ${prompt}: ${RESET}"
+			printf "\r${R}[${Y}${retries}${R}] ${1} ${prompt}: ${N}"
 		fi
 		read -n 1 reply
 		# Set default value?
@@ -412,7 +412,7 @@ function ask() {
 
 # General prompt for all tweaks
 function tweaks() {
-	printf "\n${CYAN}[${YELLOW}*${CYAN}] Making some tweaks.${RESET}\n"
+	printf "\n${C}[${Y}*${C}] Making some tweaks.${N}\n"
 	## These descriptions must be in order of the args supplied in the loop
 	local bug_descriptions=(
 		"Granting root permissions to user kali."
@@ -424,27 +424,27 @@ function tweaks() {
 	)
 	local descrnum=0
 	for i in tweak_sudo tweak_profile_bash tweak_display tweak_audio tweak_dns tweak_java; do
-		printf "\n${CYAN}[${YELLOW}*${CYAN}] ${bug_descriptions[${descrnum}]}${RESET}"
+		printf "\n${C}[${Y}*${C}] ${bug_descriptions[${descrnum}]}${N}"
 		if ${i} &> /dev/null; then
-			printf "\n${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n"
+			printf "\n${G}[${Y}=${G}] Done.${N}\n"
 		else
-			printf "\n${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
+			printf "\n${R}[${Y}!${R}] Failed.${N}\n"
 		fi
 		((descrnum++))
 	done
-	TMP_LOGIN_COMMAND="proot --link2symlink --root-id --rootfs=${CHROOT} --bind=${CHROOT}/root:/dev/shm --cwd=/"
+	unset LD_PRELOAD && TMP_LOGIN_COMMAND="proot --link2symlink --root-id --rootfs=${CHROOT} --bind=${CHROOT}/root:/dev/shm --cwd=/"
 	if ask "Set default shell for user kali." "N"; then
-		tweak_default_shell && printf "${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n" || printf "${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
+		tweak_default_shell && printf "${G}[${Y}=${G}] Done.${N}\n" || printf "${R}[${Y}!${R}] Failed.${N}\n"
 	fi
 	if ask "Set UID and GID for user kali to match that of Termux." "N"; then
 		if tweak_uid &> /dev/null; then
-			printf "${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n"
+			printf "${G}[${Y}=${G}] Done.${N}\n"
 		else
-			printf "${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
+			printf "${R}[${Y}!${R}] Failed.${N}\n"
 		fi
 	fi
 	if ask "Set Time Zone and Local Time." "N"; then
-		tweak_zoneinfo && printf "${GREEN}[${YELLOW}=${GREEN}] Done.${RESET}\n" || printf "${RED}[${YELLOW}!${RED}] Failed.${RESET}\n"
+		tweak_zoneinfo && printf "${G}[${Y}=${G}] Done.${N}\n" || printf "${R}[${Y}!${R}] Failed.${N}\n"
 	fi
 }
 
@@ -472,7 +472,14 @@ function tweak_audio() {
 
 # Tweak: Sets a static display across the system
 function tweak_display() {
-	echo -e "export DISPLAY=:1" > $CHROOT/etc/profile.d/display.sh
+	echo -e ""
+	cat > $CHROOT/etc/profile.d/display.sh <<- EOF
+		if [ "\${USER}" = "root" ] || [ "\$EUID" -eq 0 ] || [ "\$(whoami)" = "root" ]; then
+		    export DISPLAY=:0
+		else
+		    export DISPLAY=:1
+		fi
+	EOF
 }
 
 # Tweak: Sets variables required by jdk
@@ -488,7 +495,7 @@ function tweak_java() {
 			export PATH=\$JAVA_HOME/bin:\$PATH
 		EOF
 	else
-		printf "${RED}[${YELLOW}!${RED}] Unknown architecture.${RESET}\n"
+		printf "${R}[${Y}!${R}] Unknown architecture.${N}\n"
 		return 1
 	fi
 }
@@ -503,24 +510,24 @@ function tweak_dns() {
 
 # Tweak: Sets the default shell for user 'kali'
 function tweak_default_shell() {
-	local shells=("bash" "zsh" "fish" "dash" "powershell" "tcsh" "csh" "ksh")
-	printf "\n${CYAN}[${YELLOW}*${CYAN}] Enter default shell for user ${YELLOW}kali${CYAN}. i.e bash${RESET}\n"
-	printf "\n${CYAN}[${YELLOW}?${CYAN}] Shell: ${RESET}" && read shell
+	local shells=("bash" "zsh" "fish" "dash" "tcsh" "csh" "ksh")
+	printf "\n${C}[${Y}*${C}] Enter default shell for user ${Y}kali${C}. i.e bash${N}\n"
+	printf "\n${C}[${Y}?${C}] Shell: ${N}" && read shell
 	if [[ "${shells[*]}" == *"${shell}"* ]] && [ -f "$CHROOT/usr/bin/${shell}" ]; then
 		${TMP_LOGIN_COMMAND} /usr/bin/chsh -s /usr/bin/${shell} kali
 	else
-		printf "\n${RED}[${YELLOW}!${RED}] '${shell}' not found.${RESET}" && ask "Try again." "N" && tweak_default_shell
+		printf "\n${R}[${Y}!${R}] '${shell}' not found.${N}" && ask "Try again." "N" && tweak_default_shell
 	fi
 }
 
 # Tweak: Sets Time Zone and Local Time
 function tweak_zoneinfo() {
-	printf "\n${CYAN}[${YELLOW}*${CYAN}] Enter time zone i.e ${YELLOW}America/New_York${CYAN}.${RESET}\n"
-	printf "\n${CYAN}[${YELLOW}?${CYAN}] Zone: ${RESET}" && read zone
+	printf "\n${C}[${Y}*${C}] Enter time zone i.e ${Y}America/New_York${C}.${N}\n"
+	printf "\n${C}[${Y}?${C}] Zone: ${N}" && read zone
 	if [ -f "$CHROOT/usr/share/zoneinfo/${zone}" ]; then
 		echo "${zone}" > ${CHROOT}/etc/timezone && ${TMP_LOGIN_COMMAND} /usr/bin/ln -fs -T /usr/share/zoneinfo/${zone} /etc/localtime
 	else
-		printf "\n${RED}[${YELLOW}!${RED}] '${zone}' not found.${RESET}" && ask "Try again." "N" && tweak_zoneinfo
+		printf "\n${R}[${Y}!${R}] '${zone}' not found.${N}" && ask "Try again." "N" && tweak_zoneinfo
 	fi
 }
 
@@ -540,11 +547,11 @@ BASE_URL="https://kali.download/nethunter-images/current/rootfs"
 LIB_GCC_PATH="/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1"
 VERSION="1.0"
 USERNAME="kali"
-RED="\e[1;31m"
-GREEN="\e[1;32m"
-YELLOW="\e[1;33m"
-CYAN="\e[1;36m"
-RESET="\e[0m"
+R="\e[1;31m"
+G="\e[1;32m"
+Y="\e[1;33m"
+C="\e[1;36m"
+N="\e[0m"
 
 # Proces command line args
 for option in $@; do
@@ -562,7 +569,7 @@ for option in $@; do
 			exit
 			;;
 		*)
-			printf "${RED}[${YELLOW}!${RED}]Unknown option '${option}'.${RESET}\n"
+			printf "${R}[${Y}!${R}]Unknown option '${option}'.${N}\n"
 			print_usage
 			exit
 			;;
@@ -573,7 +580,7 @@ done
 cd $HOME
 print_banner
 
-printf "\n${CYAN}[${YELLOW}*${CYAN}] Beginning installation process.${RESET}\n"
+printf "\n${C}[${Y}*${C}] Beginning installation process.${N}\n"
 check_arch
 check_dependencies
 select_image
@@ -586,7 +593,7 @@ create_vnc_launcher
 cleanup
 # Make some tweaks
 tweaks
-printf "\n${GREEN}[${YELLOW}*${GREEN}] Installation process complete.${RESET}\n"
+printf "\n${G}[${Y}*${G}] Installation process complete.${N}\n"
 
 # Print a help message
 print_help
