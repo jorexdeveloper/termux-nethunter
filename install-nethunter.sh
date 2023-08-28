@@ -370,7 +370,7 @@ function print_help() {
 	printf "${G}[${Y}*${G}] Visit ${C}https://github.com/jorexdeveloper/Install-NetHunter-Termux${G} for documentation.${N}\n"
 	# Message prompt for minimal and nano installations
 	if [[ ${SELECTED_FS} != "full" ]]; then
-		printf "\n${R}[${Y}*${R}] You have a ${Y}${SELECTED_FS} installation${R} which may not have a ${Y}VNC Server${R} and ${Y}Desktop Environment${R} pre-installed${R}. \n${C}Please read the documentation in link above on how to install them.${N}\n"
+		printf "\n${R}[${Y}*${R}] You have a ${Y}${SELECTED_FS} installation${R} which may not have a ${Y}VNC Server${R} and ${Y}Desktop Environment${R} pre-installed${R}. ${C}Please read the documentation in link above on how to install them.${N}\n"
 	fi
 }
 
