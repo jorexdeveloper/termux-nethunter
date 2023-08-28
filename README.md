@@ -57,14 +57,6 @@ Options:
           Print version and exit.
 ```
 
-## How to start NetHunter
-
-Once NetHunter has been succesfully downloaded from above, use below commands.
-
- - `nethunter`              To start NetHunter CLI.
- - `nethunter -r | --root`  To run NetHunter as root user.
- - `nh`                     Shortcut for nethunter command.
- 
 ## How to start VNC server
 
 After starting nethunter, as shown above, use command `vnc` in NetHunter to start vnc server. The server is started at localhost(**127.0.0.1**) with;
