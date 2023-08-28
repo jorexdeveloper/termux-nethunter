@@ -59,7 +59,7 @@ Options:
 
 ## How to start VNC server
 
-After starting nethunter, as shown above, use command `vnc` in NetHunter to start vnc server. The server is started at localhost(**127.0.0.1**) with;
+After starting nethunter, as shown above, use command `vnc` in NetHunter to start vnc server. The server is started at localhost (`127.0.0.1`) on display and port shown below.
 
 | User  | Display | Port |
 |-------|---------|------|
@@ -85,7 +85,9 @@ Options:
           Print this message and exit.
 ```
 
-### Note: *For *Mini* and *Nano* intallations, the vnc server and a desktop environment may not be pre-installed. You can install them as shown below.*
+### Note: *For Mini and Nano intallations, the vnc server and a desktop environment may not be pre-installed. You can install them as shown* [below](#install-xfce-and-vnc-server-for-mini-and-nano-installations).
+
+Now [Install NetHunter KeX](https://store.nethunter.com/en/packages/com.offsec.nethunter.kex/) and login.
 
 ## Install XFCE and VNC Server for Mini and Nano installations
 
@@ -100,7 +102,7 @@ sudo apt install -y xfce* tightvncserver dbus-x11
 To uninstall Kali Nethunter, copy and paste below commands.
 
 ```
-rm -ri $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kali-{armhf,arm64}
+rm -rf $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kali-{armhf,arm64}
 ```
 
 ### LICENSE
