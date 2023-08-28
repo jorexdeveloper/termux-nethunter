@@ -98,7 +98,7 @@ function check_dependencies() {
 }
 
 # Prompts for the required image installation
-# Sets CHROOT IMAGE_NAME SHA_NAME
+# Sets CHROOT IMAGE_NAME SHA_NAME SELECTED_FS
 function select_image() {
 	if [[ ${SYS_ARCH} == "arm64" ]]; then
 		printf "\n${G}  [${Y}1${G}] ${C}NetHunter ARM64 (full)${N}\n"
@@ -110,16 +110,16 @@ function select_image() {
 		printf "\n${G}  [${Y}3${G}] ${C}NetHunter ARMhf (nano)${N}\n"
 	fi
 	printf "${C}\n[${Y}*${C}] Enter the image you want to install: ${N}"
-	read -n 1 CHOICE 2> /dev/null
-	case $CHOICE in
-		1) printf "\n${G}[${Y}=${G}] Full selected${N}\n" && CHOICE="full" ;;
-		2) printf "\n${G}[${Y}=${G}] Mini selected${N}\n" && CHOICE="minimal" ;;
-		3) printf "\n${G}[${Y}=${G}] Nano selected${N}\n" && CHOICE="nano" ;;
-		*) printf "\n${G}[${Y}=${G}] Mini selected${N}\n" && CHOICE="minimal" ;;
+	read -n 1 SELECTED_FS 2> /dev/null
+	case $SELECTED_FS in
+		1) printf "\n${G}[${Y}=${G}] Full selected${N}\n" && SELECTED_FS="full" ;;
+		2) printf "\n${G}[${Y}=${G}] Mini selected${N}\n" && SELECTED_FS="minimal" ;;
+		3) printf "\n${G}[${Y}=${G}] Nano selected${N}\n" && SELECTED_FS="nano" ;;
+		*) printf "\n${G}[${Y}=${G}] Mini selected${N}\n" && SELECTED_FS="minimal" ;;
 	esac
 	CHROOT="kali-${SYS_ARCH}"
-	IMAGE_NAME="kalifs-${SYS_ARCH}-${CHOICE}.tar.xz"
-	SHA_NAME="kalifs-${SYS_ARCH}-${CHOICE}.sha512sum"
+	IMAGE_NAME="kalifs-${SYS_ARCH}-${SELECTED_FS}.tar.xz"
+	SHA_NAME="kalifs-${SYS_ARCH}-${SELECTED_FS}.sha512sum"
 }
 
 # Prompts whether to delete existing rootfs folder if any
@@ -367,7 +367,11 @@ function print_help() {
 	printf "${G}[${Y}*${G}] Login Information:${N}\n"
 	printf "${G}[${Y}*${G}] User: ${Y}kali${N}\n"
 	printf "${G}[${Y}*${G}] Password: ${Y}kali${N}\n"
-	printf "${G}[${Y}*${G}] Visit https://github.com/jorexdeveloper/Install-NetHunter-Termux for documentation.${N}\n"
+	printf "${G}[${Y}*${G}] Visit ${C}https://github.com/jorexdeveloper/Install-NetHunter-Termux${G} for documentation.${N}\n"
+	# Message prompt for minimal and nano installations
+	if [[ ${SELECTED_FS} != "full" ]]; then
+		printf "\n${R}[${Y}*${R}] You have a ${Y}${SELECTED_FS} installation${R} which may not have a ${Y}VNC Server${R} and ${Y}Desktop Environment${R} pre-installed${R}. \n${C}Please read the documentation in link above on how to install them.${N}\n"
+	fi
 }
 
 # Prompts parsed message and returns response as 0/1
@@ -596,4 +600,5 @@ cleanup
 tweaks
 printf "\n${G}[${Y}*${G}] Installation process complete.${N}\n"
 
+# Print help information
 print_help
