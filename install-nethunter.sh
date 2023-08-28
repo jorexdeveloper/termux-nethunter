@@ -184,8 +184,8 @@ function extract_rootfs() {
 # Creates a script to launch NetHunter
 function create_launcher() {
 	printf "\n${C}[${Y}*${C}] Creating NetHunter launcher...${N}\n"
-	NH_LAUNCHER=${HOME}/bin/nethunter
-	NH_SHORTCUT=${HOME}/bin/nh
+	NH_LAUNCHER=${PREFIX}/bin/nethunter
+	NH_SHORTCUT=${PREFIX}/bin/nh
 	mkdir -p $(dirname ${NH_LAUNCHER}) && cat > $NH_LAUNCHER <<- EOF
 		#!/data/data/com.termux/files/usr/bin/bash -e
 
