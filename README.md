@@ -10,11 +10,39 @@ Download and execute the installer script (**install-nethunter.sh**) or copy and
 apt update -y && apt upgrade -y && apt install wget -y && wget https://raw.githubusercontent.com/jorexdeveloper/Install-NetHunter-Termux/main/install-nethunter.sh && bash install-nethunter.sh
 ```
 
-**OR**
+## How to login
+
+After successful installation, run command `nh` or `nethunter` to start kali nethunter. Login as user **kali** with password **kali** i.e
 
 ```
-apt update -y && apt upgrade -y && apt install curl && curl -sL https://raw.githubusercontent.com/jorexdeveloper/Install-NetHunter-Termux/main/install-nethunter.sh | bash
+localhost login: kali
+Password: kali
+┌──(kali㉿localhost)-[~]
+└─$
 ```
+
+## How to login as root user
+
+Before you login as root user **for the first time**, you need to **set a password for the root user**. To do that, login as normal user(kali as shown above) then enter the below command and set a password for the root user.
+
+```
+sudo passwd root
+```
+
+i.e
+
+```
+┌──(kali㉿localhost)-[~]
+└─$ sudo passwd root
+New password: <your_password>
+Retype new password: <your_password>
+passwd: password updated successfully
+
+┌──(kali㉿localhost)-[~]
+└─$
+```
+
+Now on the next login, login as user **root** and password **<your_password>**.
 
 The program also displays help information with option (`-h | --help`) to guide you further.
 
