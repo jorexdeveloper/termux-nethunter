@@ -95,6 +95,14 @@ Copy and paste below commands in **NetHunter**.
 sudo apt install -y xfce* tightvncserver dbus-x11
 ```
 
+## How to Uninstall NetHunter
+
+To uninstall Kali Nethunter, copy and paste below commands.
+
+```
+rm -ri $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kali-{armhf,arm64}
+```
+
 ### LICENSE
 
 ```
