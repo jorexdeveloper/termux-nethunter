@@ -85,7 +85,7 @@ Options:
           Print this message and exit.
 ```
 
-### Note: *For Mini and Nano intallations, the vnc server and a desktop environment may not be pre-installed. You can install them as shown* [below](#install-xfce-and-vnc-server-for-mini-and-nano-installations).
+  > Note: *For Mini and Nano intallations, the vnc server and a desktop environment may not be pre-installed. You can install them as shown* [below](#install-xfce-and-vnc-server-for-mini-and-nano-installations).
 
 Now [Install NetHunter KeX](https://store.nethunter.com/en/packages/com.offsec.nethunter.kex/) and login.
 
