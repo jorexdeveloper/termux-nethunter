@@ -23,7 +23,7 @@ Password: kali
 
 ## How to login as root user
 
-Before you login as root user **for the first time**, you need to **set a password for the root user**. To do that, login as normal user(kali as shown above) then enter the below command and set a password for the root user.
+Before you login as root user **for the first time**, you need to **set a password for the root user**. To do that, login as normal user (kali as shown above) then enter the below command and set a password for the root user.
 
 ```
 sudo passwd root
@@ -85,9 +85,9 @@ Options:
           Print this message and exit.
 ```
 
-***Note:** For *Mini* and *Nano* intallations, a desktop environment may not be pre-installed. You can install a DE of your choice.*
+### Note: *For *Mini* and *Nano* intallations, the vnc server and a desktop environment may not be pre-installed. You can install them as shown below.*
 
-## Install XFCE for Mini and Nano installations
+## Install XFCE and VNC Server for Mini and Nano installations
 
 Copy and paste below commands in **NetHunter**.
 
