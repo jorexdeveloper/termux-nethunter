@@ -196,17 +196,17 @@ function create_launcher() {
 		unset LD_PRELOAD
 
 		# Workaround for Libreoffice, also needs to bind a fake /proc/version
-		[ ! -f kali-armhf/root/.version ] && touch kali-armhf/root/.version
+		[ ! -f ${CHROOT}/root/.version ] && touch ${CHROOT}/root/.version
 
 		# Command to start distro
 		command="proot \
 		         --link2symlink \
 		         --kill-on-exit \
 		         --root-id \
-		         --rootfs=\${HOME}/kali-armhf \
+		         --rootfs=\${HOME}/${CHROOT} \
 		         --bind=/dev \
 		         --bind=/proc \
-		         --bind=kali-armhf/root:/dev/shm \
+		         --bind=${CHROOT}/root:/dev/shm \
 		         --bind=\$([ ! -z "\${INTERNAL_STORAGE}" ] && echo "\${INTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd0 \
 		         --bind=\$([ ! -z "\${EXTERNAL_STORAGE}" ] && echo "\${EXTERNAL_STORAGE}" || echo "/sdcard"):/mnt/sd1 \
 		         --cwd=/ \
@@ -427,9 +427,10 @@ function tweaks() {
 		"Settting pulse audio server."
 		"Setting DNS settings."
 		"Setting up jdk variables."
+		"Fixing error with zshrc."
 	)
 	local descrnum=0
-	for i in tweak_sudo tweak_profile_bash tweak_display tweak_audio tweak_dns tweak_java; do
+	for i in tweak_sudo tweak_profile_bash tweak_display tweak_audio tweak_dns tweak_java tweak_zshrc; do
 		printf "\n${C}[${Y}*${C}] ${bug_descriptions[${descrnum}]}${N}"
 		if ${i} &> /dev/null; then
 			printf "\n${G}[${Y}=${G}] Done.${N}\n"
@@ -504,6 +505,13 @@ function tweak_java() {
 		printf "${R}[${Y}!${R}] Unknown architecture.${N}\n"
 		return 1
 	fi
+}
+
+# Tweak: Comments out the ~/.zshrc line with error
+function tweak_zshrc() {
+	local zshrc_kali=${CHROOT}/home/kali/.zshrc
+	local zshrc_root=${CHROOT}/root/.zshrc
+	sed -i '/# Take advantage of $LS_COLORS for completion as well/{n;s/^/# /;}' ${zshrc_kali} ${zshrc_root}
 }
 
 # Tweak: Sets dns settings
@@ -597,6 +605,8 @@ extract_rootfs
 create_launcher
 create_vnc_launcher
 cleanup
+
+# Fix some issues
 tweaks
 printf "\n${G}[${Y}*${G}] Installation process complete.${N}\n"
 
