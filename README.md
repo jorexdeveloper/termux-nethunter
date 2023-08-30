@@ -25,7 +25,6 @@ Install Kali NetHunter in Termux.
     - [Set Default Shell](#set-default-shell)
     - [Set Zone Information](#set-zone-information)
 - [License](#license)
-_FIX_SUDO _FIX_PROFILE_BASH _FIX_DISPLAY _FIX_AUDIO _FIX_DNS _FIX_JDK _FIX_ZSHRC;
 
 ### Improvements
 
