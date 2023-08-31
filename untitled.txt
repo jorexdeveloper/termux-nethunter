@@ -1,3 +1,0 @@
-theme: jekyll-theme-midnight
-title: Install-NetHunter-Termux
-description: Install Kali Nethunter in Termux.
