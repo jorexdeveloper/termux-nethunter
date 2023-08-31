@@ -28,6 +28,7 @@ Install Kali NetHunter in Termux.
 
 ### Improvements
 
+ - Shows progress during extraction
  - Color output for supported terminals. (256-color terminals)
  - You can now install Kali Nethunter in a directory of your choice.
  - Automatically fixes some issues with the file system. (see [here](#fixed-issues-in-the-file-system))
@@ -50,6 +51,7 @@ The program also displays below help information with option (`-h | --help`) to 
 Usage: nethunter.sh [option]... [DIRECTORY]
 
 Install Kali NetHunter in the specified directory or ~/kali-<sys_arch> if unspecified.
+The specified directory MUST be within Termux or the default directory is used.
 
 Options:
   --no-check-certificate
@@ -84,7 +86,7 @@ Password: kali
 
 #### How to login as root user
 
-Before you login as root user **for the first time**, you need to **set a password for the root user**. To do that, login as normal user (kali as shown above) then enter the below command and set a password for the root user.
+Before you login as root user **for the first time**, you need to **set a password for the root user**. To do that, login as normal user (kali as shown above) then run the command below to set a password for the root user.
 
 ```
 sudo passwd root
@@ -160,23 +162,54 @@ rm -rf $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kalifs-{armhf,arm64}
 
 #### Fix Sudo
 
+ - Fixes sudo on start.
+ - Adds user **kali** to sudoers list.
+ - Fixes issue [here](https://bugzilla.redhat.com/show_bug.cgi?id=1773148)
+
 #### Fix Bash Profile
+
+ - Prevents creation of links in read only file system
 
 #### Fix Display
 
+ - Sets a static display across the system. (see [here](#how-to-start-vnc-server))
+
 #### Fix Audio
+
+ - Sets the pulse audio server at (`127.0.0.1`) to enable audio output.
 
 #### Fix DNS
 
+ - Sets DNS Settings below.
+
+```
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+```
+
 #### Fix JDK
+
+ - Sets **JAVA_HOME** and adds it to **PATH**.
 
 #### Fix Zshrc
 
+ - Sets `~/.zshrc` file to `/etc/skel/.zshrc`.
+
 #### Fix UID and GID
+
+ - Changes **UID** and **GID** of user **kali** to that of Termux.
 
 #### Set Default Shell
 
+ - Sets the default shell for user **kali** if one of;
+
+```
+"bash" "zsh" "fish" "dash" "tcsh" "csh" "ksh"
+```
+
 #### Set Zone Information
+
+ - Sets zone information as required, possibly to match device time. It must be in format `COUNTRY/CITY` i.e `America/New_York`.
 
 ## LICENSE
 
