@@ -155,7 +155,7 @@ sudo apt install -y xfce* tightvncserver dbus-x11
 To uninstall Kali Nethunter, copy and paste below commands in **Termux**. Replace `$HOME/kalifs-{armhf,arm64}` with the directory where you installed the File System. (if custom directory was used)
 
 ```
-rm -rf $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kalifs-{armhf,arm64}
+rm -rf $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kali-{armhf,arm64}
 ```
 
 ### Fixed Issues in the File System
@@ -209,7 +209,7 @@ nameserver 8.8.4.4
 
 #### Set Zone Information
 
- - Sets zone information as required, possibly to match device time. It must be in format `COUNTRY/CITY` i.e `America/New_York`.
+ - Sets zone information as required (possibly to match device time). It must be in format `COUNTRY/CITY` i.e `America/New_York`.
 
 ## LICENSE
 
