@@ -12,7 +12,7 @@ Script to install Kali NetHunter in Termux.
   - [How to Start a VNC Server](#how-to-start-a-vnc-server)
     - [How to Connect to the VNC Server](#how-to-connect-to-the-vnc-server)
   - [How to Install XFCE and VNC Server for Mini and Nano Installations](#how-to-install-xfce-and-vnc-server-for-mini-and-nano-installations)
-  - [How to Uninstall NetHunter](#how-to-uninstall-nethunter)
+  - [How to Uninstall Kali NetHunter](#how-to-uninstall-kali-nethunter)
 - [License](#license)
 
 ### Features
