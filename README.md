@@ -71,7 +71,7 @@ After starting the VNC server, install [NetHunter KeX](https://store.nethunter.c
 Copy and paste below commands in **NetHunter**.
 
 ```
-sudo apt install -y tigervnc-standalone-server tigervnc-xorg-extension xfce*
+sudo apt install -y tigervnc-standalone-server kali-desktop-xfce
 ```
 
 ### How to Uninstall Kali NetHunter
