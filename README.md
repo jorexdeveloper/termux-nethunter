@@ -22,7 +22,7 @@ Script to install Kali NetHunter in Termux.
  - Color output (256-color terminals).
  - Shows progress during extraction.
  - Install Kali Nethunter in custom directory (**Experimental**).
- - Automatic configuration (i.e fix some issues with the rootfs).
+ - Automatic configuration (i.e set root password).
  - Customize default shell before startup.
  - Set zone information before startup (Match local time).
  - Fixed issues [#1][i1] [#2][i2] [#3][i3] [#4][i4].
@@ -84,7 +84,7 @@ rm -rI $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kali-{armhf,arm64}
 
 ### Bugs
 
-Currently, changing the default name of the rootfs directory causes some programs to fail with error message;
+Currently, **changing the name of the rootfs directory** causes some programs to fail with error message;
 
 ```
 <command>: cannot execute: required file not found
