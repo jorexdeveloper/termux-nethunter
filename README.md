@@ -84,9 +84,13 @@ rm -rI $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kali-{armhf,arm64}
 
 ### Bugs
 
-Currently, changing the default name of the rootfs directory causes some programs to fail i.e with error message **required file not found**.
+Currently, changing the default name of the rootfs directory causes some programs to fail with error message;
 
-Please let me know in the [issues section][i0] if you find any other bugs.
+```
+<command>: cannot execute: required file not found
+```
+
+You are welcome to join and fix available bugs. Please let me know in the [issues section][i0] if you find any other bugs.
 
 ## LICENSE
 
@@ -106,6 +110,7 @@ Please let me know in the [issues section][i0] if you find any other bugs.
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ```
+
 
 [i0]: https://github.com/jorexdeveloper/Install-NetHunter-Termux/issues
 [i1]: https://github.com/jorexdeveloper/Install-NetHunter-Termux/issues/1
