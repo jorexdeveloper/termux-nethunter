@@ -204,10 +204,6 @@ _VERIFY_ROOTFS_ARCHIVE() {
 _EXTRACT_ROOTFS_ARCHIVE() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
 		_PRINT_TITLE "Extracting rootfs archive"
-		local tmp_xtract_dir="${TMPDIR}/${DEFAULT_ROOTFS_DIRECTORY}" # Termux sets TMPDIR
-		if [ -e "${tmp_xtract_dir}" ]; then
-			rm -rf "${tmp_xtract_dir}" || _PRINT_ERROR_EXIT "Fatal extraction error(0)" 0
-		fi
 		# These cause mknod errors and tar exits with non zero
 		local exclude_files=(
 			"--exclude=${DEFAULT_ROOTFS_DIRECTORY}/dev/null"
@@ -219,17 +215,9 @@ _EXTRACT_ROOTFS_ARCHIVE() {
 			"--exclude=${DEFAULT_ROOTFS_DIRECTORY}/dev/console"
 			"--exclude=${DEFAULT_ROOTFS_DIRECTORY}/dev/ptmx"
 		)
-		printf "${G}"
-		proot --link2symlink tar --extract --file="${ARCHIVE_NAME}" --directory="${TMPDIR}" --checkpoint=1 --checkpoint-action=ttyout="   Files extracted %{}T in %ds%*\r" "${exclude_files[@]}" &>/dev/null || _PRINT_ERROR_EXIT "Failed to extract rootfs archive" 0
+		printf "${Y}"
+		proot --link2symlink tar --extract --file="${ARCHIVE_NAME}" --directory="$(dirname "${ROOTFS_DIRECTORY}")" --checkpoint=1 --checkpoint-action=ttyout="   Files extracted %{}T in %ds%s\r" "${exclude_files[@]}" &>/dev/null || _PRINT_ERROR_EXIT "Failed to extract rootfs archive" 0
 		printf "${N}"
-		if [ -d "${tmp_xtract_dir}" ]; then
-			if [ -e "${ROOTFS_DIRECTORY}" ]; then
-				rm -rf "${ROOTFS_DIRECTORY}"
-			fi
-			mv "${tmp_xtract_dir}" "${ROOTFS_DIRECTORY}" && _PRINT_MESSAGE "Extraction complete" || _PRINT_ERROR_EXIT "Fatal extraction error(1)" 0
-		else
-			_PRINT_ERROR_EXIT "Fatal extraction error(2)" 0
-		fi
 	fi
 }
 
@@ -462,8 +450,9 @@ _PRINT_COMPLETE_MSG() {
 	_PRINT_MESSAGE "User/Login  '${Y}kali${G}'"
 	_PRINT_MESSAGE "Password    '${Y}kali${G}'"
 	_PRINT_TITLE "Documentation  ${U}${AUTHOR_GITHUB}/${SCRIPT_REPOSITORY}${NU}"
+	# For minimal and nano installations
 	if [ "${SELECTED_INSTALLATION}" != "full" ]; then
-		_PRINT_TITLE "This is a minimal installation of ${DISTRO_NAME}" E
+		_PRINT_TITLE "This is a ${SELECTED_INSTALLATION} installation of ${DISTRO_NAME}" E
 		_PRINT_MESSAGE "Read the documentation on how to install additional components" E
 	fi
 }
@@ -507,6 +496,7 @@ _FIX_ISSUES() {
 		"Configuring java settings"
 		"Configuring profile settings"
 	)
+	# command for logging in
 	unset LD_PRELOAD && TMP_LOGIN_COMMAND="proot --link2symlink --root-id --rootfs=${ROOTFS_DIRECTORY} --cwd=/"
 	local descr_num=0
 	for issue in _FIX_SUDO _FIX_DISPLAY _FIX_AUDIO _FIX_DNS _FIX_JDK _FIX_PROFILE; do
