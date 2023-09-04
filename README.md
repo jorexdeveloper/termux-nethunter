@@ -13,6 +13,7 @@ Script to install Kali NetHunter in Termux.
     - [How to Connect to the VNC Server](#how-to-connect-to-the-vnc-server)
   - [How to Install XFCE and VNC Server for Mini and Nano Installations](#how-to-install-xfce-and-vnc-server-for-mini-and-nano-installations)
   - [How to Uninstall Kali NetHunter](#how-to-uninstall-kali-nethunter)
+  - [Bugs](#bugs)
 - [License](#license)
 
 ### Features
@@ -105,7 +106,6 @@ Please let me know in the [issues section][i0] if you find any other bugs.
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ```
-
 
 [i0]: https://github.com/jorexdeveloper/Install-NetHunter-Termux/issues
 [i1]: https://github.com/jorexdeveloper/Install-NetHunter-Termux/issues/1
