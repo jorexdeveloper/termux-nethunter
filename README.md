@@ -33,7 +33,7 @@ Script to install Kali NetHunter in Termux.
 Download and execute the installer script (**install-nethunter.sh**) or copy and paste below commands in **Termux**.
 
 ```
-apt-get update -y && apt-get install wget -y && wget -O install-nethunter.sh https://raw.githubusercontent.com/jorexdeveloper/Install-NetHunter-Termux/main/install-nethunter.sh && bash install-nethunter.sh
+apt-get update -y && apt-get install wget -y && wget -O install-nethunter.sh https://raw.githubusercontent.com/jorexdeveloper/termux-nethunter/main/install-nethunter.sh && bash install-nethunter.sh
 ```
 
 The program also displays help information with option `-h` or `--help` to guide you further.
@@ -112,8 +112,8 @@ You are welcome to join and fix available bugs. Please let me know in the [issue
 ```
 
 
-[i0]: https://github.com/jorexdeveloper/Install-NetHunter-Termux/issues
-[i1]: https://github.com/jorexdeveloper/Install-NetHunter-Termux/issues/1
-[i2]: https://github.com/jorexdeveloper/Install-NetHunter-Termux/issues/2
-[i3]: https://github.com/jorexdeveloper/Install-NetHunter-Termux/issues/3
-[i4]: https://github.com/jorexdeveloper/Install-NetHunter-Termux/issues/4
+[i0]: https://github.com/jorexdeveloper/termux-nethunter/issues
+[i1]: https://github.com/jorexdeveloper/termux-nethunter/issues/1
+[i2]: https://github.com/jorexdeveloper/termux-nethunter/issues/2
+[i3]: https://github.com/jorexdeveloper/termux-nethunter/issues/3
+[i4]: https://github.com/jorexdeveloper/termux-nethunter/issues/4
