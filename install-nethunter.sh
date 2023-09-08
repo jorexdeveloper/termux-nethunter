@@ -696,6 +696,7 @@ _PRINT_ERROR_EXIT() {
 		local suggested_messages=(
 			" Try running this script again."
 			" Internet connection required."
+			" Try '-h' or '--help' for usage."
 		)
 		local message="${suggested_messages[${2}]}"
 	fi
@@ -753,7 +754,7 @@ AUTHOR_GITHUB="https://github.com/jorexdeveloper"
 
 # Script info
 SCRIPT_VERSION="1.0"
-SCRIPT_REPOSITORY="Install-NetHunter-Termux"
+SCRIPT_REPOSITORY="termux-nethunter"
 
 # Static info
 ROOT_PASSWD="root"
@@ -802,9 +803,8 @@ ARCHIVE_NAME="kalifs-${SYS_ARCH}-${SELECTED_INSTALLATION}.tar.xz"
 if [ -n "${1}" ] && ROOTFS_DIRECTORY="$(realpath "${1}")" && [[ "${ROOTFS_DIRECTORY}" == "${TERMUX_FILES_DIR}"* ]]; then
 	test
 else
-	# Inform if resorting to default
 	if [ -n "${1}" ]; then
-		_PRINT_TITLE "Directory '${1}' is not within ${TERMUX_FILES_DIR}" E
+		_PRINT_ERROR_EXIT "Directory '${1}' is not within ${TERMUX_FILES_DIR}" 2
 	fi
 	ROOTFS_DIRECTORY="$(realpath "${TERMUX_FILES_DIR}/home/${DEFAULT_ROOTFS_DIRECTORY}")"
 fi
