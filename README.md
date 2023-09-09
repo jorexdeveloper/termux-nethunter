@@ -84,7 +84,7 @@ rm -rI $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kali-{armhf,arm64}
 
 ## Bugs
 
-Currently, **changing the name of the rootfs directory** causes some programs to fail with error message;
+ 1. Currently, **changing the name of the rootfs directory** causes some programs to fail with error message;
 
 ```
 <command>: cannot execute: required file not found
