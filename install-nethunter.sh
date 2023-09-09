@@ -830,5 +830,5 @@ _FIX_ISSUES
 # Print help info
 _PRINT_COMPLETE_MSG
 
-# Exit successfully
+# Exit script successfully
 exit
