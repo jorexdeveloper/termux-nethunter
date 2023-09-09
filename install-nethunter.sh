@@ -4,7 +4,7 @@
 #                                                                              #
 #     Kali NetHunter Installer, version 1.0                                    #
 #                                                                              #
-#     Install Kali NetHunter in Termux.                                        #
+#     Installs Kali NetHunter in Termux.                                       #
 #                                                                              #
 #     Copyright (C) 2023  Jore <https://github.com/jorexdeveloper>             #
 #                                                                              #
@@ -150,22 +150,24 @@ _CHECK_ROOTFS_DIRECTORY() {
 _DOWNLOAD_ROOTFS_ARCHIVE() {
 	unset KEEP_ROOTFS_MAGE
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
-		if [ -f "${ARCHIVE_NAME}" ]; then
-			if _ASK "Existing roots archive found. Delete and download a new one" "N"; then
-				_PRINT_MESSAGE "Deleting old roots archive" E
+		if [ -e "${ARCHIVE_NAME}" ]; then
+			if [ -f "${ARCHIVE_NAME}" ]; then
+				if _ASK "Existing roots archive found. Delete and download a new one" "N"; then
+					_PRINT_MESSAGE "Deleting old roots archive" E
+				else
+					_PRINT_MESSAGE "Using existing rootfs archive"
+					KEEP_ROOTFS_MAGE=1
+					return
+				fi
 			else
-				_PRINT_MESSAGE "Using existing rootfs archive"
-				KEEP_ROOTFS_MAGE=1
-				return
+				if _ASK "Item found with same name as rootfs archive. Delete item" "N"; then
+					_PRINT_MESSAGE "Deleting item" E
+				else
+					_PRINT_ERROR_EXIT "Item not touched"
+				fi
 			fi
-		elif [ -e "${ARCHIVE_NAME}" ]; then
-			if _ASK "Item found with same name as rootfs archive. Delete item" "N"; then
-				_PRINT_MESSAGE "Deleting item" E
-			else
-				_PRINT_ERROR_EXIT "Item not touched"
-			fi
+			rm -f "${ARCHIVE_NAME}" && _PRINT_MESSAGE "Deleted successfully" || _PRINT_ERROR_EXIT "Failed to delete"
 		fi
-		rm -f "${ARCHIVE_NAME}" && _PRINT_MESSAGE "Deleted successfully" || _PRINT_ERROR_EXIT "Failed to delete"
 		_PRINT_TITLE "Downloading rootfs archive"
 		wget --no-verbose --continue --show-progress --output-document="${ARCHIVE_NAME}" "${BASE_URL}/${ARCHIVE_NAME}" && _PRINT_MESSAGE "Download complete" || _PRINT_ERROR_EXIT "Failed to download rootfs archive" 1
 	fi
@@ -185,11 +187,11 @@ _VERIFY_ROOTFS_ARCHIVE() {
 				ec8644b1bb8b7780c4632be0a4410b5be9b8ae0c54c3ffa3eba70912f1b72c76  kalifs-armhf-nano.tar.xz
 			EOF
 		)
-		if grep -e "${ARCHIVE_NAME}" <<<"${TRUSTED_SHASUMS[*]}" | sha256sum --check &>/dev/null; then
+		if grep -e "${ARCHIVE_NAME}" <<<"${TRUSTED_SHASUMS}" | sha256sum --quiet --check &>/dev/null; then
 			_PRINT_MESSAGE "Rootfs archive is ok"
 			return
 		elif TRUSTED_SHASUMS="$(wget --quiet --output-document="-" "${BASE_URL}/SHA256SUMS")"; then
-			if grep -e "${ARCHIVE_NAME}" <<<"${TRUSTED_SHASUMS}" | sha256sum --check &>/dev/null; then
+			if grep -e "${ARCHIVE_NAME}" <<<"${TRUSTED_SHASUMS}" | sha256sum --quiet --check &>/dev/null; then
 				_PRINT_MESSAGE "Rootfs archive is ok"
 				return
 			fi
@@ -216,7 +218,7 @@ _EXTRACT_ROOTFS_ARCHIVE() {
 			"--exclude=${DEFAULT_ROOTFS_DIRECTORY}/dev/ptmx"
 		)
 		printf "${Y}"
-		proot --link2symlink tar --extract --file="${ARCHIVE_NAME}" --directory="$(dirname "${ROOTFS_DIRECTORY}")" --checkpoint=1 --checkpoint-action=ttyout="   Files extracted %{}T in %ds%s\r" "${exclude_files[@]}" &>/dev/null || _PRINT_ERROR_EXIT "Failed to extract rootfs archive" 0
+		proot --link2symlink tar --extract --file="${ARCHIVE_NAME}" --directory="$(dirname "${ROOTFS_DIRECTORY}")" --checkpoint=1 --checkpoint-action=ttyout="   Files extracted %{}T in %ds%*\r" "${exclude_files[@]}" &>/dev/null || _PRINT_ERROR_EXIT "Failed to extract rootfs archive" 0
 		printf "${N}"
 	fi
 }
@@ -224,9 +226,9 @@ _EXTRACT_ROOTFS_ARCHIVE() {
 # Creates script to start Kali NetHunter
 _CREATE_NH_LAUNCHER() {
 	_PRINT_TITLE "Creating ${DISTRO_NAME} launcher"
-	local NH_LAUNCHER="${PREFIX}/bin/nethunter"
-	local NH_SHORTCUT="${PREFIX}/bin/nh"
-	mkdir -p "${PREFIX}/bin" && cat >"${NH_LAUNCHER}" <<-EOF
+	local DISTRO_LAUNCHER="${PREFIX}/bin/nethunter"
+	local DISTRO_SHORTCUT="${PREFIX}/bin/nh"
+	mkdir -p "${PREFIX}/bin" && cat >"${DISTRO_LAUNCHER}" <<-EOF
 		#!/data/data/com.termux/files/usr/bin/bash -e
 
 		################################################################################
@@ -283,7 +285,7 @@ _CREATE_NH_LAUNCHER() {
 		exec \${command}
 	EOF
 	{
-		ln -sfT "${NH_LAUNCHER}" "${NH_SHORTCUT}" &>/dev/null && termux-fix-shebang "${NH_LAUNCHER}" && chmod 700 "${NH_LAUNCHER}"
+		ln -sfT "${DISTRO_LAUNCHER}" "${DISTRO_SHORTCUT}" &>/dev/null && termux-fix-shebang "${DISTRO_LAUNCHER}" && chmod 700 "${DISTRO_LAUNCHER}"
 	} && _PRINT_MESSAGE "${DISTRO_NAME} launcher created successfully" || _PRINT_ERROR_EXIT "Failed to create ${DISTRO_NAME} launcher" 0
 }
 
@@ -336,12 +338,12 @@ _CREATE_VNC_LAUNCHER() {
 		}
 
 		_SET_PASSWD() {
-		    vncpasswd
+		    [ -x "\$(command -v vncpasswd)" ] && vncpasswd || { echo "echo ">> No VNC server installed"" && return 1 }
 		    return \$?
 		}
 
 		_START_SERVER() {
-		    if [ -f "\${HOME}/.vnc/passwd" ]; then
+		    if [ -f "\${HOME}/.vnc/passwd" ] && [ -r "\${HOME}/.vnc/passwd" ]; then
 		        export HOME="\${HOME}"
 		        export USER="\${USER}"
 		        LD_PRELOAD="${LIB_GCC_PATH}"
@@ -387,7 +389,7 @@ _CREATE_VNC_LAUNCHER() {
 		DISPLAY_VALUE="\$(cut -d : -f 2 <<< "\${DISPLAY}")"
 
 		# Process command line args
-		for option in "\$@"; do
+		for option in "\${@}"; do
 		    case "\$option" in
 		        "--potrait")
 		            ORIENTATION_STYLE=potrait
@@ -416,7 +418,7 @@ _CREATE_VNC_LAUNCHER() {
 		    esac
 		done
 
-		if [ -x "/usr/bin/vncserver" ]; then
+		if [ -x "\$(command -v vncserver)" ]; then
 		    _CHECK_USER && _CLEAN_TMP_DIR && _SET_GEOMETRY && _START_SERVER
 		else
 		    echo ">> No VNC server installed"
@@ -443,7 +445,7 @@ _PRINT_COMPLETE_MSG() {
 	_PRINT_MESSAGE "Run command '${Y}nethunter${C}' or '${Y}nh${C}' to start ${DISTRO_NAME}" N
 	_PRINT_MESSAGE "Run command '${Y}vnc${C}' in ${DISTRO_NAME} to start the VNC Server" N
 	_PRINT_TITLE "Login Information"
-	_PRINT_MESSAGE "Login as root user" N
+	_PRINT_MESSAGE "Login as super user" N
 	_PRINT_MESSAGE "User/Login  '${Y}root${G}'"
 	_PRINT_MESSAGE "Password    '${Y}${ROOT_PASSWD}${G}'"
 	_PRINT_MESSAGE "Login as normal user" N
@@ -528,13 +530,13 @@ _FIX_ISSUES() {
 # Fixes sudo and su on start
 _FIX_SUDO() {
 	local bin_dir="${ROOTFS_DIRECTORY}/usr/bin"
-	if [ -x "${bin_dir}/su" ]; then
-		chmod +s "${bin_dir}/su"
-	fi
 	if [ -x "${bin_dir}/sudo" ]; then
 		chmod +s "${bin_dir}/sudo"
 		echo "kali   ALL=(ALL:ALL) NOPASSWD: ALL" >"${ROOTFS_DIRECTORY}/etc/sudoers.d/kali"
 		echo "Set disable_coredump false" >"${ROOTFS_DIRECTORY}/etc/sudo.conf"
+	fi
+	if [ -x "${bin_dir}/su" ]; then
+		chmod +s "${bin_dir}/su"
 	else
 		return 1
 	fi
@@ -724,7 +726,7 @@ _ASK() {
 		if [ ${retries} -ne 3 ]; then
 			prefix="${R}${retries}${N}${color}"
 		fi
-		printf "\r${color} ${prefix} ${1}? ${prompt} ${N}"
+		printf "\r${color} ${prefix} ${1}? (${prompt}) ${N}"
 		read -ren 1 reply
 		if [ -z "${reply}" ]; then
 			reply="${default}"
@@ -764,19 +766,19 @@ BASE_URL="https://kali.download/nethunter-images/current/rootfs"
 
 # Color supported terminals
 case "${TERM}" in
-	xterm-color | *-256color)
+	*color*)
 		R="\e[1;31m"
-		G="\e[32m"
-		Y="\e[33m"
-		C="\e[36m"
-		U="\e[4m"
+		G="\e[1;32m"
+		Y="\e[1;33m"
+		C="\e[1;36m"
+		U="\e[1;4m"
 		NU="\e[24m"
 		N="\e[0m"
 		;;
 esac
 
 # Proces command line args
-for option in "$@"; do
+for option in "${@}"; do
 	case "${option}" in
 		"-v" | "--version")
 			_PRINT_VERSION
@@ -811,7 +813,6 @@ fi
 
 # Comfirm Installation directory
 _PRINT_TITLE "Installing ${DISTRO_NAME} in ${ROOTFS_DIRECTORY}"
-echo
 
 # Installation
 _CHECK_ROOTFS_DIRECTORY
