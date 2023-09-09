@@ -177,6 +177,7 @@ _DOWNLOAD_ROOTFS_ARCHIVE() {
 _VERIFY_ROOTFS_ARCHIVE() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
 		_PRINT_TITLE "Verifying integrity of the rootfs archive"
+		# 2023-Aug-23 13:36
 		local TRUSTED_SHASUMS=$(
 			cat <<-EOF
 				270ca2caf2efbad244b3031f6b5aea5adcfdc38ffd5d0345780f3367234fb48b  kalifs-arm64-full.tar.xz
@@ -828,3 +829,6 @@ _FIX_ISSUES
 
 # Print help info
 _PRINT_COMPLETE_MSG
+
+# Exit successfully
+exit
