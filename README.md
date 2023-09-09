@@ -21,7 +21,7 @@ Script to install Kali NetHunter in Termux.
  - Interactive Installation.
  - Color output (256-color terminals).
  - Shows progress during extraction.
- - Install Kali Nethunter in custom directory (**Experimental**).
+ - Install Kali NetHunter in custom directory (**Experimental**).
  - Automatic configuration (i.e set root password).
  - Customize default shell before startup.
  - Set zone information before startup (Match local time).
@@ -76,7 +76,7 @@ sudo apt install -y tigervnc-standalone-server kali-desktop-xfce
 
 ## How to Uninstall Kali NetHunter
 
-To uninstall Kali Nethunter, copy and paste below commands in **Termux**. Replace `$HOME/kali-{armhf,arm64}` with the directory where you installed the rootfs if custom directory was specified.
+To uninstall Kali NetHunter, copy and paste below commands in **Termux**. (replace `$HOME/kali-{armhf,arm64}` with the directory where you installed the rootfs if custom directory was specified)
 
 ```
 rm -rI $PREFIX/bin/nh $PREFIX/bin/nethunter $HOME/kali-{armhf,arm64}
