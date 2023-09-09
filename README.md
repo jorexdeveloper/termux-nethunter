@@ -19,7 +19,7 @@ Script to install Kali NetHunter in Termux.
 ## Features
 
  - Interactive Installation.
- - Color output (256-color terminals).
+ - Color output (if supported).
  - Shows progress during extraction.
  - Install Kali NetHunter in custom directory (**Experimental**).
  - Automatic configuration (i.e set root password).
@@ -71,7 +71,7 @@ After starting the VNC server, install [NetHunter KeX](https://store.nethunter.c
 Copy and paste below commands in **NetHunter**.
 
 ```
-sudo apt install -y tigervnc-standalone-server kali-desktop-xfce
+sudo apt update && sudo apt full-upgrade && sudo apt install dbus-x11 tigervnc-standalone-server kali-desktop-xfce
 ```
 
 ## How to Uninstall Kali NetHunter
