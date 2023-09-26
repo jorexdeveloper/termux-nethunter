@@ -93,10 +93,10 @@ _SELECT_INSTALLATION() {
 	_PRINT_TITLE "Select installation"
 	echo
 	_PRINT_MESSAGE "[1] ${DISTRO_NAME} ${SYS_ARCH} (full)"
-	_PRINT_MESSAGE "[2] ${DISTRO_NAME} ${SYS_ARCH} (mini)"
-	_PRINT_MESSAGE "[3] ${DISTRO_NAME} ${SYS_ARCH} (nano)"
+	# _PRINT_MESSAGE "[2] ${DISTRO_NAME} ${SYS_ARCH} (mini)"
+	_PRINT_MESSAGE "[2] ${DISTRO_NAME} ${SYS_ARCH} (nano)"
 	echo
-	_PRINT_MESSAGE "Enter choice (default mini)" R
+	_PRINT_MESSAGE "Enter choice (default=nano)" R
 	read -ren 1 SELECTED_INSTALLATION
 	echo
 	case "${SELECTED_INSTALLATION}" in
@@ -104,17 +104,13 @@ _SELECT_INSTALLATION() {
 			_PRINT_MESSAGE "Full installation selected"
 			SELECTED_INSTALLATION="full"
 			;;
-		2 | m | M)
-			_PRINT_MESSAGE "Mini installation selected"
-			SELECTED_INSTALLATION="minimal"
-			;;
-		3 | n | N)
+		# 2 | m | M)
+		# 	_PRINT_MESSAGE "Mini installation selected"
+		# 	SELECTED_INSTALLATION="minimal"
+		# 	;;
+		*)
 			_PRINT_MESSAGE "Nano installation selected"
 			SELECTED_INSTALLATION="nano"
-			;;
-		*)
-			_PRINT_MESSAGE "Mini installation selected"
-			SELECTED_INSTALLATION="minimal"
 			;;
 	esac
 }
@@ -178,21 +174,23 @@ _VERIFY_ROOTFS_ARCHIVE() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
 		_PRINT_TITLE "Verifying integrity of the rootfs archive"
 		# 2023-Aug-23 13:36
-		local TRUSTED_SHASUMS=$(
+		local TRUSTED_SHASUMS="$(
 			cat <<-EOF
-				270ca2caf2efbad244b3031f6b5aea5adcfdc38ffd5d0345780f3367234fb48b  kalifs-arm64-full.tar.xz
-				b35534aa0dca0fdf4940836124efdb2faae2cb2e850182e82a8789da5b60b164  kalifs-arm64-minimal.tar.xz
-				5d4f415ec7793a35df24b9cd17eded794294a8edf135f7915c61dd3b3143100f  kalifs-arm64-nano.tar.xz
-				f1267e0db758991ff9d25c379c62744b480eadd71f4c52a078a75dab91ea9eb8  kalifs-armhf-full.tar.xz
-				12770d83e0782a81375812c98b21f1e3df802896a00f3beae0bee1121ab097c1  kalifs-armhf-minimal.tar.xz
-				ec8644b1bb8b7780c4632be0a4410b5be9b8ae0c54c3ffa3eba70912f1b72c76  kalifs-armhf-nano.tar.xz
+				7406c9a0e7e3f5fd88454945eb7f0a63f993d48abde38af2ec9ed00b33ff204c  nethunter-2023.3b-generic-arm64-kalifs-full.zip
+				740a7c7899bf64cb27a1a6b16de8bf4ea159bfdf30c331ac6fcbdb3e3e1da224  nethunter-2023.3b-generic-arm64-kalifs-full.zip.torrent
+				96aa1d409d0430de28cddd9613a46c486b67cd322f3988aee121c374469b4b88  nethunter-2023.3b-generic-arm64-kalifs-nano.zip
+				7d21b1122e4d0d3b2a67bdb9ea5c4e37551351ed4bda8c95cf8d054183262920  nethunter-2023.3b-generic-arm64-kalifs-nano.zip.torrent
+				09dc86d922d134335198dec955515bca67809b2d752c269454590285a68dba84  nethunter-2023.3b-generic-armhf-kalifs-full.zip
+				2342c27eed4d6d6e706694c6372d2ca642018c78573c828f8db5434116b6c43c  nethunter-2023.3b-generic-armhf-kalifs-full.zip.torrent
+				7fbf5f20543b34a1d2c3c1d4f1137c2f40742dd53d28229a82986e6042b294fa  nethunter-2023.3b-generic-armhf-kalifs-nano.zip
+				d3531be4a062b93cda59439be7831561958a4fa0419035c52ff4fb778dfacf1c  nethunter-2023.3b-generic-armhf-kalifs-nano.zip.torrent
 			EOF
-		)
-		if grep -e "${ARCHIVE_NAME}" <<<"${TRUSTED_SHASUMS}" | sha256sum --quiet --check &>/dev/null; then
+		)"
+		if grep --regexp="${ARCHIVE_NAME}$" <<<"${TRUSTED_SHASUMS}" | sha256sum --quiet --check &>/dev/null; then
 			_PRINT_MESSAGE "Rootfs archive is ok"
 			return
 		elif TRUSTED_SHASUMS="$(wget --quiet --output-document="-" "${BASE_URL}/SHA256SUMS")"; then
-			if grep -e "${ARCHIVE_NAME}" <<<"${TRUSTED_SHASUMS}" | sha256sum --quiet --check &>/dev/null; then
+			if grep --regexp="${ARCHIVE_NAME}$" <<<"${TRUSTED_SHASUMS}" | sha256sum --quiet --check &>/dev/null; then
 				_PRINT_MESSAGE "Rootfs archive is ok"
 				return
 			fi
@@ -208,6 +206,7 @@ _EXTRACT_ROOTFS_ARCHIVE() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
 		_PRINT_TITLE "Extracting rootfs archive"
 		# These cause mknod errors and tar exits with non zero
+		local rootfs_archive="kalifs-${SYS_ARCH}-${SELECTED_INSTALLATION}.tar.xz"
 		local exclude_files=(
 			"--exclude=${DEFAULT_ROOTFS_DIRECTORY}/dev/null"
 			"--exclude=${DEFAULT_ROOTFS_DIRECTORY}/dev/tty"
@@ -219,7 +218,7 @@ _EXTRACT_ROOTFS_ARCHIVE() {
 			"--exclude=${DEFAULT_ROOTFS_DIRECTORY}/dev/ptmx"
 		)
 		printf "${Y}"
-		proot --link2symlink tar --extract --file="${ARCHIVE_NAME}" --directory="$(dirname "${ROOTFS_DIRECTORY}")" --checkpoint=1 --checkpoint-action=ttyout="   Files extracted %{}T in %ds%*\r" "${exclude_files[@]}" &>/dev/null || _PRINT_ERROR_EXIT "Failed to extract rootfs archive" 0
+		unzip -p "${ARCHIVE_NAME}" "${rootfs_archive}" | proot --link2symlink tar --extract --xz --file="-" --directory="$(dirname "${ROOTFS_DIRECTORY}")" --checkpoint=1 --checkpoint-action=ttyout="   Extracted bytes %{}T in %ds%*\r" "${exclude_files[@]}" &>/dev/null || _PRINT_ERROR_EXIT "Failed to extract rootfs archive" 0
 		printf "${N}"
 	fi
 }
@@ -520,7 +519,7 @@ _FIX_ISSUES() {
 	if _ASK "Set UID and GID for user kali to that of Termux" "N"; then
 		_FIX_UID_AND_GID &>/dev/null && _PRINT_MESSAGE "Sucess" || _PRINT_MESSAGE "Failed" E
 	fi
-	if _ASK "Change default login shell (zsh)" "N"; then
+	if _ASK "Change login shell (default=zsh)" "N"; then
 		_SET_DEFAULT_SHELL && _PRINT_MESSAGE "Sucess" || _PRINT_MESSAGE "Failed" E
 	fi
 	if _ASK "Set Time Zone and Local Time" "N"; then
@@ -667,7 +666,7 @@ _PRINT_TITLE() {
 			# prefix=""
 			;;
 	esac
-	printf "\n${color}${prefix}${1}.${N}\n"
+	printf "\n${color}${prefix}${1}${N}\n"
 }
 
 # Prints message
@@ -688,7 +687,7 @@ _PRINT_MESSAGE() {
 			return
 			;;
 	esac
-	printf "${color}${prefix}${1}.${N}\n"
+	printf "${color}${prefix}${1}${N}\n"
 }
 
 # Prints error message and exits
@@ -697,13 +696,13 @@ _PRINT_ERROR_EXIT() {
 	local prefix="   "
 	if [ -n "${2}" ]; then
 		local suggested_messages=(
-			" Try running this script again."
-			" Internet connection required."
-			" Try '-h' or '--help' for usage."
+			" Try running this script again"
+			" Internet connection required"
+			" Try '-h' or '--help' for usage"
 		)
 		local message="${suggested_messages[${2}]}"
 	fi
-	printf "${color}${prefix}${1}.${message}${N}\n"
+	printf "${color}${prefix}${1}${message}${N}\n"
 	exit 1
 }
 
@@ -763,7 +762,8 @@ SCRIPT_REPOSITORY="termux-nethunter"
 ROOT_PASSWD="root"
 DISTRO_NAME="Kali NetHunter"
 TERMUX_FILES_DIR="/data/data/com.termux/files"
-BASE_URL="https://kali.download/nethunter-images/current/rootfs"
+BASE_URL="https://kali.download/nethunter-images/current/"
+ARCHIVE_VERSION="2023.3b"
 
 # Color supported terminals
 case "${TERM}" in
@@ -800,7 +800,7 @@ _SELECT_INSTALLATION
 
 # Arch dependent variables
 DEFAULT_ROOTFS_DIRECTORY="kali-${SYS_ARCH}"
-ARCHIVE_NAME="kalifs-${SYS_ARCH}-${SELECTED_INSTALLATION}.tar.xz"
+ARCHIVE_NAME="nethunter-${ARCHIVE_VERSION}-generic-${SYS_ARCH}-kalifs-${SELECTED_INSTALLATION}.zip"
 
 # Set installation directory (must be within Termux to prevent permission issues)
 if [ -n "${1}" ] && ROOTFS_DIRECTORY="$(realpath "${1}")" && [[ "${ROOTFS_DIRECTORY}" == "${TERMUX_FILES_DIR}"* ]]; then
