@@ -42,13 +42,9 @@ check_root() {
 # Prints the distro banner                                                     #
 ################################################################################
 print_banner() {
-	local width="$(stty size | cut -d ' ' -f2)"
-	width=$((width - 42))
-	width=$((width / 2))
 	local spaces=""
-	while [ "${width}" -gt 0 ]; do
+	for ((i = $(((($(stty size | cut -d ' ' -f2) - 42) / 2))); i > 0; i--)); do
 		spaces+=" "
-		((width--))
 	done
 	clear
 	msg -a "${spaces}┌────────────────────────────────────────┐"
@@ -76,15 +72,15 @@ check_arch() {
 		msg -q "Failed to get device architecture."
 	fi
 	case "${arch}" in
-		"arm64-v8a" | "armv8l")
-			SYS_ARCH="arm64"
-			LIB_GCC_PATH="/usr/lib/aarch64-linux-gnu/libgcc_s.so.1"
-			;;
-		"armeabi" | "armv7l" | "armeabi-v7a")
-			SYS_ARCH="armhf"
-			LIB_GCC_PATH="/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1"
-			;;
-		*) msg -q "Unsupported architecture." ;;
+	"arm64-v8a" | "armv8l")
+		SYS_ARCH="arm64"
+		LIB_GCC_PATH="/usr/lib/aarch64-linux-gnu/libgcc_s.so.1"
+		;;
+	"armeabi" | "armv7l" | "armeabi-v7a")
+		SYS_ARCH="armhf"
+		LIB_GCC_PATH="/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1"
+		;;
+	*) msg -q "Unsupported architecture." ;;
 	esac
 	msg -s "${arch} is supported."
 }
@@ -126,8 +122,8 @@ select_installation() {
 	msg -n "Enter choice: "
 	read -ren 1 SELECTED_INSTALLATION
 	case "${SELECTED_INSTALLATION}" in
-		1 | f | F) SELECTED_INSTALLATION="full" ;;
-		*) SELECTED_INSTALLATION="nano" ;;
+	1 | f | F) SELECTED_INSTALLATION="full" ;;
+	*) SELECTED_INSTALLATION="nano" ;;
 	esac
 	msg "Installing '${SELECTED_INSTALLATION}' rootfs."
 }
@@ -146,13 +142,13 @@ check_rootfs_directory() {
 				msg -n "Select action: "
 				read -ren 1 reply
 				case "${reply}" in
-					1 | u | U)
-						msg "Using rootfs directory."
-						KEEP_ROOTFS_DIRECTORY=1
-						return
-						;;
-					2 | d | D) ;;
-					*) msg -q "Rootfs directory left." ;;
+				1 | u | U)
+					msg "Using rootfs directory."
+					KEEP_ROOTFS_DIRECTORY=1
+					return
+					;;
+				2 | d | D) ;;
+				*) msg -q "Rootfs directory left." ;;
 				esac
 				unset reply
 			else
@@ -279,7 +275,7 @@ create_nh_launcher() {
 		#                                                                              #
 		#     Copyright (C) 2023  ${AUTHOR} <${GITHUB}>             #
 		#                                                                              #
-		###############################################################################e
+		################################################################################
 
 		custom_ids=""
 		login_name=""
@@ -296,145 +292,145 @@ create_nh_launcher() {
 
 		while [ "\${#}" -gt 0 ]; do
 		    case "\${1}" in
-		        --command*)
-		            optarg="\${1//--command/}"
-		            optarg="\${optarg//=/}"
-		            if [ -z "\${optarg}" ]; then
-		                shift 1
-		                optarg="\${1-}"
-		            fi
-		            if [ -z "\${optarg}" ]; then
-		                echo "Option '--command' requires an argument."
-		                exit 1
-		            fi
-		            distro_command="\${optarg}"
-		            unset optarg
-		            ;;
-		        --bind*)
-		            optarg="\${1//--bind/}"
-		            optarg="\${optarg//=/}"
-		            if [ -z "\${optarg}" ]; then
-		                shift 1
-		                optarg="\${1-}"
-		            fi
-		            if [ -z "\${optarg}" ]; then
-		                echo "Option '--bind' requires an argument."
-		                exit 1
-		            fi
-		            custom_bindings+=" --bind=\${optarg}"
-		            unset optarg
-		            ;;
-		        --share-tmp-dir)
-		            share_tmp_dir=true
-		            ;;
-		        --no-sysvipc)
-		            no_sysvipc=true
-		            ;;
-		        --no-link2symlink)
-		            no_link2symlink=true
-		            ;;
-		        --no-kill-on-exit)
-		            no_kill_on_exit=true
-		            ;;
-		        --isolated)
-		            isolated_env=true
-		            ;;
-		        --protect-ports)
-		            protect_ports=true
-		            ;;
-		        --use-termux-ids)
-		            use_termux_ids=true
-		            ;;
-		        --id*)
-		            optarg="\${1//--id/}"
-		            optarg="\${optarg//=/}"
-		            if [ -z "\${optarg}" ]; then
-		                shift 1
-		                optarg="\${1-}"
-		            fi
-		            if [ -z "\${optarg}" ]; then
-		                echo "Option '--id' requires an argument."
-		                exit 1
-		            fi
-		            custom_ids="\${optarg}"
-		            unset optarg
-		            ;;
-		        --kernel-release*)
-		            optarg="\${1//--kernel-release/}"
-		            optarg="\${optarg//=/}"
-		            if [ -z "\${optarg}" ]; then
-		                shift 1
-		                optarg="\${1-}"
-		            fi
-		            if [ -z "\${optarg}" ]; then
-		                echo "Option '--kernel-release' requires an argument."
-		                exit 1
-		            fi
-		            kernel_release="\${optarg}"
-		            unset optarg
-		            ;;
-		        -h | --help)
-		            echo "Usage: $(basename "${DISTRO_LAUNCHER}") [OPTION]... [NAME]"
-		            echo ""
-		            echo "Login as user NAME or execute a comand in ${DISTRO_NAME}."
-		            echo "(prompts for NAME if not supplied)"
-		            echo ""
-		            echo "Options:"
-		            echo "    --command[=NAME]"
-		            echo "            Execute the command NAME in distro."
-		            echo "            (default='login')"
-		            echo "    --bind[=PATH]"
-		            echo "            Make the content of PATH accessible in the guest rootfs."
-		            echo "    --share-tmp-dir"
-		            echo "            Bind TMPDIR (${TERMUX_FILES_DIR}/usr/tmp if unset)"
-		            echo "            to /tmp in the guest rootfs."
-		            echo "    --no-sysvipc"
-		            echo "            Do not handle System V IPC syscalls in proot."
-		            echo "            (WARNING: use with caution)"
-		            echo "    --no-link2symlink"
-		            echo "            Do not fake hard links with symbolic links."
-		            echo "            (WARNING: prevents hard link support)"
-		            echo "    --no-kill-on-exit"
-		            echo "            Do not kill running processes on command exit."
-		            echo "            (WARNING: use with caution)"
-		            echo "    --isolated"
-		            echo "            Do not include host specific variables and directories."
-		            echo "    --protect-ports"
-		            echo "            Modify bindings to protected ports to use a higher port"
-		            echo "            number."
-		            echo "    --use-termux-ids"
-		            echo "            Make the current user and group appear as that of termux."
-		            echo "            (ignores '--id')"
-		            echo "    --id[=UID:GID]"
-		            echo "            Make the current user and group appear as UID and GID."
-		            echo "    --kernel-release[=STRING]"
-		            echo "            Make current kernel realease appear as STRING."
-		            echo "            (default='${KERNEL_RELEASE}')"
-		            echo "    -h, --help"
-		            echo "            Print this information and exit."
-		            echo "    -v, --version"
-		            echo "            Print distro version and exit."
-		            echo ""
-		            echo "Documentation: ${GITHUB}/${REPOSITORY}"
-		            echo ""
-		            echo "Also see proot(1)"
-		            exit 0
-		            ;;
-		        -v | --version)
-		            echo "${DISTRO_NAME} launcher, version ${VERSION}."
-		            echo "Copyright (C) 2023 ${AUTHOR} <${GITHUB}>."
-		            echo "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>."
-		            echo ""
-		            echo "This is free software, you are free to change and redistribute it."
-		            echo "There is NO WARRANTY, to the extent permitted by law."
-		            exit 0
-		            ;;
-		        -*)
-		            echo "Unrecognized argument/option '\${1}'."
-		            echo "Try '$(basename "${DISTRO_LAUNCHER}") --help' for more information"
+		    --command*)
+		        optarg="\${1//--command/}"
+		        optarg="\${optarg//=/}"
+		        if [ -z "\${optarg}" ]; then
+		            shift 1
+		            optarg="\${1-}"
+		        fi
+		        if [ -z "\${optarg}" ]; then
+		            echo "Option '--command' requires an argument."
 		            exit 1
-		            ;;
-		        *) login_name="\${1}" ;;
+		        fi
+		        distro_command="\${optarg}"
+		        unset optarg
+		        ;;
+		    --bind*)
+		        optarg="\${1//--bind/}"
+		        optarg="\${optarg//=/}"
+		        if [ -z "\${optarg}" ]; then
+		            shift 1
+		            optarg="\${1-}"
+		        fi
+		        if [ -z "\${optarg}" ]; then
+		            echo "Option '--bind' requires an argument."
+		            exit 1
+		        fi
+		        custom_bindings+=" --bind=\${optarg}"
+		        unset optarg
+		        ;;
+		    --share-tmp-dir)
+		        share_tmp_dir=true
+		        ;;
+		    --no-sysvipc)
+		        no_sysvipc=true
+		        ;;
+		    --no-link2symlink)
+		        no_link2symlink=true
+		        ;;
+		    --no-kill-on-exit)
+		        no_kill_on_exit=true
+		        ;;
+		    --isolated)
+		        isolated_env=true
+		        ;;
+		    --protect-ports)
+		        protect_ports=true
+		        ;;
+		    --use-termux-ids)
+		        use_termux_ids=true
+		        ;;
+		    --id*)
+		        optarg="\${1//--id/}"
+		        optarg="\${optarg//=/}"
+		        if [ -z "\${optarg}" ]; then
+		            shift 1
+		            optarg="\${1-}"
+		        fi
+		        if [ -z "\${optarg}" ]; then
+		            echo "Option '--id' requires an argument."
+		            exit 1
+		        fi
+		        custom_ids="\${optarg}"
+		        unset optarg
+		        ;;
+		    --kernel-release*)
+		        optarg="\${1//--kernel-release/}"
+		        optarg="\${optarg//=/}"
+		        if [ -z "\${optarg}" ]; then
+		            shift 1
+		            optarg="\${1-}"
+		        fi
+		        if [ -z "\${optarg}" ]; then
+		            echo "Option '--kernel-release' requires an argument."
+		            exit 1
+		        fi
+		        kernel_release="\${optarg}"
+		        unset optarg
+		        ;;
+		    -h | --help)
+		        echo "Usage: $(basename "${DISTRO_LAUNCHER}") [OPTION]... [NAME]"
+		        echo ""
+		        echo "Login as user NAME or execute a comand in ${DISTRO_NAME}."
+		        echo "(prompts for NAME if not supplied)"
+		        echo ""
+		        echo "Options:"
+		        echo "    --command[=NAME]"
+		        echo "            Execute the command NAME in distro."
+		        echo "            (default='login')"
+		        echo "    --bind[=PATH]"
+		        echo "            Make the content of PATH accessible in the guest rootfs."
+		        echo "    --share-tmp-dir"
+		        echo "            Bind TMPDIR (${TERMUX_FILES_DIR}/usr/tmp if unset)"
+		        echo "            to /tmp in the guest rootfs."
+		        echo "    --no-sysvipc"
+		        echo "            Do not handle System V IPC syscalls in proot."
+		        echo "            (WARNING: use with caution)"
+		        echo "    --no-link2symlink"
+		        echo "            Do not fake hard links with symbolic links."
+		        echo "            (WARNING: prevents hard link support)"
+		        echo "    --no-kill-on-exit"
+		        echo "            Do not kill running processes on command exit."
+		        echo "            (WARNING: use with caution)"
+		        echo "    --isolated"
+		        echo "            Do not include host specific variables and directories."
+		        echo "    --protect-ports"
+		        echo "            Modify bindings to protected ports to use a higher port"
+		        echo "            number."
+		        echo "    --use-termux-ids"
+		        echo "            Make the current user and group appear as that of termux."
+		        echo "            (ignores '--id')"
+		        echo "    --id[=UID:GID]"
+		        echo "            Make the current user and group appear as UID and GID."
+		        echo "    --kernel-release[=STRING]"
+		        echo "            Make current kernel realease appear as STRING."
+		        echo "            (default='${KERNEL_RELEASE}')"
+		        echo "    -h, --help"
+		        echo "            Print this information and exit."
+		        echo "    -v, --version"
+		        echo "            Print distro version and exit."
+		        echo ""
+		        echo "Documentation: ${GITHUB}/${REPOSITORY}"
+		        echo ""
+		        echo "Also see proot(1)"
+		        exit 0
+		        ;;
+		    -v | --version)
+		        echo "${DISTRO_NAME} launcher, version ${VERSION}."
+		        echo "Copyright (C) 2023 ${AUTHOR} <${GITHUB}>."
+		        echo "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>."
+		        echo ""
+		        echo "This is free software, you are free to change and redistribute it."
+		        echo "There is NO WARRANTY, to the extent permitted by law."
+		        exit 0
+		        ;;
+		    -*)
+		        echo "Unrecognized argument/option '\${1}'."
+		        echo "Try '$(basename "${DISTRO_LAUNCHER}") --help' for more information"
+		        exit 1
+		        ;;
+		    *) login_name="\${1}" ;;
 		    esac
 		    shift 1
 		done
@@ -467,7 +463,7 @@ create_nh_launcher() {
 
 		# Correct the size returned from lstat for symbolic links
 		launch_command+=" -L"
-		launch_command+=" --cwd=/"
+		launch_command+=" --cwd=/root"
 		launch_command+=" --rootfs=${ROOTFS_DIRECTORY}"
 
 		# Turn off proot errors
@@ -549,7 +545,7 @@ create_nh_launcher() {
 
 		# Add host system specific variables and directories
 		if ! "\${isolated_env}"; then
-		    for dir in /data/app /data/dalvik-cache /data/misc/apexdata/com.android.art/dalvik-cache; do
+		    for dir in /apex /data/app /data/dalvik-cache /data/misc/apexdata/com.android.art/dalvik-cache /product /system /vendor; do
 		        [ ! -d "\${dir}" ] && continue
 		        dir_mode="\$(stat --format='%a' "\${dir}")"
 		        if [[ \${dir_mode:2} =~ ^[157]$ ]]; then
@@ -557,9 +553,21 @@ create_nh_launcher() {
 		        fi
 		    done
 		    unset dir dir_mode
+
+		    # Required by termux-api Android 11
+		    if [ -e "/linkerconfig/ld.config.txt" ]; then
+		        launch_command+=" --bind=/linkerconfig/ld.config.txt"
+		    fi
+
+		    # Used by getprop
+		    if [ -f /property_contexts ]; then
+		        launch_command+=" --bind=/property_contexts"
+		    fi
+
 		    launch_command+=" --bind=/data/data/com.termux/cache"
 		    launch_command+=" --bind=${TERMUX_FILES_DIR}/home"
 		    launch_command+=" --bind=${TERMUX_FILES_DIR}/usr"
+
 		    if [ -d "${TERMUX_FILES_DIR}/apps" ]; then
 		        launch_command+=" --bind=${TERMUX_FILES_DIR}/apps"
 		    fi
@@ -618,16 +626,16 @@ create_nh_launcher() {
 # Creates a script used to launch the vnc server in the distro                 #
 ################################################################################
 create_vnc_launcher() {
-	msg -t "Creating the vnc launcher."
+	msg -t "Creating the VNC launcher."
 	local vnc_launcher="${ROOTFS_DIRECTORY}/usr/local/bin/vnc"
 	mkdir -p "${ROOTFS_DIRECTORY}/usr/local/bin" && cat >"${vnc_launcher}" <<-EOF
 		#!/bin/bash -e
 
 		################################################################################
 		#                                                                              #
-		#     Vnc launcher, version ${VERSION}                                            #
+		#     VNC launcher, version ${VERSION}                                            #
 		#                                                                              #
-		#     This script starts the vnc server.                                       #
+		#     This script starts the VNC server.                                       #
 		#                                                                              #
 		#     Copyright (C) 2023  ${AUTHOR} <${GITHUB}>             #
 		#                                                                              #
@@ -638,7 +646,7 @@ create_vnc_launcher() {
 		        echo "Some applications are not meant to be run as root and may not work properly."
 		        read -rep "Continue anyway? (y/N) " -n 1 reply
 		        case "\${reply}" in
-		            y | Y) return ;;
+		        y | Y) return ;;
 		        esac
 		        echo "Abort."
 		        exit 1
@@ -651,12 +659,12 @@ create_vnc_launcher() {
 
 		set_geometry() {
 		    case "\${ORIENTATION_STYLE}" in
-		        "potrait")
-		            geometry="\${WIDTH_VALUE}x\${HEIGHT_VALUE}"
-		            ;;
-		        *)
-		            geometry="\${HEIGHT_VALUE}x\${WIDTH_VALUE}"
-		            ;;
+		    "potrait")
+		        geometry="\${WIDTH_VALUE}x\${HEIGHT_VALUE}"
+		        ;;
+		    *)
+		        geometry="\${HEIGHT_VALUE}x\${WIDTH_VALUE}"
+		        ;;
 		    esac
 		}
 
@@ -664,7 +672,7 @@ create_vnc_launcher() {
 		    if [ -x "\$(command -v vncpasswd)" ]; then
 		        vncpasswd
 		    else
-		        echo "No vnc server found."
+		        echo "No VNC server found."
 		        return 1
 		    fi
 		}
@@ -676,12 +684,12 @@ create_vnc_launcher() {
 		            export USER="\${USER-root}"
 		            LD_PRELOAD="${LIB_GCC_PATH}"
 		            # nohup \\
-		            vncserver ":\${DISPLAY_VALUE}" -localhost -geometry "\${geometry}" -depth "\${DEPTH_VALUE}" -name remote-desktop && echo "Vnc server started successfully."
+		            vncserver ":\${DISPLAY_VALUE}" -geometry "\${geometry}" -depth "\${DEPTH_VALUE}" -name remote-desktop "\${@}" && echo "VNC server started successfully."
 		        else
 		            set_passwd && start_server
 		        fi
 		    else
-		        echo "No vnc server found."
+		        echo "No VNC server found."
 		    fi
 		}
 
@@ -693,7 +701,7 @@ create_vnc_launcher() {
 		print_usage() {
 		    echo "Usage \$(basename "\${0}") [option]..."
 		    echo ""
-		    echo "Start the vnc server."
+		    echo "Start the VNC server."
 		    echo ""
 		    echo "Options:"
 		    echo "   -p, --potrait"
@@ -701,13 +709,13 @@ create_vnc_launcher() {
 		    echo "   -l, --landscape"
 		    echo "         Use landscape (\${HEIGHT_VALUE}x\${WIDTH_VALUE}) orientation. (default)"
 		    echo "   --password"
-		    echo "         Set or change the vnc password."
+		    echo "         Set or change the VNC password."
 		    echo "   -k, --kill"
 		    echo "         Kill the vncserver."
 		    echo "   -h, --help"
 		    echo "          Print this message and exit."
 		    echo ""
-		    echo "Extra options are parsed to the installed vnc server."
+		    echo "Extra options are parsed to the installed VNC server."
 		}
 
 		#############
@@ -720,42 +728,41 @@ create_vnc_launcher() {
 		ORIENTATION_STYLE="landscape"
 		DISPLAY_VALUE="\$(cut -d: -f2 <<< "\${DISPLAY}")"
 
-		extra_opts=""
+		extra_opts=()
 		while [ "\${#}" -gt 0 ]; do
 		    case "\${1}" in
-		        -p | --potrait)
-		            ORIENTATION_STYLE=potrait
-		            ;;
-		        -l | --landscape)
-		            ORIENTATION_STYLE=landscape
-		            ;;
-		        --password)
-		            set_passwd
-		            exit
-		            ;;
-		        -k | --kill)
-		            kill_server
-		            exit
-		            ;;
-		        -h | --help)
-		            print_usage
-		            exit 0
-		            ;;
-		        *) extra_opts+="'\${1}'\n" ;;
+		    -p | --potrait)
+		        ORIENTATION_STYLE=potrait
+		        ;;
+		    -l | --landscape)
+		        ORIENTATION_STYLE=landscape
+		        ;;
+		    --password)
+		        set_passwd
+		        exit
+		        ;;
+		    -k | --kill)
+		        kill_server
+		        exit
+		        ;;
+		    -h | --help)
+		        print_usage
+		        exit 0
+		        ;;
+		    *) extra_opts=("\${extra_opts}" "\${1}") ;;
 		    esac
 		    shift
 		done
-		while read opt; do
-		    set -- "\${opt}" "\${@}"
-		done < <(echo -e "\${extra_opts}")
-		unset extra_opts opt
+		set -- "\${@}"
+		unset extra_opts
 
+		# Start VNC server
 		check_root && clean_tmp && set_geometry && start_server "\${@}"
 	EOF
 	if chmod 700 "${vnc_launcher}"; then
-		msg -s "Vnc launcher was created successfully."
+		msg -s "VNC launcher was created successfully."
 	else
-		msg -e "Failed to create the vnc launcher."
+		msg -e "Failed to create the VNC launcher."
 	fi
 }
 
@@ -779,7 +786,7 @@ make_configurations() {
 }
 
 ################################################################################
-# Makes the necessary clean ups                                             #
+# Makes the necessary clean ups                                                #
 ################################################################################
 clean_up() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ] && [ -z "${KEEP_ROOTFS_IMAGE}" ] && [ -f "${ARCHIVE_NAME}" ]; then
@@ -809,7 +816,7 @@ complete_msg() {
 	msg "Normal user"
 	msg -l "Login    '${Y}kali${G}'" "Password '${Y}kali${G}'"
 	msg -t "Documentation  ${U}${GITHUB}/${REPOSITORY}${L}"
-	if [ "${SELECTED_INSTALLATION}" != "full" ]; then
+	if ${ACTION_INSTALL} && [ "${SELECTED_INSTALLATION}" != "full" ]; then
 		msg -te "This is a ${SELECTED_INSTALLATION} installation of ${DISTRO_NAME}."
 		msg "Read the documentation on how to install additional components."
 	fi
@@ -819,16 +826,26 @@ complete_msg() {
 # Uninstalls the rootfs                                                        #
 ################################################################################
 uninstall_rootfs() {
-	msg -ate "You are about to uninstall ${DISTRO_NAME} from '${ROOTFS_DIRECTORY}'."
-	if ask -n0 -- -a "Confirm action."; then
-		msg -a "Uninstalling ${DISTRO_NAME}, please wait..."
-		if rm -rf "${ROOTFS_DIRECTORY}" "${DISTRO_LAUNCHER}" "${DISTRO_SHORTCUT}"; then
-			msg -as "${DISTRO_NAME} uninstalled successfully."
+	if [ -d "${ROOTFS_DIRECTORY}" ] && [ -n "$(ls -AU "${ROOTFS_DIRECTORY}")" ]; then
+		msg -ate "You are about to uninstall ${DISTRO_NAME} from '${ROOTFS_DIRECTORY}'."
+		if ask -n0 -- -a "Confirm action."; then
+			msg -a "Uninstalling ${DISTRO_NAME}, please wait..."
+			if rm -rf "${ROOTFS_DIRECTORY}"; then
+				msg -as "${DISTRO_NAME} uninstalled successfully."
+			else
+				msg -aqm0 "Failed to uninstall ${DISTRO_NAME}."
+			fi
 		else
-			msg -aqm0 "Failed to uninstall ${DISTRO_NAME}."
+			msg -a "Uninstallation aborted."
 		fi
 	else
-		msg -a "Uninstallation aborted."
+		msg -a "No rootfs found in '${ROOTFS_DIRECTORY}'."
+	fi
+	msg -a "Removing commands."
+	if rm -rf "${DISTRO_LAUNCHER}" "${DISTRO_SHORTCUT}"; then
+		msg -as "Commands removed successfully."
+	else
+		msg -ae "Failed to remove commnds."
 	fi
 }
 
@@ -1123,7 +1140,7 @@ environment_variables_setup() {
 	cat /dev/null >"${profile_script}"
 	cat >>"${profile_script}" <<-EOF
 		# Environment variables
-		export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:/usr/local/games:/data/data/com.termux/files/usr/bin:/system/bin:/system/xbin"
+		export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:/usr/local/games:/system/bin:/system/xbin:${TERMUX_FILES_DIR}/usr/bin"
 		export TERM="${TERM-xterm-256color}"
 		if [ -z "\${LANG}" ]; then
 		    export LANG="C.UTF-8"
@@ -1132,7 +1149,7 @@ environment_variables_setup() {
 		# pulseaudio server
 		export PULSE_SERVER=127.0.0.1
 
-		# Display (for vnc)
+		# Display (for VNC)
 		if [ "\${EUID}" -eq 0 ] || [ "\$(id -u)" -eq 0 ] || [ "\$(whoami)" = "root" ]; then
 		    export DISPLAY=:0
 		else
@@ -1344,7 +1361,7 @@ colors() {
 ################################################################################
 # Prints parsed message to the standard output. All messages MUST be printed   #
 # with this function                                                           #
-# Allows options (see case inside)                                                  #
+# Allows options (see case inside)                                             #
 ################################################################################
 msg() {
 	local color="${C}"
@@ -1358,49 +1375,49 @@ msg() {
 	local trail_newline=true
 	while getopts ":tseanNqm:l" opt; do
 		case "${opt}" in
-			t)
-				prefix="\n  ${Y}* "
-				continue
-				;;
-			s)
-				color="${G}"
-				continue
-				;;
-			e)
-				color="${R}"
-				continue
-				;;
-			a)
-				append=true
-				continue
-				;;
-			n)
-				trail_newline=false
-				continue
-				;;
-			N)
-				lead_newline=true
-				continue
-				;;
-			q)
-				color="${R}"
-				quit=true
-				continue
-				;;
-			m)
-				local msgs=(
-					"Try running this script again"
-					"Internet connection required"
-					"Try '${PROGRAM_NAME} --help' for more information")
-				extra_msg="${C}${msgs[${OPTARG}]}${N}"
-				continue
-				;;
-			l)
-				list_items=true
-				color="${G}"
-				continue
-				;;
-			*) ;;
+		t)
+			prefix="\n  ${Y}* "
+			continue
+			;;
+		s)
+			color="${G}"
+			continue
+			;;
+		e)
+			color="${R}"
+			continue
+			;;
+		a)
+			append=true
+			continue
+			;;
+		n)
+			trail_newline=false
+			continue
+			;;
+		N)
+			lead_newline=true
+			continue
+			;;
+		q)
+			color="${R}"
+			quit=true
+			continue
+			;;
+		m)
+			local msgs=(
+				"Try running this script again"
+				"Internet connection required"
+				"Try '${PROGRAM_NAME} --help' for more information")
+			extra_msg="${C}${msgs[${OPTARG}]}${N}"
+			continue
+			;;
+		l)
+			list_items=true
+			color="${G}"
+			continue
+			;;
+		*) ;;
 		esac
 	done
 	shift $((OPTIND - 1))
@@ -1450,24 +1467,24 @@ ask() {
 	local retries=1
 	while getopts ":yn0123456789" opt; do
 		case "${opt}" in
-			y)
-				prompt="Y/n"
-				default="Y"
-				continue
-				;;
-			n)
-				prompt="y/N"
-				default="N"
-				continue
-				;;
-			[0-9])
-				retries=${opt}
-				continue
-				;;
-			*)
-				prompt="y/n"
-				default=""
-				;;
+		y)
+			prompt="Y/n"
+			default="Y"
+			continue
+			;;
+		n)
+			prompt="y/N"
+			default="N"
+			continue
+			;;
+		[0-9])
+			retries=${opt}
+			continue
+			;;
+		*)
+			prompt="y/n"
+			default=""
+			;;
 		esac
 	done
 	shift $((OPTIND - 1))
@@ -1479,13 +1496,13 @@ ask() {
 			reply="${default}"
 		fi
 		case "${reply}" in
-			Y | y) return 0 ;;
-			N | n) return 1 ;;
+		Y | y) return 0 ;;
+		N | n) return 1 ;;
 		esac
 		if [ -n "${default}" ] && [ "${retries}" -eq 0 ]; then
 			case "${default}" in
-				y | Y) return 0 ;;
-				n | N) return 1 ;;
+			y | Y) return 0 ;;
+			n | N) return 1 ;;
 			esac
 		fi
 		((retries--))
@@ -1511,7 +1528,7 @@ DISTRO_LAUNCHER="${TERMUX_FILES_DIR}/usr/bin/nethunter"
 BASE_URL="https://kali.download/nethunter-images/current/"
 
 # Fake host system kernel
-KERNEL_RELEASE="6.2.1-proot-nethunter"
+KERNEL_RELEASE="6.2.1-nethunter-proot"
 
 # Default installation directory
 DEFAULT_ROOTFS_DIR="${TERMUX_FILES_DIR}/usr/var/lib/${REPOSITORY}/kali-nethunter-rootfs"
@@ -1520,10 +1537,12 @@ DEFAULT_ROOTFS_DIR="${TERMUX_FILES_DIR}/usr/var/lib/${REPOSITORY}/kali-nethunter
 ROOT_PASSWORD="root"
 
 # Output for unwanted messages
-LOG_FILE=x #"/dev/null"
+LOG_FILE="/dev/null"
 
 # Enable color by default
 COLOR_SUPPORT=on
+
+# Update color variables
 colors
 
 # Main actions
@@ -1531,66 +1550,66 @@ ACTION_INSTALL=true
 ACTION_CONFIGURE=true
 ACTION_UNINSTALL=false
 
-ARGS=""
+ARGS=()
 while [ "${#}" -gt 0 ]; do
 	case "${1}" in
-		--cd*)
-			optarg="${1//--cd/}"
-			optarg="${optarg//=/}"
-			if [ -z "${optarg}" ]; then
-				shift 1
-				optarg="${1-}"
-			fi
-			if [ -z "${optarg}" ]; then
-				msg -aqm2 "Option '--cd' requires an argument."
-			fi
-			if [ -d "${optarg}" ] && [ -r "${optarg}" ]; then
-				cd "${optarg}"
-			else
-				msg -aq "Invalid directory path '${optarg}'."
-			fi
-			unset optarg
+	--cd*)
+		optarg="${1//--cd/}"
+		optarg="${optarg//=/}"
+		if [ -z "${optarg}" ]; then
+			shift 1
+			optarg="${1-}"
+		fi
+		if [ -z "${optarg}" ]; then
+			msg -aqm2 "Option '--cd' requires an argument."
+		fi
+		if [ -d "${optarg}" ] && [ -r "${optarg}" ]; then
+			cd "${optarg}"
+		else
+			msg -aq "Invalid directory path '${optarg}'."
+		fi
+		unset optarg
+		;;
+	--no-install) ACTION_INSTALL=false ;;
+	--no-configs) ACTION_CONFIGURE=false ;;
+	--uninstall) ACTION_UNINSTALL=true ;;
+	-v | --version)
+		print_version
+		exit 0
+		;;
+	-h | --help)
+		print_usage
+		exit 0
+		;;
+	--color*)
+		optarg="${1//--color/}"
+		optarg="${optarg//=/}"
+		if [ -z "${optarg}" ]; then
+			shift 1
+			optarg="${1-}"
+		fi
+		case "${optarg}" in
+		on | yes | auto | off | no | never)
+			COLOR_SUPPORT="${optarg}"
+			colors
 			;;
-		--no-install) ACTION_INSTALL=false ;;
-		--no-configs) ACTION_CONFIGURE=false ;;
-		--uninstall) ACTION_UNINSTALL=true ;;
-		-v | --version)
-			print_version
-			exit 0
+		"") msg -aqm2 "Option '--color' requires an argument." ;;
+		*)
+			msg -ae "Unrecognized argument '${optarg}' for '--color'."
+			msg -a "Valid arguments are:"
+			msg "'on'  | 'yes' | 'auto'"
+			msg "'off' | 'no'  | 'none'"
+			msg -aqm2
 			;;
-		-h | --help)
-			print_usage
-			exit 0
-			;;
-		--color*)
-			optarg="${1//--color/}"
-			optarg="${optarg//=/}"
-			if [ -z "${optarg}" ]; then
-				shift 1
-				optarg="${1-}"
-			fi
-			case "${optarg}" in
-				on | yes | auto | off | no | never)
-					COLOR_SUPPORT="${optarg}"
-					colors
-					;;
-				"") msg -aqm2 "Option '--color' requires an argument." ;;
-				*)
-					msg -ae "Unrecognized argument '${optarg}' for '--color'."
-					msg -a "Valid arguments are:"
-					msg "'on'  | 'yes' | 'auto'"
-					msg "'off' | 'no'  | 'none'"
-					msg -aqm2
-					;;
-			esac
-			unset optarg
-			;;
-		-*) msg -aqm2 "Unrecognized option '${1}'." ;;
-		*) ARGS+=" ${1}" ;;
+		esac
+		unset optarg
+		;;
+	-*) msg -aqm2 "Unrecognized option '${1}'." ;;
+	*) ARGS=("${ARGS[@]}" "${1}") ;;
 	esac
 	shift 1
 done
-set -- ${ARGS}
+set -- "${ARGS[@]}"
 unset ARGS
 
 # Prevent extra arguments
