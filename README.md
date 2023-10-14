@@ -142,9 +142,7 @@ bash install-nethunter.sh --uninstall
 
 ## BUGS
 
-All currently known bugs are fixed.
-
-Please let me know in the [issues section](https://github.com/jorexdeveloper/termux-nethunter/issues "The issues section.") if you find any.
+All currently known bugs are fixed. Please let me know in the [issues section](https://github.com/jorexdeveloper/termux-nethunter/issues "The issues section.") if you find any.
 
 ## LICENSE
 
