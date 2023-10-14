@@ -8,36 +8,35 @@ Install Kali NetHunter in Termux.
 
 ## CONTENTS
 
- * [FEATURES](#features)
- * [INSTALLATION](#installation)
- * [COMMAND LINE OPTIONS](#command-line-options)
- * [HOW TO LOGIN](#how-to-login)
-     * [LOGIN INFORMATION](#login-information)
- * [HOW TO START THE VNC SERVER](#how-to-start-the-vnc-server)
-     * [REQUIREMENTS](#requirements)
-     * [PROCEDURE](#procedure)
- * [HOW TO INSTALL XFCE AND VNC SERVER](#how-to-install-xfce-and-vnc-server)
- * [HOW TO UNINSTALL KALI NETHUNTER](#how-to-uninstall-kali-nethunter)
- * [BUGS](#bugs)
- * [LICENSE](#license)
+ * [FEATURES](#features "List of available features.")
+ * [INSTALLATION](#installation "Steps for installation.")
+ * [COMMAND LINE OPTIONS](#command-line-options "Available command line options.")
+ * [HOW TO LOGIN](#how-to-login "Steps on how to login.")
+     * [LOGIN INFORMATION](#login-information "User name and password for logging in.")
+ * [HOW TO START THE VNC SERVER](#how-to-start-the-vnc-server "Steps on how to start the VNC server.")
+     * [REQUIREMENTS](#requirements "Requirements for starting the VNC server.")
+     * [PROCEDURE](#procedure "Procedure for starting the VNC server.")
+ * [HOW TO INSTALL XFCE AND VNC SERVER](#how-to-install-xfce-and-vnc-server "Steps on how to install a Desktop Environment and a VNC server.")
+ * [HOW TO UNINSTALL KALI NETHUNTER](#how-to-uninstall-kali-nethunter "Steps on how to uninstall Kali NetHunter.")
+ * [BUGS](#bugs "Bug information")
+ * [LICENSE](#license "Program license.")
 
 ## FEATURES
 
   * Anti-root fuse.
   * Interactive Installation.
   * Color output. (if supported)
-  * Command line options. (see [here](#command-line-options))
+  * Command line options. (see [here](#command-line-options "Available command line options."))
      * Install in custom directory.
      * Install only i.e no configurations. (**use with caution**)
      * Configurations only (**if already installed**)
      * Modify color output.
      * Uninstall.
-  * Creates a VNC wrapper (see [here](#how-to-start-the-vnc-server))
+  * Creates a VNC wrapper (see [here](#how-to-start-the-vnc-server "Steps on how to start the VNC server."))
   * Automatic configurations. (i.e binding necessary directories)
   * Access System and Termux commands. (i.e termux-api commands)
   * Customize default shell and zone information before startup.
   * Other optimizations and improvements.
-  * Fixed issues [#1][i1] [#2][i2] [#3][i3] [#4][i4].
 
 ## INSTALLATION
 
@@ -94,13 +93,13 @@ After successful installation, run command `nh` or `nethunter` to start Kali Net
 
 #### REQUIREMENTS:
 
- 1. Make sure you have a **VNC server** and **Desktop environment** installed. (The **full installation** has them pre-installed, see [here](#how-to-install-xfce-and-vnc-server))
+ 1. Make sure you have a **VNC server** and **Desktop environment** installed. (The **full installation** has them pre-installed, see [here](#how-to-install-xfce-and-vnc-server "Steps on how to start the VNC server."))
 
- 2. Install [NetHunter KeX](https://store.nethunter.com/en/packages/com.offsec.nethunter.kex/), or a **VNC viewer** of your choice.
+ 2. Install [NetHunter KeX](https://store.nethunter.com/en/packages/com.offsec.nethunter.kex/ "Kali NetHunter Store"), or a **VNC viewer** of your choice.
 
 #### PROCEDURE:
 
- 1. [Login in Kali NetHunter](#how-to-login) and run command `vnc` to start the VNC server. The server will be started at **localhost** (`127.0.0.1`).
+ 1. [Login in Kali NetHunter](#how-to-login "Steps on how to login.") and run command `vnc` to start the VNC server. The server will be started at **localhost** (`127.0.0.1`).
 
  > **Tip:** The program also displays help information with option `-h` or `--help` to guide you further.
 
@@ -115,7 +114,7 @@ After successful installation, run command `nh` or `nethunter` to start Kali Net
 
 ## HOW TO INSTALL XFCE AND VNC SERVER
 
- 1. [Login in Kali NetHunter](#how-to-login).
+ 1. [Login in Kali NetHunter](#how-to-login "Steps on how to login.").
 
  2. Make a full upgrade of your system.
 
@@ -142,11 +141,13 @@ bash install-nethunter.sh --uninstall
 
 ## BUGS
 
-All currently known bugs are fixed. Please let me know in the [issues section][i0] if you find any.
+All currently known bugs are fixed.
+
+Please let me know in the [issues section](https://github.com/jorexdeveloper/termux-nethunter/issues "The issues section.") if you find any.
 
 ## LICENSE
 
-```
+```txt
     Copyright (C) 2023  Jore
 
     This program is free software: you can redistribute it and/or modify
@@ -162,9 +163,3 @@ All currently known bugs are fixed. Please let me know in the [issues section][i
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ```
-
-[i0]: https://github.com/jorexdeveloper/termux-nethunter/issues
-[i1]: https://github.com/jorexdeveloper/termux-nethunter/issues/1
-[i2]: https://github.com/jorexdeveloper/termux-nethunter/issues/2
-[i3]: https://github.com/jorexdeveloper/termux-nethunter/issues/3
-[i4]: https://github.com/jorexdeveloper/termux-nethunter/issues/4
