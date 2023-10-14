@@ -2,63 +2,63 @@
 
 Install Kali NetHunter in Termux.
 
- > Author: Jore
+> Author: Jore
 
- > Version: 2023.3b
+> Version: 2023.3b
 
 ## CONTENTS
 
- * [FEATURES](#features "List of available features.")
- * [INSTALLATION](#installation "Steps for installation.")
- * [COMMAND LINE OPTIONS](#command-line-options "Available command line options.")
- * [HOW TO LOGIN](#how-to-login "Steps on how to login.")
-     * [LOGIN INFORMATION](#login-information "User name and password for logging in.")
- * [HOW TO START THE VNC SERVER](#how-to-start-the-vnc-server "Steps on how to start the VNC server.")
-     * [REQUIREMENTS](#requirements "Requirements for starting the VNC server.")
-     * [PROCEDURE](#procedure "Procedure for starting the VNC server.")
- * [HOW TO INSTALL XFCE AND VNC SERVER](#how-to-install-xfce-and-vnc-server "Steps on how to install a Desktop Environment and a VNC server.")
- * [HOW TO UNINSTALL KALI NETHUNTER](#how-to-uninstall-kali-nethunter "Steps on how to uninstall Kali NetHunter.")
- * [BUGS](#bugs "Bug information")
- * [LICENSE](#license "Program license.")
+- [FEATURES](#features "List of available features.")
+- [INSTALLATION](#installation "Steps for installation.")
+- [COMMAND LINE OPTIONS](#command-line-options "Available command line options.")
+- [HOW TO LOGIN](#how-to-login "Steps on how to login.")
+  - [LOGIN INFORMATION](#login-information "User name and password for logging in.")
+- [HOW TO START THE VNC SERVER](#how-to-start-the-vnc-server "Steps on how to start the VNC server.")
+  - [REQUIREMENTS](#requirements "Requirements for starting the VNC server.")
+  - [PROCEDURE](#procedure "Procedure for starting the VNC server.")
+- [HOW TO INSTALL XFCE AND VNC SERVER](#how-to-install-xfce-and-vnc-server "Steps on how to install a Desktop Environment and a VNC server.")
+- [HOW TO UNINSTALL KALI NETHUNTER](#how-to-uninstall-kali-nethunter "Steps on how to uninstall Kali NetHunter.")
+- [BUGS](#bugs "Bug information")
+- [LICENSE](#license "Program license.")
 
 ## FEATURES
 
-  * Anti-root fuse.
-  * Interactive Installation.
-  * Color output. (if supported)
-  * Command line options. (see [here](#command-line-options "Available command line options."))
-     * Install in custom directory.
-     * Install only i.e no configurations. (**use with caution**)
-     * Configurations only (**if already installed**)
-     * Modify color output.
-     * Uninstall.
-  * Creates a VNC wrapper (see [here](#how-to-start-the-vnc-server "Steps on how to start the VNC server."))
-  * Automatic configurations. (i.e binding necessary directories)
-  * Access System and Termux commands. (i.e termux-api commands)
-  * Customize default shell and zone information before startup.
-  * Other optimizations and improvements.
+- Anti-root fuse.
+- Interactive Installation.
+- Color output. (if supported)
+- Command line options. (see [here](#command-line-options "Available command line options."))
+  - Install in custom directory.
+  - Install only i.e no configurations. (**use with caution**)
+  - Configurations only (**if already installed**)
+  - Modify color output.
+  - Uninstall.
+- Creates a VNC wrapper (see [here](#how-to-start-the-vnc-server "Steps on how to start the VNC server."))
+- Automatic configurations. (i.e binding necessary directories)
+- Access System and Termux commands. (i.e termux-api commands)
+- Customize default shell and zone information before startup.
+- Other optimizations and improvements.
 
 ## INSTALLATION
 
- 1. Update installed packages by executing the following commands.
+1.  Update installed packages by executing the following commands.
 
- ```bash
- pkg update && pkg upgrade
- ```
+```bash
+pkg update && pkg upgrade
+```
 
- 2. Install `wget`. (`curl` is an alternative)
+2.  Install `wget`. (`curl` is an alternative)
 
- ```bash
- pkg install wget
- ```
+```bash
+pkg install wget
+```
 
- 3. Download the installer script. (**install-nethunter.sh**)
+3.  Download the installer script. (**install-nethunter.sh**)
 
 ```bash
 wget -O install-nethunter.sh https://raw.githubusercontent.com/jorexdeveloper/termux-nethunter/main/install-nethunter.sh
 ```
 
- 4. Now execute the installer script.
+4.  Now execute the installer script.
 
 ```bash
 bash install-nethunter.sh --help
@@ -85,7 +85,7 @@ After successful installation, run command `nh` or `nethunter` to start Kali Net
 ### LOGIN INFORMATION
 
 | Login              | Password |
-|--------------------|----------|
+| ------------------ | -------- |
 | root (super user)  | **root** |
 | kali (normal user} | **kali** |
 
@@ -93,41 +93,42 @@ After successful installation, run command `nh` or `nethunter` to start Kali Net
 
 #### REQUIREMENTS:
 
- 1. Make sure you have a **VNC server** and **Desktop environment** installed. (The **full installation** has them pre-installed, see [here](#how-to-install-xfce-and-vnc-server "Steps on how to start the VNC server."))
+1.  Make sure you have a **VNC server** and **Desktop environment** installed. (The **full installation** has them pre-installed, see [here](#how-to-install-xfce-and-vnc-server "Steps on how to start the VNC server."))
 
- 2. Install [NetHunter KeX](https://store.nethunter.com/en/packages/com.offsec.nethunter.kex/ "Kali NetHunter Store"), or a **VNC viewer** of your choice.
+2.  Install [NetHunter KeX](https://store.nethunter.com/en/packages/com.offsec.nethunter.kex/ "Kali NetHunter Store"), or a **VNC viewer** of your choice.
 
 #### PROCEDURE:
 
- 1. [Login in Kali NetHunter](#how-to-login "Steps on how to login.") and run command `vnc` to start the VNC server. The server will be started at **localhost** (`127.0.0.1`).
+1.  [Login in Kali NetHunter](#how-to-login "Steps on how to login.") and run command `vnc` to start the VNC server. The server will be started at **localhost** (`127.0.0.1`).
 
- > **Tip:** The program also displays help information with option `-h` or `--help` to guide you further.
+> **Tip:** The program also displays help information with option `-h` or `--help` to guide you further.
 
- 2. On the first run, you will be prompted for a password. You will use this password to login and connect to the VNC server.
+2.  On the first run, you will be prompted for a password. You will use this password to login and connect to the VNC server.
 
- 3. Now open NetHunter KeX and login with the password in step 2.
+3.  Now open NetHunter KeX and login with the password in step 2.
 
-| User  | Display  | Port | Address     |
-|-------|----------|------|-------------|
-| Root  | :0       | 5900 | localhost:0 |
-| Other | :1       | 5901 | localhost:1 |
+| User  | Display | Port | Address     |
+| ----- | ------- | ---- | ----------- |
+| Root  | :0      | 5900 | localhost:0 |
+| Other | :1      | 5901 | localhost:1 |
 
 ## HOW TO INSTALL XFCE AND VNC SERVER
 
- 1. [Login in Kali NetHunter](#how-to-login "Steps on how to login.").
+1.  [Login in Kali NetHunter](#how-to-login "Steps on how to login.").
 
- 2. Make a full upgrade of your system.
+2.  Make a full upgrade of your system.
 
 ```bash
 sudo apt update && sudo apt full-upgrade
 ```
 
- 3. Run the following commands.
+3.  Run the following commands.
 
 ```bash
 sudo apt install dbus-x11 tigervnc-standalone-server kali-desktop-xfce
 ```
- > **Tip:** This will take a while, just make sure you don't exit Termux during the installation or you might run into some problems later.
+
+> **Tip:** This will take a while, just make sure you don't exit Termux during the installation or you might run into some problems later.
 
 ## HOW TO UNINSTALL KALI NETHUNTER
 
