@@ -72,15 +72,15 @@ check_arch() {
 		msg -q "Failed to get device architecture."
 	fi
 	case "${arch}" in
-	"arm64-v8a" | "armv8l")
-		SYS_ARCH="arm64"
-		LIB_GCC_PATH="/usr/lib/aarch64-linux-gnu/libgcc_s.so.1"
-		;;
-	"armeabi" | "armv7l" | "armeabi-v7a")
-		SYS_ARCH="armhf"
-		LIB_GCC_PATH="/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1"
-		;;
-	*) msg -q "Unsupported architecture." ;;
+		"arm64-v8a" | "armv8l")
+			SYS_ARCH="arm64"
+			LIB_GCC_PATH="/usr/lib/aarch64-linux-gnu/libgcc_s.so.1"
+			;;
+		"armeabi" | "armv7l" | "armeabi-v7a")
+			SYS_ARCH="armhf"
+			LIB_GCC_PATH="/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1"
+			;;
+		*) msg -q "Unsupported architecture." ;;
 	esac
 	msg -s "${arch} is supported."
 }
@@ -122,8 +122,8 @@ select_installation() {
 	msg -n "Enter choice: "
 	read -ren 1 SELECTED_INSTALLATION
 	case "${SELECTED_INSTALLATION}" in
-	1 | f | F) SELECTED_INSTALLATION="full" ;;
-	*) SELECTED_INSTALLATION="nano" ;;
+		1 | f | F) SELECTED_INSTALLATION="full" ;;
+		*) SELECTED_INSTALLATION="nano" ;;
 	esac
 	msg "Installing '${SELECTED_INSTALLATION}' rootfs."
 }
@@ -142,13 +142,13 @@ check_rootfs_directory() {
 				msg -n "Select action: "
 				read -ren 1 reply
 				case "${reply}" in
-				1 | u | U)
-					msg "Using rootfs directory."
-					KEEP_ROOTFS_DIRECTORY=1
-					return
-					;;
-				2 | d | D) ;;
-				*) msg -q "Rootfs directory left." ;;
+					1 | u | U)
+						msg "Using rootfs directory."
+						KEEP_ROOTFS_DIRECTORY=1
+						return
+						;;
+					2 | d | D) ;;
+					*) msg -q "Rootfs directory left." ;;
 				esac
 				unset reply
 			else
@@ -749,11 +749,11 @@ create_vnc_launcher() {
 		        print_usage
 		        exit 0
 		        ;;
-		    *) extra_opts=("\${extra_opts}" "\${1}") ;;
+		    *) extra_opts=("\${extra_opts[@]}" "\${1}") ;;
 		    esac
 		    shift
 		done
-		set -- "\${@}"
+		set -- "\${extra_opts[@]}"
 		unset extra_opts
 
 		# Start VNC server
@@ -1375,49 +1375,49 @@ msg() {
 	local trail_newline=true
 	while getopts ":tseanNqm:l" opt; do
 		case "${opt}" in
-		t)
-			prefix="\n  ${Y}* "
-			continue
-			;;
-		s)
-			color="${G}"
-			continue
-			;;
-		e)
-			color="${R}"
-			continue
-			;;
-		a)
-			append=true
-			continue
-			;;
-		n)
-			trail_newline=false
-			continue
-			;;
-		N)
-			lead_newline=true
-			continue
-			;;
-		q)
-			color="${R}"
-			quit=true
-			continue
-			;;
-		m)
-			local msgs=(
-				"Try running this script again"
-				"Internet connection required"
-				"Try '${PROGRAM_NAME} --help' for more information")
-			extra_msg="${C}${msgs[${OPTARG}]}${N}"
-			continue
-			;;
-		l)
-			list_items=true
-			color="${G}"
-			continue
-			;;
-		*) ;;
+			t)
+				prefix="\n  ${Y}* "
+				continue
+				;;
+			s)
+				color="${G}"
+				continue
+				;;
+			e)
+				color="${R}"
+				continue
+				;;
+			a)
+				append=true
+				continue
+				;;
+			n)
+				trail_newline=false
+				continue
+				;;
+			N)
+				lead_newline=true
+				continue
+				;;
+			q)
+				color="${R}"
+				quit=true
+				continue
+				;;
+			m)
+				local msgs=(
+					"Try running this script again"
+					"Internet connection required"
+					"Try '${PROGRAM_NAME} --help' for more information")
+				extra_msg="${C}${msgs[${OPTARG}]}${N}"
+				continue
+				;;
+			l)
+				list_items=true
+				color="${G}"
+				continue
+				;;
+			*) ;;
 		esac
 	done
 	shift $((OPTIND - 1))
@@ -1467,24 +1467,24 @@ ask() {
 	local retries=1
 	while getopts ":yn0123456789" opt; do
 		case "${opt}" in
-		y)
-			prompt="Y/n"
-			default="Y"
-			continue
-			;;
-		n)
-			prompt="y/N"
-			default="N"
-			continue
-			;;
-		[0-9])
-			retries=${opt}
-			continue
-			;;
-		*)
-			prompt="y/n"
-			default=""
-			;;
+			y)
+				prompt="Y/n"
+				default="Y"
+				continue
+				;;
+			n)
+				prompt="y/N"
+				default="N"
+				continue
+				;;
+			[0-9])
+				retries=${opt}
+				continue
+				;;
+			*)
+				prompt="y/n"
+				default=""
+				;;
 		esac
 	done
 	shift $((OPTIND - 1))
@@ -1496,13 +1496,13 @@ ask() {
 			reply="${default}"
 		fi
 		case "${reply}" in
-		Y | y) return 0 ;;
-		N | n) return 1 ;;
+			Y | y) return 0 ;;
+			N | n) return 1 ;;
 		esac
 		if [ -n "${default}" ] && [ "${retries}" -eq 0 ]; then
 			case "${default}" in
-			y | Y) return 0 ;;
-			n | N) return 1 ;;
+				y | Y) return 0 ;;
+				n | N) return 1 ;;
 			esac
 		fi
 		((retries--))
@@ -1553,59 +1553,59 @@ ACTION_UNINSTALL=false
 ARGS=()
 while [ "${#}" -gt 0 ]; do
 	case "${1}" in
-	--cd*)
-		optarg="${1//--cd/}"
-		optarg="${optarg//=/}"
-		if [ -z "${optarg}" ]; then
-			shift 1
-			optarg="${1-}"
-		fi
-		if [ -z "${optarg}" ]; then
-			msg -aqm2 "Option '--cd' requires an argument."
-		fi
-		if [ -d "${optarg}" ] && [ -r "${optarg}" ]; then
-			cd "${optarg}"
-		else
-			msg -aq "Invalid directory path '${optarg}'."
-		fi
-		unset optarg
-		;;
-	--no-install) ACTION_INSTALL=false ;;
-	--no-configs) ACTION_CONFIGURE=false ;;
-	--uninstall) ACTION_UNINSTALL=true ;;
-	-v | --version)
-		print_version
-		exit 0
-		;;
-	-h | --help)
-		print_usage
-		exit 0
-		;;
-	--color*)
-		optarg="${1//--color/}"
-		optarg="${optarg//=/}"
-		if [ -z "${optarg}" ]; then
-			shift 1
-			optarg="${1-}"
-		fi
-		case "${optarg}" in
-		on | yes | auto | off | no | never)
-			COLOR_SUPPORT="${optarg}"
-			colors
+		--cd*)
+			optarg="${1//--cd/}"
+			optarg="${optarg//=/}"
+			if [ -z "${optarg}" ]; then
+				shift 1
+				optarg="${1-}"
+			fi
+			if [ -z "${optarg}" ]; then
+				msg -aqm2 "Option '--cd' requires an argument."
+			fi
+			if [ -d "${optarg}" ] && [ -r "${optarg}" ]; then
+				cd "${optarg}"
+			else
+				msg -aq "Invalid directory path '${optarg}'."
+			fi
+			unset optarg
 			;;
-		"") msg -aqm2 "Option '--color' requires an argument." ;;
-		*)
-			msg -ae "Unrecognized argument '${optarg}' for '--color'."
-			msg -a "Valid arguments are:"
-			msg "'on'  | 'yes' | 'auto'"
-			msg "'off' | 'no'  | 'none'"
-			msg -aqm2
+		--no-install) ACTION_INSTALL=false ;;
+		--no-configs) ACTION_CONFIGURE=false ;;
+		--uninstall) ACTION_UNINSTALL=true ;;
+		-v | --version)
+			print_version
+			exit 0
 			;;
-		esac
-		unset optarg
-		;;
-	-*) msg -aqm2 "Unrecognized option '${1}'." ;;
-	*) ARGS=("${ARGS[@]}" "${1}") ;;
+		-h | --help)
+			print_usage
+			exit 0
+			;;
+		--color*)
+			optarg="${1//--color/}"
+			optarg="${optarg//=/}"
+			if [ -z "${optarg}" ]; then
+				shift 1
+				optarg="${1-}"
+			fi
+			case "${optarg}" in
+				on | yes | auto | off | no | never)
+					COLOR_SUPPORT="${optarg}"
+					colors
+					;;
+				"") msg -aqm2 "Option '--color' requires an argument." ;;
+				*)
+					msg -ae "Unrecognized argument '${optarg}' for '--color'."
+					msg -a "Valid arguments are:"
+					msg "'on'  | 'yes' | 'auto'"
+					msg "'off' | 'no'  | 'none'"
+					msg -aqm2
+					;;
+			esac
+			unset optarg
+			;;
+		-*) msg -aqm2 "Unrecognized option '${1}'." ;;
+		*) ARGS=("${ARGS[@]}" "${1}") ;;
 	esac
 	shift 1
 done
