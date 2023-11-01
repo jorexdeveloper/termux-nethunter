@@ -6,7 +6,8 @@ Install Kali NetHunter in Termux.
 
 > Version: 2023.3b
 
-## CONTENTS
+<details>
+<summary>CONTENTS</summary>
 
 - [FEATURES](#features "List of available features.")
 - [INSTALLATION](#installation "Steps for installation.")
@@ -17,9 +18,12 @@ Install Kali NetHunter in Termux.
   - [REQUIREMENTS](#requirements "Requirements for starting the VNC server.")
   - [PROCEDURE](#procedure "Procedure for starting the VNC server.")
 - [HOW TO INSTALL XFCE AND VNC SERVER](#how-to-install-xfce-and-vnc-server "Steps on how to install a Desktop Environment and a VNC server.")
+- [USING AS ROOT](#using-as-root "Installing Kali NetHunter as root")
 - [HOW TO UNINSTALL KALI NETHUNTER](#how-to-uninstall-kali-nethunter "Steps on how to uninstall Kali NetHunter.")
 - [BUGS](#bugs "Bug information")
 - [LICENSE](#license "Program license.")
+
+</details>
 
 ## FEATURES
 
@@ -129,6 +133,22 @@ sudo apt install dbus-x11 tigervnc-standalone-server kali-desktop-xfce
 ```
 
 > **Tip:** This will take a while, just make sure you don't exit Termux during the installation or you might run into some problems later.
+
+## USING AS ROOT
+
+**Installing/Running Kali NetHunter as root** can have unintended effects, and should only be done when you are sure of what's happening in the background (how linux works) or you might **damage your device**, even worse **bricking it**.
+
+For that reason, I have added an **anti root fuse** and disabling it will require you to comment out the appropriate lines from the installer script.
+
+**NOTE: You can still have root privileges within Kali NetHunter provided by `proot`, even without installing as root. (see the proot manual pages)**
+
+You will have to search and comment out the function call to `check_root` in the installer script. i.e
+
+```bash
+  ...
+  # check_root
+  ...
+```
 
 ## HOW TO UNINSTALL KALI NETHUNTER
 
