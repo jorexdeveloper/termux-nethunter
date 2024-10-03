@@ -105,7 +105,7 @@ After successful installation, run command `nh` or `nethunter` to start Kali Net
 
 1.  Make sure you have a **VNC server** and **Desktop environment** installed. (The **full installation** has them pre-installed, see [here](#how-to-install-xfce-and-vnc-server "Steps on how to start the VNC server."))
 
-2.  Install [NetHunter KeX](https://store.nethunter.com/en/packages/com.offsec.nethunter.kex/ "Kali NetHunter Store"), or a **VNC viewer** of your choice.
+2.  Install [NetHunter KeX](https://store.nethunter.com/en/packages "Kali NetHunter Store"), or a **VNC viewer** of your choice.
 
 #### PROCEDURE:
 
