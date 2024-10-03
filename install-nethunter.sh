@@ -27,7 +27,7 @@ AUTHOR="Jore"
 GITHUB="https://github.com/jorexdeveloper"
 PROGRAM_NAME="install-nethunter"
 REPOSITORY="termux-nethunter"
-VERSION="2023.3b"
+VERSION="2024.1a"
 
 ################################################################################
 # Prevents running this program as root to prevent harm to system directories  #
@@ -54,7 +54,7 @@ print_banner() {
 	msg -a "${spaces}│${Y}                ${VERSION}                 ${C}│"
 	msg -a "${spaces}└────────────────────────────────────────┘"
 	msg -a "${spaces}               Author: ${AUTHOR}"
-	msg -a "${spaces}Github: ${U}${GITHUB}${L}"
+	msg -a "${spaces}Github: ${U}${GITHUB}${L}/"
 }
 
 ################################################################################
@@ -118,11 +118,12 @@ check_dependencies() {
 ################################################################################
 select_installation() {
 	msg -t "Select rootfs installation."
-	msg -l "${DISTRO_NAME} ${SYS_ARCH} Full" "${DISTRO_NAME} ${SYS_ARCH} Nano (default)"
+	msg -l "${DISTRO_NAME}-${SYS_ARCH}-Full" "${DISTRO_NAME}-${SYS_ARCH}-Minimal" "${DISTRO_NAME}-${SYS_ARCH}-Nano (default)"
 	msg -n "Enter choice: "
 	read -ren 1 SELECTED_INSTALLATION
 	case "${SELECTED_INSTALLATION}" in
 		1 | f | F) SELECTED_INSTALLATION="full" ;;
+		2 | m | M) SELECTED_INSTALLATION="minimal" ;;
 		*) SELECTED_INSTALLATION="nano" ;;
 	esac
 	msg "Installing '${SELECTED_INSTALLATION}' rootfs."
@@ -201,8 +202,8 @@ download_rootfs_archive() {
 		local tmp_dload="${ARCHIVE_NAME}.nhdownload"
 		msg -t "Downloading rootfs archive."
 		if wget --no-verbose --continue --show-progress --output-document="${tmp_dload}" "${BASE_URL}/${ARCHIVE_NAME}"; then
-			msg -s "Rootfs archive download complete."
 			mv "${tmp_dload}" "${ARCHIVE_NAME}"
+			msg -s "Rootfs archive download complete."
 		else
 			rm -rf "${tmp_dload}"
 			msg -qm1 "Failed to download rootfs archive."
@@ -218,17 +219,15 @@ verify_rootfs_archive() {
 		msg -t "Verifying the integrity of the rootfs archive."
 		local trusted_shasums="$(
 			cat <<-EOF
-				7406c9a0e7e3f5fd88454945eb7f0a63f993d48abde38af2ec9ed00b33ff204c  nethunter-2023.3b-generic-arm64-kalifs-full.zip
-				96aa1d409d0430de28cddd9613a46c486b67cd322f3988aee121c374469b4b88  nethunter-2023.3b-generic-arm64-kalifs-nano.zip
-				09dc86d922d134335198dec955515bca67809b2d752c269454590285a68dba84  nethunter-2023.3b-generic-armhf-kalifs-full.zip
-				7fbf5f20543b34a1d2c3c1d4f1137c2f40742dd53d28229a82986e6042b294fa  nethunter-2023.3b-generic-armhf-kalifs-nano.zip
+				10e5bf2e7a950a8ebdf7f0410feff52c6067c3ffbba7cb1164b082329c3b5759e81573839c63184be642a44e7cd581186f645910f29bd85c5f488a1ae8692fd9  kali-nethunter-rootfs-nano-armhf.tar.xz
+				c045d0d5bbb08667803b23d653cd1de1869d42b7437c3de8dce241361c28a75396e879e01fb68060321b97af9ceea81142b44ef71558d2b60ff292d7a7dc5aaa  kali-nethunter-rootfs-full-armhf.tar.xz
 			EOF
 		)"
-		if grep --regexp="${ARCHIVE_NAME}$" <<<"${trusted_shasums}" | sha256sum --quiet --check &>>"${LOG_FILE}"; then
+		if grep --regexp="${ARCHIVE_NAME}$" <<<"${trusted_shasums}" | sha512sum --quiet --check &>>"${LOG_FILE}"; then
 			msg -s "Rootfs archive is ok."
 			return
-		elif trusted_shasums="$(wget --quiet --output-document="-" "${BASE_URL}/SHA256SUMS")"; then
-			if grep --regexp="${ARCHIVE_NAME}$" <<<"${trusted_shasums}" | sha256sum --quiet --check &>>"${LOG_FILE}"; then
+		elif trusted_shasums="$(wget --quiet --output-document="-" "${BASE_URL}/${ARCHIVE_NAME}.sha512sum")"; then # "${BASE_URL}/SHA256SUMS")"; then
+			if grep --regexp="${ARCHIVE_NAME}$" <<<"${trusted_shasums}" | sha512sum --quiet --check &>>"${LOG_FILE}"; then
 				msg -s "Rootfs archive is ok."
 				return
 			fi
@@ -248,7 +247,9 @@ extract_rootfs_archive() {
 		trap 'rm -rf "${ROOTFS_DIRECTORY}"; msg -q "Exiting immediately as requested.                        "' HUP INT TERM
 		mkdir -p "${ROOTFS_DIRECTORY}"
 		set +e
-		if unzip -p "${ARCHIVE_NAME}" "kalifs-${SYS_ARCH}-${SELECTED_INSTALLATION}.tar.xz" | proot --link2symlink tar --strip=1 --delay-directory-restore --warning=no-unknown-keyword --extract --xz --exclude="dev" --file="-" --directory="${ROOTFS_DIRECTORY}" --checkpoint=1 --checkpoint-action=ttyout="${I}${Y}    Extracted %{}T in %ds%*\r${N}${V}" &>>"${LOG_FILE}"; then
+		if # unzip -p "${ARCHIVE_NAME}" "kalifs-${SYS_ARCH}-${SELECTED_INSTALLATION}.tar.xz" |
+			proot --link2symlink tar --strip=2 --delay-directory-restore --warning=no-unknown-keyword --extract --xz --exclude="dev" --file="${ARCHIVE_NAME}" --directory="${ROOTFS_DIRECTORY}" --checkpoint=1 --checkpoint-action=ttyout="${I}${Y}    Extracted %{}T in %ds%*\r${N}${V}" &>>"${LOG_FILE}"
+		then
 			msg -s "Rootfs extracted successfully."
 		else
 			rm -rf "${ROOTFS_DIRECTORY}"
@@ -1525,13 +1526,13 @@ DISTRO_SHORTCUT="${TERMUX_FILES_DIR}/usr/bin/nh"
 DISTRO_LAUNCHER="${TERMUX_FILES_DIR}/usr/bin/nethunter"
 
 # Base url of rootfs archive
-BASE_URL="https://kali.download/nethunter-images/current/"
+BASE_URL="https://kali.download/nethunter-images/current/rootfs"
 
 # Fake host system kernel
 KERNEL_RELEASE="6.2.1-nethunter-proot"
 
 # Default installation directory
-DEFAULT_ROOTFS_DIR="${TERMUX_FILES_DIR}/usr/var/lib/${REPOSITORY}/kali-nethunter-rootfs"
+DEFAULT_ROOTFS_DIR="${TERMUX_FILES_DIR}/usr/var/lib/kali-nethunter-rootfs"
 
 # Password for user root
 ROOT_PASSWORD="root"
@@ -1647,7 +1648,7 @@ msg -t "Using '${ROOTFS_DIRECTORY}' as rootfs directory."
 # Install actions
 if ${ACTION_INSTALL}; then
 	select_installation
-	ARCHIVE_NAME="nethunter-${VERSION}-generic-${SYS_ARCH}-kalifs-${SELECTED_INSTALLATION}.zip"
+	ARCHIVE_NAME="kali-nethunter-rootfs-${SELECTED_INSTALLATION}-${SYS_ARCH}.tar.xz" # "nethunter-${VERSION}-generic-${SYS_ARCH}-kalifs-${SELECTED_INSTALLATION}.zip"
 	check_rootfs_directory
 	download_rootfs_archive
 	verify_rootfs_archive
