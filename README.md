@@ -1,7 +1,7 @@
 # TERMUX NETHUNTER
 
 <div style="width:100%;background-color:black;border:3px solid black;border-radius:6px;margin:5px 0;padding:2px 5px">
-  <img src="./logo.webp"
+  <img src="./logo.jpg"
     alt="image could not be loaded"
     style="color:red;background-color:black;font-weight:bold"/>
 </div>
@@ -10,7 +10,7 @@ Install Kali NetHunter in Termux.
 
 > Author: Jore
 
-> Version: 2024.1a
+> Version: 2024.3
 
 <details>
 <summary>CONTENTS</summary>
