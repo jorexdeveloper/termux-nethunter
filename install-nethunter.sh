@@ -27,7 +27,7 @@ AUTHOR="Jore"
 GITHUB="https://github.com/jorexdeveloper"
 PROGRAM_NAME="install-nethunter"
 REPOSITORY="termux-nethunter"
-VERSION="2024.1a"
+VERSION="2024.3"
 
 ################################################################################
 # Prevents running this program as root to prevent harm to system directories  #
@@ -41,7 +41,7 @@ check_root() {
 ################################################################################
 # Prints the distro banner                                                     #
 ################################################################################
-print_banner() {
+print_logo() {
 	local spaces=""
 	for ((i = $(((($(stty size | cut -d ' ' -f2) - 42) / 2))); i > 0; i--)); do
 		spaces+=" "
@@ -51,7 +51,7 @@ print_banner() {
 	msg -a "${spaces}│${G}╻┏ ┏━┓╻  ╻   ┏┓╻┏━╸╺┳╸╻ ╻╻ ╻┏┓╻╺┳╸┏━╸┏━┓${C}│"
 	msg -a "${spaces}│${G}┣┻┓┣━┫┃  ┃   ┃┗┫┣╸  ┃ ┣━┫┃ ┃┃┗┫ ┃ ┣╸ ┣┳┛${C}│"
 	msg -a "${spaces}│${G}╹ ╹╹ ╹┗━╸╹   ╹ ╹┗━╸ ╹ ╹ ╹┗━┛╹ ╹ ╹ ┗━╸╹┗╸${C}│"
-	msg -a "${spaces}│${Y}                ${VERSION}                 ${C}│"
+	msg -a "${spaces}│${Y}                 ${VERSION}                 ${C}│"
 	msg -a "${spaces}└────────────────────────────────────────┘"
 	msg -a "${spaces}               Author: ${AUTHOR}"
 	msg -a "${spaces}Github: ${U}${GITHUB}${L}/"
@@ -220,6 +220,7 @@ verify_rootfs_archive() {
 		local trusted_shasums="$(
 			cat <<-EOF
 				10e5bf2e7a950a8ebdf7f0410feff52c6067c3ffbba7cb1164b082329c3b5759e81573839c63184be642a44e7cd581186f645910f29bd85c5f488a1ae8692fd9  kali-nethunter-rootfs-nano-armhf.tar.xz
+				6f143c93a1a0cca739ecf51d0091a7850e4ec135e66b5dc66d30969ef924ea9ba71186b8bf9b725f670785867e2ba5ac57afbd577eb6850d35cb5adbdefc1cd8  kali-nethunter-rootfs-minimal-armhf.tar.xz
 				c045d0d5bbb08667803b23d653cd1de1869d42b7437c3de8dce241361c28a75396e879e01fb68060321b97af9ceea81142b44ef71558d2b60ff292d7a7dc5aaa  kali-nethunter-rootfs-full-armhf.tar.xz
 			EOF
 		)"
@@ -263,7 +264,7 @@ extract_rootfs_archive() {
 ################################################################################
 # Creates a script used to login into the distro                               #
 ################################################################################
-create_nh_launcher() {
+create_rootfs_launcher() {
 	msg -t "Creating ${DISTRO_NAME} launcher."
 	mkdir -p "$(dirname "${DISTRO_LAUNCHER}")" && cat >"${DISTRO_LAUNCHER}" <<-EOF
 		#!/bin/bash -e
@@ -1136,7 +1137,7 @@ fake_proc_setup() {
 ################################################################################
 environment_variables_setup() {
 	local status=""
-	local profile_script="${ROOTFS_DIRECTORY}/etc/profile.d/nethunter-installer.sh"
+	local profile_script="${ROOTFS_DIRECTORY}/etc/profile.d/set-vars.sh"
 	mkdir -p "${ROOTFS_DIRECTORY}/etc/profile.d/"
 	cat /dev/null >"${profile_script}"
 	cat >>"${profile_script}" <<-EOF
@@ -1164,9 +1165,9 @@ environment_variables_setup() {
 	status+="-${?}"
 	local java_home
 	if [[ ${SYS_ARCH} == "armhf" ]]; then
-		java_home="/usr/lib/jvm/java-17-openjdk-armhf"
+		java_home="/usr/lib/jvm/java-*-openjdk-armhf"
 	else
-		java_home="/usr/lib/jvm/java-17-openjdk-aarch64"
+		java_home="/usr/lib/jvm/java-*-openjdk-aarch64"
 	fi
 	cat >>"${profile_script}" <<-EOF
 
@@ -1240,10 +1241,13 @@ settings_configurations() {
 		chmod +s "${dir}/su"
 	fi
 	status+="-${?}"
-	cat >"${ROOTFS_DIRECTORY}/etc/resolv.conf" <<-EOF
-		nameserver 8.8.8.8
-		nameserver 8.8.4.4
-	EOF
+	local resol_conf="${ROOTFS_DIRECTORY}/etc/resolv.conf"
+	if touch "${resol_conf}" && chmod +w "${resol_conf}"; then
+		cat >"${resol_conf}" <<-EOF
+			nameserver 8.8.8.8
+			nameserver 8.8.4.4
+		EOF
+	fi
 	status+="-${?}"
 	cat >"${ROOTFS_DIRECTORY}/etc/hosts" <<-EOF
 		# IPv4
@@ -1526,19 +1530,19 @@ DISTRO_SHORTCUT="${TERMUX_FILES_DIR}/usr/bin/nh"
 DISTRO_LAUNCHER="${TERMUX_FILES_DIR}/usr/bin/nethunter"
 
 # Base url of rootfs archive
-BASE_URL="https://kali.download/nethunter-images/current/rootfs"
+BASE_URL="https://kali.download/nethunter-images/${VERSION}/rootfs"
 
 # Fake host system kernel
 KERNEL_RELEASE="6.2.1-nethunter-proot"
 
 # Default installation directory
-DEFAULT_ROOTFS_DIR="${TERMUX_FILES_DIR}/usr/var/lib/kali-nethunter-rootfs"
+DEFAULT_ROOTFS_DIR="${TERMUX_FILES_DIR}/kali"
 
 # Password for user root
 ROOT_PASSWORD="root"
 
 # Output for unwanted messages
-LOG_FILE="/dev/null"
+LOG_FILE="/dev/null" # "${PROGRAM_NAME}.log"
 
 # Enable color by default
 COLOR_SUPPORT=on
@@ -1637,7 +1641,7 @@ fi
 # Pre install actions
 if ${ACTION_INSTALL} || ${ACTION_CONFIGURE}; then
 	check_root
-	print_banner
+	print_logo
 	check_arch
 	check_dependencies
 fi
@@ -1648,7 +1652,7 @@ msg -t "Using '${ROOTFS_DIRECTORY}' as rootfs directory."
 # Install actions
 if ${ACTION_INSTALL}; then
 	select_installation
-	ARCHIVE_NAME="kali-nethunter-rootfs-${SELECTED_INSTALLATION}-${SYS_ARCH}.tar.xz" # "nethunter-${VERSION}-generic-${SYS_ARCH}-kalifs-${SELECTED_INSTALLATION}.zip"
+	ARCHIVE_NAME="kali-nethunter-rootfs-${SELECTED_INSTALLATION}-${SYS_ARCH}.tar.xz"
 	check_rootfs_directory
 	download_rootfs_archive
 	verify_rootfs_archive
@@ -1657,7 +1661,7 @@ fi
 
 # Create distro launcher
 if ${ACTION_INSTALL} || ${ACTION_CONFIGURE}; then
-	create_nh_launcher
+	create_rootfs_launcher
 fi
 
 # Post install configurations
