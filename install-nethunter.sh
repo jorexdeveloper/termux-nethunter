@@ -1530,7 +1530,7 @@ DISTRO_SHORTCUT="${TERMUX_FILES_DIR}/usr/bin/nh"
 DISTRO_LAUNCHER="${TERMUX_FILES_DIR}/usr/bin/nethunter"
 
 # Base url of rootfs archive
-BASE_URL="https://kali.download/nethunter-images/${VERSION}/rootfs"
+BASE_URL="https://kali.download/nethunter-images/kali-${VERSION}/rootfs"
 
 # Fake host system kernel
 KERNEL_RELEASE="6.2.1-nethunter-proot"
