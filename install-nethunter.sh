@@ -113,23 +113,6 @@ check_dependencies() {
 }
 
 ################################################################################
-# Prompts the user for the required rootfs installation                        #
-# Sets global variables: SELECTED_INSTALLATION                                 #
-################################################################################
-select_installation() {
-	msg -t "Select rootfs installation."
-	msg -l "${DISTRO_NAME}-${SYS_ARCH}-Full" "${DISTRO_NAME}-${SYS_ARCH}-Minimal" "${DISTRO_NAME}-${SYS_ARCH}-Nano (default)"
-	msg -n "Enter choice: "
-	read -ren 1 SELECTED_INSTALLATION
-	case "${SELECTED_INSTALLATION}" in
-		1 | f | F) SELECTED_INSTALLATION="full" ;;
-		2 | m | M) SELECTED_INSTALLATION="minimal" ;;
-		*) SELECTED_INSTALLATION="nano" ;;
-	esac
-	msg "Installing '${SELECTED_INSTALLATION}' rootfs."
-}
-
-################################################################################
 # Checks if there is an existing rootfs directory, or a file with similar name #
 # Sets global variables: KEEP_ROOTFS_DIRECTORY                                 #
 ################################################################################
@@ -169,6 +152,23 @@ check_rootfs_directory() {
 			msg -q "Failed to delete '${ROOTFS_DIRECTORY}'."
 		fi
 	fi
+}
+
+################################################################################
+# Prompts the user for the required rootfs installation                        #
+# Sets global variables: SELECTED_INSTALLATION                                 #
+################################################################################
+select_installation() {
+	msg -t "Select rootfs installation."
+	msg -l "${DISTRO_NAME}-${SYS_ARCH}-Full" "${DISTRO_NAME}-${SYS_ARCH}-Minimal" "${DISTRO_NAME}-${SYS_ARCH}-Nano (default)"
+	msg -n "Enter choice: "
+	read -ren 1 SELECTED_INSTALLATION
+	case "${SELECTED_INSTALLATION}" in
+		1 | f | F) SELECTED_INSTALLATION="full" ;;
+		2 | m | M) SELECTED_INSTALLATION="minimal" ;;
+		*) SELECTED_INSTALLATION="nano" ;;
+	esac
+	msg "Installing '${SELECTED_INSTALLATION}' rootfs."
 }
 
 ################################################################################
@@ -686,7 +686,7 @@ create_vnc_launcher() {
 		            export USER="\${USER-root}"
 		            LD_PRELOAD="${LIB_GCC_PATH}"
 		            # nohup \\
-		            vncserver ":\${DISPLAY_VALUE}" -geometry "\${geometry}" -depth "\${DEPTH_VALUE}" -name remote-desktop "\${@}" && echo "VNC server started successfully."
+		            vncserver ":\${DISPLAY_VALUE}" -geometry "\${geometry}" -depth "\${DEPTH_VALUE}" "\${@}" && echo "VNC server started successfully."
 		        else
 		            set_passwd && start_server
 		        fi
@@ -696,8 +696,12 @@ create_vnc_launcher() {
 		}
 
 		kill_server() {
-		    vncserver -clean -kill ":\${DISPLAY_VALUE}" && clean_tmp
-		    return \${?}
+		    if [ -x "\$(command -v vncserver)" ]; then
+		        vncserver -clean -kill ":\${DISPLAY_VALUE}" && clean_tmp
+		        return \${?}
+		    else
+		        echo "No VNC server found."
+		    fi
 		}
 
 		print_usage() {
@@ -810,14 +814,13 @@ clean_up() {
 ################################################################################
 complete_msg() {
 	msg -st "${DISTRO_NAME} installed successfully."
-	msg "Run command '${Y}nethunter${C}' or '${Y}nh${C}' to start ${DISTRO_NAME}."
-	msg "Run command '${Y}vnc${C}' in ${DISTRO_NAME} to start the VNC server."
-	msg -t "Login Information"
-	msg "Root user"
-	msg -l "Login    '${Y}root${G}'" "Password '${Y}${ROOT_PASSWORD}${G}'"
-	msg "Normal user"
-	msg -l "Login    '${Y}kali${G}'" "Password '${Y}kali${G}'"
-	msg -t "Documentation  ${U}${GITHUB}/${REPOSITORY}${L}"
+	msg "Launch ${DISTRO_NAME} by executing the commands below."
+	msg "'${Y}$(basename "${DISTRO_LAUNCHER}") root${C}' to login as root user."
+	msg "or"
+	msg "'${Y}$(basename "${DISTRO_LAUNCHER}") kali${C}' to login as normal user."
+	msg "Use '${Y}$(basename "${DISTRO_SHORTCUT}")${C}' as a short form for '${Y}$(basename "${DISTRO_LAUNCHER}")${C}'"
+	msg -t "For more information, read the documentation at:"
+	msg "${U}${GITHUB}/${REPOSITORY}${L}"
 	if ${ACTION_INSTALL} && [ "${SELECTED_INSTALLATION}" != "full" ]; then
 		msg -te "This is a ${SELECTED_INSTALLATION} installation of ${DISTRO_NAME}."
 		msg "Read the documentation on how to install additional components."
@@ -1137,7 +1140,7 @@ fake_proc_setup() {
 ################################################################################
 environment_variables_setup() {
 	local status=""
-	local profile_script="${ROOTFS_DIRECTORY}/etc/profile.d/set-vars.sh"
+	local profile_script="${ROOTFS_DIRECTORY}/etc/profile.d/setvars.sh"
 	mkdir -p "${ROOTFS_DIRECTORY}/etc/profile.d/"
 	cat /dev/null >"${profile_script}"
 	cat >>"${profile_script}" <<-EOF
@@ -1225,10 +1228,8 @@ settings_configurations() {
 	fi
 	status+="-${?}"
 	if [ -x "${ROOTFS_DIRECTORY}/usr/bin/passwd" ]; then
-		distro_exec "/usr/bin/passwd" root <<-EOF
-			${ROOT_PASSWORD}
-			${ROOT_PASSWORD}
-		EOF
+		distro_exec "/usr/bin/passwd" -d root
+		distro_exec "/usr/bin/passwd" -d kali
 	fi &>>"${LOG_FILE}"
 	status+="-${?}"
 	local dir="${ROOTFS_DIRECTORY}/usr/bin"
@@ -1651,9 +1652,9 @@ msg -t "Using '${ROOTFS_DIRECTORY}' as rootfs directory."
 
 # Install actions
 if ${ACTION_INSTALL}; then
-	select_installation
-	ARCHIVE_NAME="kali-nethunter-rootfs-${SELECTED_INSTALLATION}-${SYS_ARCH}.tar.xz"
 	check_rootfs_directory
+	[ -z "${KEEP_ROOTFS_DIRECTORY}" ] && select_installation
+	ARCHIVE_NAME="kali-nethunter-rootfs-${SELECTED_INSTALLATION}-${SYS_ARCH}.tar.xz"
 	download_rootfs_archive
 	verify_rootfs_archive
 	extract_rootfs_archive

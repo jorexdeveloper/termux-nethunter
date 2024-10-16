@@ -1,176 +1,245 @@
 # TERMUX NETHUNTER
 
 <div style="width:100%;background-color:black;border:3px solid black;border-radius:6px;margin:5px 0;padding:2px 5px">
-  <img src="./logo.jpg"
-    alt="image could not be loaded"
+<img src="./logo.jpg"
+    alt="Image could not be loaded!"
     style="color:red;background-color:black;font-weight:bold"/>
 </div>
 
-Install Kali NetHunter in Termux.
+Are you a linux fan or do you just love playing with the terminal and executing cool commands, just to look like a tech genius? Well, for whatever reason it is that you want to install linux on your phone, I got you covered.
 
-> Author: Jore
+Installing linux on your phone might not make you a hacker, but it will certainly make you look like one.
 
-> Version: 2024.3
+With this guide, you will be able to run a full linux system, including every linux command you can think of and install different pc software, all on your phone! Wait that's not all, you can run a desktop environment and enjoy the pc graphical interface and probably try to hack into NASA using your phone like the guy in that one movie.
+
+Did I mention that you do not require root access to do all this? All you have to do is follow these simple installation instructions and you are a few keystrokes away from running all the cool programs created by the linux community.
 
 <details>
-<summary>CONTENTS</summary>
+<summary>Contents</summary>
 
-- [FEATURES](#features "List of available features.")
-- [INSTALLATION](#installation "Steps for installation.")
-- [COMMAND LINE OPTIONS](#command-line-options "Available command line options.")
-- [HOW TO LOGIN](#how-to-login "Steps on how to login.")
-  - [LOGIN INFORMATION](#login-information "User name and password for logging in.")
-- [HOW TO START THE VNC SERVER](#how-to-start-the-vnc-server "Steps on how to start the VNC server.")
-  - [REQUIREMENTS](#requirements "Requirements for starting the VNC server.")
-  - [PROCEDURE](#procedure "Procedure for starting the VNC server.")
-- [HOW TO INSTALL XFCE AND VNC SERVER](#how-to-install-xfce-and-vnc-server "Steps on how to install a Desktop Environment and a VNC server.")
-- [USING AS ROOT](#using-as-root "Installing Kali NetHunter as root")
-- [HOW TO UNINSTALL KALI NETHUNTER](#how-to-uninstall-kali-nethunter "Steps on how to uninstall Kali NetHunter.")
-- [BUGS](#bugs "Bug information")
-- [LICENSE](#license "Program license.")
+- [Installation](#installation "Installation process.")
+  - [How to install](#how-to-install "How to install.")
+- [Launch & set up](#launch--set-up "Launch and set up.")
+  - [How to launch](#how-to-launch "How to launch.")
+  - [How to install desktop and vnc server](#how-to-install-desktop-and-vnc-server "How to install desktop and vnc server.")
+- [Login](#login "Login process.")
+  - [How to start vnc server](#how-to-start-vnc-server "How to start vnc server.")
+  - [How to connect to vnc server](#how-to-connect-to-vnc-server "How to connect to vnc server.")
+- [Have fun](#have-fun "Congragulations!")
+- [Uninstallation](#uninstallation "Uninstallation process.")
+  - [How to uninstall](#how-to-uninstall "How to uninstall.")
+- [FAQ](#faq "Frequently asked questions.")
+- [License](#license "License")
 
 </details>
 
-## FEATURES
+## Installation
 
-- Anti-root fuse.
-- Interactive Installation.
-- Color output. (if supported)
-- Command line options. (see [here](#command-line-options "Available command line options."))
-  - Install in custom directory.
-  - Install only i.e no configurations. (**use with caution**)
-  - Configurations only (**if already installed**)
-  - Modify color output.
-  - Uninstall.
-- Creates a VNC wrapper (see [here](#how-to-start-the-vnc-server "Steps on how to start the VNC server."))
-- Automatic configurations. (i.e binding necessary directories)
-- Access System and Termux commands. (i.e termux-api commands)
-- Customize default shell and zone information before startup.
-- Other optimizations and improvements.
+### How to install
 
-## INSTALLATION
+Download and install the [termux app](https://fdroid.org/packages/com.termux "Download termux app") on your phone, then open it and execute the following commands.
 
-1.  Update installed packages by executing the following commands.
+1.  Upgrade termux packages
 
 ```bash
 pkg update && pkg upgrade
 ```
 
-2.  Install `wget`. (`curl` is an alternative)
+2.  Install `wget`
 
 ```bash
 pkg install wget
 ```
 
-3.  Download the installer script. (**install-nethunter.sh**)
+3.  Download install script
 
 ```bash
 wget -O install-nethunter.sh https://raw.githubusercontent.com/jorexdeveloper/termux-nethunter/main/install-nethunter.sh
 ```
 
-4.  Now execute the installer script.
+4.  Execute install script
 
 ```bash
-bash install-nethunter.sh --help
+bash install-nethunter.sh
 ```
 
-If you are lazy like me, just copy and paste the below commands in Termux.
+> The install script displays usage information with the `--help` option.
+
+It's probably a good idea to inspect the install script from projects you don't yet know. You can do that by downloading the install script, looking through it so everything looks fine before running it.
+
+If you are lazy like me, you can just copy and paste the commands below in termux.
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y wget && wget -O install-nethunter.sh https://raw.githubusercontent.com/jorexdeveloper/termux-nethunter/main/install-nethunter.sh && bash install-nethunter.sh --help
+pkg update -y && pkg upgrade -y && pkg install -y wget && wget -O install-nethunter.sh https://raw.githubusercontent.com/jorexdeveloper/termux-nethunter/main/install-nethunter.sh && bash install-nethunter.sh
 ```
 
-## COMMAND LINE OPTIONS
+<details>
 
-Execute the installer script with `--help` to see available command line options.
+<summary>Features</summary>
+
+- anti-root fuse
+- interactive installation
+- color output (if supported)
+- command line options
+  - install in custom directory
+  - install without configurations
+  - apply configurations only
+  - modify color output
+  - uninstall
+- creates vnc wrapper
+- automatic configurations
+- provides access to system and termux commands
+- customize default shell and zone information during installation
+- minor optimizations and tweaks
+
+</details>
+
+## Launch & set up
+
+After successful installation, we need to launch the system and make a few set ups.
+
+### How to launch
+
+Launch the system by executing the following commands.
 
 ```bash
-bash install-nethunter.sh --help
+nethunter root
 ```
 
-## HOW TO LOGIN
-
-After successful installation, run command `nh` or `nethunter` to start Kali NetHunter.
-
-### LOGIN INFORMATION
-
-| Login              | Password |
-| ------------------ | -------- |
-| root (super user)  | **root** |
-| kali (normal user} | **kali** |
-
-## HOW TO START THE VNC SERVER
-
-#### REQUIREMENTS:
-
-1.  Make sure you have a **VNC server** and **Desktop environment** installed. (The **full installation** has them pre-installed, see [here](#how-to-install-xfce-and-vnc-server "Steps on how to start the VNC server."))
-
-2.  Install [NetHunter KeX](https://store.nethunter.com/en/packages "Kali NetHunter Store"), or a **VNC viewer** of your choice.
-
-#### PROCEDURE:
-
-1.  [Login in Kali NetHunter](#how-to-login "Steps on how to login.") and run command `vnc` to start the VNC server. The server will be started at **localhost** (`127.0.0.1`).
-
-> **Tip:** The program also displays help information with option `-h` or `--help` to guide you further.
-
-2.  On the first run, you will be prompted for a password. You will use this password to login and connect to the VNC server.
-
-3.  Now open NetHunter KeX and login with the password in step 2.
-
-| User  | Display | Port | Address     |
-| ----- | ------- | ---- | ----------- |
-| Root  | :0      | 5900 | localhost:0 |
-| Other | :1      | 5901 | localhost:1 |
-
-## HOW TO INSTALL XFCE AND VNC SERVER
-
-1.  [Login in Kali NetHunter](#how-to-login "Steps on how to login.").
-
-2.  Make a full upgrade of your system.
+or with a shorter version
 
 ```bash
-sudo apt update && sudo apt full-upgrade
+nh root
 ```
 
-3.  Run the following commands.
+You shall be logged in as the root user. You can always login as another user by replacing **root** with their user name.
+
+### How to install desktop and vnc server
+
+Now we need to install a desktop environment as it is not pre-installed and a vnc server which will be used for purposes of viewing and interacting with your desktop environment.
+
+[Launch](#how-to-launch "How to launch.") the system and execute the following commands.
+
+1.  Upgrade system packages
 
 ```bash
-sudo apt install dbus-x11 tigervnc-standalone-server kali-desktop-xfce
+apt update && apt full-upgrade
 ```
 
-> **Tip:** This will take a while, just make sure you don't exit Termux during the installation or you might run into some problems later.
-
-## USING AS ROOT
-
-**Installing/Running Kali NetHunter as root** can have unintended effects, and should only be done when you are sure of what's happening in the background (how linux works) or you might **damage your device**, even worse **bricking it**.
-
-For that reason, I have added an **anti root fuse** and disabling it will require you to comment out the appropriate lines from the installer script.
-
-**NOTE: You can still have root privileges within Kali NetHunter provided by `proot`, even without installing as root. (see the proot manual pages)**
-
-You will have to search and comment out the function call to `check_root` in the installer script. i.e
+2.  Install vnc server
 
 ```bash
-  ...
-  # check_root
-  ...
+apt install tigervnc-standalone-server dbus-x11 sudo
 ```
 
-## HOW TO UNINSTALL KALI NETHUNTER
+3. Install desktop
 
-To uninstall Kali NetHunter, run the installer script (**install-nethunter.sh**) with option `--uninstall`.
+```bash
+apt install kali-desktop-xfce
+```
 
-**NOTE:** If you installed Kali NetHunter in a custom directory, also supply the path to the directory as an argument.
+This command will take a while to complete, just grab a coffee and keep termux open during the installation or you might run into some problems later.
+
+## Login
+
+Now all that's left is to login into the system and start playing around with some commands. To do that, we need to start a vnc server in our system and connect to it through a vnc viewer.
+
+### How to start vnc server
+
+[Launch](#how-to-launch "How to launch.") the system and execute the following commands.
+
+```bash
+vnc
+```
+
+> The vnc command displays usage information with the `--help` option.
+
+On the first run of the above command, you will be prompted for a **vnc password**. This is the password that will be used to securely connect to the vnc server, in the vnc viewer.
+
+### How to connect to vnc server
+
+To connect to the vnc server, you will need to download and install a vnc viewer app of your choice. I recommend [AVNC](https://f-droid.org/packages/com.gaurav.avnc "Download AVNC app.") in this case.
+
+[Start the vnc server](#how-to-start-vnc-server "How to start vnc server.") and **minimize the termux app**.
+
+Now open the vnc viewer app, click add server and fill in with the following details.
+
+**Name**
+
+```txt
+Kali Desktop
+```
+
+**Host**
+
+```txt
+localhost
+```
+
+**Port**
+
+The default display port differs for the root user and other users and don't ask me why, I just got here.
+
+| user        | port |
+| ----------- | ---- |
+| user root   | 5900 |
+| other users | 5901 |
+
+**Password**
+
+Enter the **vnc password** you set [before](#how-to-start-vnc-server "How to start vnc server.").
+
+## Have fun
+
+If you managed to get this far without any problems, congratulations! Linux now is installed on your phone and it's time to let you continue the exploration journey on your own.
+
+The possibilities are endless and the only limits that exist are the ones you set up for yourself.
+
+You might wan't to google for some cool commands and programs to execute or even when get you stuck, good luck.
+
+## Uninstallation
+
+If for some reason you need to uninstall the system from termux, just follow the steps below.
+
+### How to uninstall
+
+Simply execute the [install script](#how-to-install "How to install.") again in termux with option `--uninstall`.
 
 ```bash
 bash install-nethunter.sh --uninstall
 ```
 
-## BUGS
+If you installed the system in a custom directory, supply the path to the installation directory as an additional argument.
 
-All currently known bugs are fixed. Please let me know in the [issues section](https://github.com/jorexdeveloper/termux-nethunter/issues "The issues section.") if you find any.
+## FAQ
 
-## LICENSE
+If you got some hickups during the installation or have some burning questions, you are probably not the first one and a few frequently asked questions have been answered below.
+
+### What happens if termux has root access?
+
+This guide assumes that termux has no root access and the only root privileges that exist are those simulated in the installed system.
+
+However, if you have tried following the steps above with root access in termux, then you have probably not succeeded because installing and running the system with root access in termux can have unintended effects, and should only be done when you are sure of what you are doing or you might end up **damaging your device**.
+
+For that reason, I added an **anti-root-fuse** to the install script that prevents the installation process if termux has root access.
+
+There should not be a good enough reason to launch the system when termux has root access because harmless root privileges are still simulated in the system with help of proot.
+
+#### Work around
+
+If you **don't mind damaging your device** (probably making it unusable) and are **ready to get your hands dirty**, this section might resonate.
+
+Disabling the anti-root-fuse will require a deeper understanding of the install script and the installation process. You will need to edit the install script as follows:
+
+- Find and comment the function call to **check_root**.
+
+**This is definitely a bad idea and you are completely liable for any unintended effects of this action**.
+
+Just remember, I am mostly lazy and would never implement an anti-root-fuse for absolutely no reason.
+
+Let me know if you find any issues or suggest any improvements in the [issues section](https://github.com/jorexdeveloper/termux-nethunter/issues "The issues section.")
+
+## License
 
 ```txt
     Copyright (C) 2023  Jore
