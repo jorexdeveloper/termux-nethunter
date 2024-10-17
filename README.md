@@ -233,7 +233,7 @@ If you **don't mind damaging your device** (probably making it unusable) and are
 
 Disabling the anti-root fuse will require a deeper understanding of the install script and the installation process. You will need to edit the install script as follows:
 
-- Find and comment the function call to **check_root**.
+- Find and comment the call to the function checking root access.
 
 Not very helpful, is it? That becaause **this is definitely a bad idea and you are completely liable for any unintended effects of this action**.
 

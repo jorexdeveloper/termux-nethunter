@@ -25,36 +25,35 @@
 
 AUTHOR="Jore"
 GITHUB="https://github.com/jorexdeveloper"
-PROGRAM_NAME="install-nethunter"
 REPOSITORY="termux-nethunter"
+NAME="$(basename "${0}")"
 VERSION="2024.3"
 
 ################################################################################
 # Prevents running this program as root to prevent harm to system directories  #
 ################################################################################
-check_root() {
+root_check() {
 	if [ "${EUID}" = "0" ] || [ "$(id -u)" = "0" ]; then
-		msg -aq "This program should not be executed as root user"
+		msg -aq "Hold up right there! I can't let you run this program with root access. This can have some unintended effects."
 	fi
 }
 
 ################################################################################
 # Prints the distro banner                                                     #
 ################################################################################
-print_logo() {
+print_intro() {
 	local spaces=""
-	for ((i = $(((($(stty size | cut -d ' ' -f2) - 42) / 2))); i > 0; i--)); do
+	for ((i = $(((($(stty size | cut -d ' ' -f2) - 56) / 2))); i > 0; i--)); do
 		spaces+=" "
 	done
 	clear
-	msg -a "${spaces}┌────────────────────────────────────────┐"
-	msg -a "${spaces}│${G}╻┏ ┏━┓╻  ╻   ┏┓╻┏━╸╺┳╸╻ ╻╻ ╻┏┓╻╺┳╸┏━╸┏━┓${C}│"
-	msg -a "${spaces}│${G}┣┻┓┣━┫┃  ┃   ┃┗┫┣╸  ┃ ┣━┫┃ ┃┃┗┫ ┃ ┣╸ ┣┳┛${C}│"
-	msg -a "${spaces}│${G}╹ ╹╹ ╹┗━╸╹   ╹ ╹┗━╸ ╹ ╹ ╹┗━┛╹ ╹ ╹ ┗━╸╹┗╸${C}│"
-	msg -a "${spaces}│${Y}                 ${VERSION}                 ${C}│"
-	msg -a "${spaces}└────────────────────────────────────────┘"
-	msg -a "${spaces}               Author: ${AUTHOR}"
-	msg -a "${spaces}Github: ${U}${GITHUB}${L}/"
+	msg -a "${spaces} _  __     _ _   _  _     _   _  _          _"
+	msg -a "${spaces}| |/ /__ _| (_) | \| |___| |_| || |_  _ _ _| |_ ___ _ _"
+	msg -a "${spaces}| ' </ _' | | | | .' / -_)  _| __ | || | ' \  _/ -_) '_|"
+	msg -a "${spaces}|_|\_\__,_|_|_| |_|\_\___|\__|_||_|\_,_|_||_\__\___|_|"
+	msg -a "${spaces}                         ${VERSION}"
+	msg -t "Hey there,👋 I'm ${AUTHOR}"
+	msg "I am here to help you to install ${DISTRO_NAME}."
 }
 
 ################################################################################
@@ -62,14 +61,14 @@ print_logo() {
 # Sets global variables: SYS_ARCH LIB_GCC_PATH                                 #
 ################################################################################
 check_arch() {
-	msg -t "Checking device architecture."
+	msg -t "First, lemme check if your device architecture is supported."
 	local arch
 	if [ -x "$(command -v getprop)" ]; then
 		arch="$(getprop ro.product.cpu.abi 2>>"${LOG_FILE}")"
 	elif [ -x "$(command -v uname)" ]; then
 		arch="$(uname -m 2>>"${LOG_FILE}")"
 	else
-		msg -q "Failed to get device architecture."
+		msg -q "Unfortunately, I can't get your device architecture."
 	fi
 	case "${arch}" in
 		"arm64-v8a" | "armv8l")
@@ -80,35 +79,34 @@ check_arch() {
 			SYS_ARCH="armhf"
 			LIB_GCC_PATH="/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1"
 			;;
-		*) msg -q "Unsupported architecture." ;;
+		*) msg -q "Sorry, '${arch}' is currently not supported." ;;
 	esac
-	msg -s "${arch} is supported."
+	msg -s "Great! '${arch}' is supported."
 }
 
 ################################################################################
 # Updates installed packages and che<ks if the required commands that are not  #
 # pre-installed are installed, if not, attempts to install them                #
 ################################################################################
-check_dependencies() {
-	msg -t "Updating system."
+check_pkgs() {
+	msg -t "Now lemme check if all system packages are up to date. Just a sec..."
 	if pkg update -y < <(echo -e "y\ny\ny\ny\ny") &>>"${LOG_FILE}" || apt-get -qq -o=Dpkg::Use-Pty=0 update -y &>>"${LOG_FILE}" || apt-get -qq -o=Dpkg::Use-Pty=0 -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade -y &>>"${LOG_FILE}"; then
-		msg -s "System update complete."
+		msg -s "Yup! Everything looks good. Let's proceed."
 	else
-		msg -q "Failed to update system."
+		msg -q "Sorry! Your system is not up to date."
 	fi
-	msg -t "Checking for package dependencies."
+	msg -t "Hold on while I check if all the required packages are installed."
 	for package in tar wget proot unzip pulseaudio; do
-		if [ -x "$(command -v "${package}")" ]; then
-			msg -s "'${package}' is installed."
-		else
-			msg "Installing '${package}'."
+		if ! [ -x "$(command -v "${package}")" ]; then
+			msg "Oops, '${package}' is missing. Let me install it now..."
 			if pkg install -y "${package}" < <(echo -e "y\ny\ny\ny\ny") &>>"${LOG_FILE}" || apt-get -qq -o=Dpkg::Use-Pty=0 install -y "${package}" &>>"${LOG_FILE}"; then
-				msg -s "'${package}' is installed."
+				msg -s "Done! '${package}' is now installed."
 			else
-				msg -q "Failed to install '${package}'."
+				msg -q "Unfortunately, I can't install '${package}'."
 			fi
 		fi
 	done
+	msg -s "Great! You have all the required packages! Let's get started!"
 	unset package
 }
 
@@ -121,18 +119,19 @@ check_rootfs_directory() {
 	if [ -e "${ROOTFS_DIRECTORY}" ]; then
 		if [ -d "${ROOTFS_DIRECTORY}" ]; then
 			if [ -n "$(ls -UA "${ROOTFS_DIRECTORY}" 2>>"${LOG_FILE}")" ]; then
-				msg -t "Rootfs directory found."
-				msg -l "Use directory." "Delete directory." "Leave directory and exit. (default)"
+				msg -t "Wait! I have found an existing rootfs directory that is not empty."
+				msg "What should I do with it?"
+				msg -l "Use the directory." "Delete the directory." "Leave the directory and exit. (default)"
 				msg -n "Select action: "
 				read -ren 1 reply
 				case "${reply}" in
 					1 | u | U)
-						msg "Using rootfs directory."
+						msg "Okay then, I shall proceed with the existing rootfs directory."
 						KEEP_ROOTFS_DIRECTORY=1
 						return
 						;;
 					2 | d | D) ;;
-					*) msg -q "Rootfs directory left." ;;
+					*) msg -q "Alright, I shall leave the rootfs directory." ;;
 				esac
 				unset reply
 			else
@@ -140,16 +139,16 @@ check_rootfs_directory() {
 				return
 			fi
 		else
-			msg -t "Item found with same name as rootfs directory."
-			if ! ask -n "Delete item?"; then
-				msg -q "Item not deleted."
+			msg -t "Wait! I have found a file with the same path as the rootfs directory."
+			if ! ask -n "Should I delete the file and proceed?"; then
+				msg -q "Alright! I shall not touch the file."
 			fi
 		fi
-		msg -e "Deleting '${ROOTFS_DIRECTORY}'."
+		msg -e "Okay, deleting '${ROOTFS_DIRECTORY}'."
 		if rm -rf "${ROOTFS_DIRECTORY}"; then
-			msg -s "Deleted '${ROOTFS_DIRECTORY}' successfully."
+			msg -s "Done! Now let's proceed."
 		else
-			msg -q "Failed to delete '${ROOTFS_DIRECTORY}'."
+			msg -q "Unfortunately, I can't delete '${ROOTFS_DIRECTORY}'."
 		fi
 	fi
 }
@@ -159,8 +158,8 @@ check_rootfs_directory() {
 # Sets global variables: SELECTED_INSTALLATION                                 #
 ################################################################################
 select_installation() {
-	msg -t "Select rootfs installation."
-	msg -l "${DISTRO_NAME}-${SYS_ARCH}-Full" "${DISTRO_NAME}-${SYS_ARCH}-Minimal" "${DISTRO_NAME}-${SYS_ARCH}-Nano (default)"
+	msg -t "Select your prefered installation."
+	msg -l "  full    (Large but contains everything you need)" "  minimal (Light-weight with basic packages only)" "> nano    (Like minimal with a few more packages)"
 	msg -n "Enter choice: "
 	read -ren 1 SELECTED_INSTALLATION
 	case "${SELECTED_INSTALLATION}" in
@@ -168,7 +167,7 @@ select_installation() {
 		2 | m | M) SELECTED_INSTALLATION="minimal" ;;
 		*) SELECTED_INSTALLATION="nano" ;;
 	esac
-	msg "Installing '${SELECTED_INSTALLATION}' rootfs."
+	msg "Okay then, I shall install a ${SELECTED_INSTALLATION} rootfs."
 }
 
 ################################################################################
@@ -180,33 +179,33 @@ download_rootfs_archive() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
 		if [ -e "${ARCHIVE_NAME}" ]; then
 			if [ -f "${ARCHIVE_NAME}" ]; then
-				msg -t "Rootfs archive found."
-				if ! ask -n "Delete and download a new one?"; then
-					msg "Using existing rootfs archive."
+				msg -t "Hold on! I have found an existing rootfs archive."
+				if ! ask -n "Should I delete it and download a new one?"; then
+					msg "Okay, I shall use the existing rootfs archive."
 					KEEP_ROOTFS_IMAGE=1
 					return
 				fi
 			else
-				msg -t "Item found with same name as rootfs archive."
-				if ! ask -n "Delete item?"; then
-					msg -q "Item not deleted."
+				msg -t "Hold on! I have found an item with the same name as the rootfs archive."
+				if ! ask -n "Should I delete the  item and proceed?"; then
+					msg -q "Alright! I shall leave the item."
 				fi
 			fi
-			msg -e "Deleting '${ARCHIVE_NAME}'"
+			msg -e "Okay, deleting '${ARCHIVE_NAME}'."
 			if rm -rf "${ARCHIVE_NAME}"; then
-				msg -s "Deleted '${ARCHIVE_NAME}' successfully."
+				msg -s "Done! now let's proceed."
 			else
-				msg -q "Failed to delete '${ARCHIVE_NAME}'"
+				msg -q "Unfortunately, I can't delete '${ARCHIVE_NAME}'"
 			fi
 		fi
-		local tmp_dload="${ARCHIVE_NAME}.nhdownload"
-		msg -t "Downloading rootfs archive."
+		local tmp_dload="${ARCHIVE_NAME}.pending"
+		msg -t "Alright, it's time to download the rootfs archive. This might take a while..."
 		if wget --no-verbose --continue --show-progress --output-document="${tmp_dload}" "${BASE_URL}/${ARCHIVE_NAME}"; then
 			mv "${tmp_dload}" "${ARCHIVE_NAME}"
-			msg -s "Rootfs archive download complete."
+			msg -s "Great! The rootfs download is complete."
 		else
 			rm -rf "${tmp_dload}"
-			msg -qm1 "Failed to download rootfs archive."
+			msg -qm1 "Unfortunately, I can't download the rootfs archive."
 		fi
 	fi
 }
@@ -216,7 +215,7 @@ download_rootfs_archive() {
 ################################################################################
 verify_rootfs_archive() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
-		msg -t "Verifying the integrity of the rootfs archive."
+		msg -t "Give me a sec to verify the integrity of the rootfs archive..."
 		local trusted_shasums="$(
 			cat <<-EOF
 				10e5bf2e7a950a8ebdf7f0410feff52c6067c3ffbba7cb1164b082329c3b5759e81573839c63184be642a44e7cd581186f645910f29bd85c5f488a1ae8692fd9  kali-nethunter-rootfs-nano-armhf.tar.xz
@@ -225,17 +224,17 @@ verify_rootfs_archive() {
 			EOF
 		)"
 		if grep --regexp="${ARCHIVE_NAME}$" <<<"${trusted_shasums}" | sha512sum --quiet --check &>>"${LOG_FILE}"; then
-			msg -s "Rootfs archive is ok."
+			msg -s "Yup, the rootfs archive is looks fine."
 			return
 		elif trusted_shasums="$(wget --quiet --output-document="-" "${BASE_URL}/${ARCHIVE_NAME}.sha512sum")"; then # "${BASE_URL}/SHA256SUMS")"; then
 			if grep --regexp="${ARCHIVE_NAME}$" <<<"${trusted_shasums}" | sha512sum --quiet --check &>>"${LOG_FILE}"; then
-				msg -s "Rootfs archive is ok."
+				msg -s "Yup, the rootfs archive is looks fine."
 				return
 			fi
 		else
-			msg -qm1 "Failed to verify the integrity of the rootfs archive."
+			msg -qm1 "Unfortunately, I can't verify the integrity of the rootfs archive."
 		fi
-		msg -qm0 "Thee rootfs is corrupted."
+		msg -qm0 "Unfortunately, the rootfs archive is corrupted and not safe for installation."
 	fi
 }
 
@@ -244,17 +243,17 @@ verify_rootfs_archive() {
 ################################################################################
 extract_rootfs_archive() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
-		msg -t "Extracting rootfs archive."
+		msg -t "Grab a coffee while I extract the rootfs archive. This will take a while..."
 		trap 'rm -rf "${ROOTFS_DIRECTORY}"; msg -q "Exiting immediately as requested.                        "' HUP INT TERM
 		mkdir -p "${ROOTFS_DIRECTORY}"
 		set +e
 		if # unzip -p "${ARCHIVE_NAME}" "kalifs-${SYS_ARCH}-${SELECTED_INSTALLATION}.tar.xz" |
-			proot --link2symlink tar --strip=2 --delay-directory-restore --warning=no-unknown-keyword --extract --xz --exclude="dev" --file="${ARCHIVE_NAME}" --directory="${ROOTFS_DIRECTORY}" --checkpoint=1 --checkpoint-action=ttyout="${I}${Y}    Extracted %{}T in %ds%*\r${N}${V}" &>>"${LOG_FILE}"
+			proot --link2symlink tar --strip=2 --delay-directory-restore --warning=no-unknown-keyword --extract --xz --exclude="dev" --file="${ARCHIVE_NAME}" --directory="${ROOTFS_DIRECTORY}" --checkpoint=1 --checkpoint-action=ttyout="${I}${Y}   I have extracted %{}T in %ds so far.%*\r${N}${V}" &>>"${LOG_FILE}"
 		then
-			msg -s "Rootfs extracted successfully."
+			msg -s "Finally, I am done extracting the rootfs archive."
 		else
 			rm -rf "${ROOTFS_DIRECTORY}"
-			msg -q "Rootfs extraction failed."
+			msg -q "Unfortunately, I can't extract the rootfs archive."
 		fi
 		set -e
 		trap - HUP INT TERM
@@ -265,7 +264,7 @@ extract_rootfs_archive() {
 # Creates a script used to login into the distro                               #
 ################################################################################
 create_rootfs_launcher() {
-	msg -t "Creating ${DISTRO_NAME} launcher."
+	msg -t "Lemme create a command to launch ${DISTRO_NAME}."
 	mkdir -p "$(dirname "${DISTRO_LAUNCHER}")" && cat >"${DISTRO_LAUNCHER}" <<-EOF
 		#!/bin/bash -e
 
@@ -372,14 +371,14 @@ create_rootfs_launcher() {
 		        unset optarg
 		        ;;
 		    -h | --help)
-		        echo "Usage: $(basename "${DISTRO_LAUNCHER}") [OPTION]... [NAME]"
+		        echo "Usage: $(basename "${DISTRO_LAUNCHER}") [OPTION]... [USERNAME]"
 		        echo ""
-		        echo "Login as user NAME or execute a comand in ${DISTRO_NAME}."
-		        echo "(prompts for NAME if not supplied)"
+		        echo "Login as user USERNAME or execute a comand in ${DISTRO_NAME}."
+		        echo "(prompts for USERNAME if not supplied)"
 		        echo ""
 		        echo "Options:"
-		        echo "    --command[=NAME]"
-		        echo "            Execute the command NAME in distro."
+		        echo "    --command[=COMMAND]"
+		        echo "            Execute COMMAND in distro."
 		        echo "            (default='login')"
 		        echo "    --bind[=PATH]"
 		        echo "            Make the content of PATH accessible in the guest rootfs."
@@ -442,7 +441,7 @@ create_rootfs_launcher() {
 		        distro_command="login \${login_name}"
 		    else
 		        echo "The command 'login' was not found in guest rootfs."
-		        echo "Use '$(basename "${DISTRO_LAUNCHER}") --command[=NAME]'."
+		        echo "Use '$(basename "${DISTRO_LAUNCHER}") --command[=COMMAND]'."
 		        exit 1
 		    fi
 		fi
@@ -618,9 +617,9 @@ create_rootfs_launcher() {
 		exec \${launch_command} \${distro_command}
 	EOF
 	if ln -sfT "${DISTRO_LAUNCHER}" "${DISTRO_SHORTCUT}" &>>"${LOG_FILE}" && termux-fix-shebang "${DISTRO_LAUNCHER}" && chmod 700 "${DISTRO_LAUNCHER}"; then
-		msg -s "${DISTRO_NAME} launcher created successfully."
+		msg -s "Command created successfully."
 	else
-		msg -qm0 "Failed to create ${DISTRO_NAME} launcher."
+		msg -qm0 "Unfortunately, I can't create the ${DISTRO_NAME} launcher."
 	fi
 }
 
@@ -628,7 +627,7 @@ create_rootfs_launcher() {
 # Creates a script used to launch the vnc server in the distro                 #
 ################################################################################
 create_vnc_launcher() {
-	msg -t "Creating the VNC launcher."
+	msg -t "Lemme create a command to launch VNC in ${DISTRO_NAME}."
 	local vnc_launcher="${ROOTFS_DIRECTORY}/usr/local/bin/vnc"
 	mkdir -p "${ROOTFS_DIRECTORY}/usr/local/bin" && cat >"${vnc_launcher}" <<-EOF
 		#!/bin/bash -e
@@ -643,7 +642,7 @@ create_vnc_launcher() {
 		#                                                                              #
 		################################################################################
 
-		check_root() {
+		root_check() {
 		    if [ "\${EUID}" = "0" ] || [ "\$(whoami)" = "root" ]; then
 		        echo "Some applications are not meant to be run as root and may not work properly."
 		        read -rep "Continue anyway? (y/N) " -n 1 reply
@@ -763,12 +762,12 @@ create_vnc_launcher() {
 		unset extra_opts
 
 		# Start VNC server
-		check_root && clean_tmp && set_geometry && start_server "\${@}"
+		root_check && clean_tmp && set_geometry && start_server "\${@}"
 	EOF
 	if chmod 700 "${vnc_launcher}"; then
-		msg -s "VNC launcher was created successfully."
+		msg -s "Command created successfully."
 	else
-		msg -e "Failed to create the VNC launcher."
+		msg -e "Unfortunately, I can't create the VNC launcher."
 	fi
 }
 
@@ -776,17 +775,15 @@ create_vnc_launcher() {
 # Makes all the required configurations in the distro                          #
 ################################################################################
 make_configurations() {
-	msg -t "Making required configurations."
+	msg -t "Now let me make some configurations for you."
 	for config in fake_proc_setup android_ids_setup settings_configurations environment_variables_setup; do
 		status="$(${config} 2>"${LOG_FILE}")"
-		if [ -z "${status//-0/}" ]; then
-			msg -s "${config//_/ } success."
-		else
-			msg -e "${config//_/ } failed. (status ${status})"
+		if ! [ -z "${status//-0/}" ]; then
+			msg -e "Oops, ${config//_/ } failed with error code: (${status})"
 		fi
 	done
+	msg -s "Yup, that should fix some startup issues."
 	unset config status
-	msg -t "Making optional configurations."
 	set_user_shell
 	set_zone_info
 }
@@ -796,15 +793,15 @@ make_configurations() {
 ################################################################################
 clean_up() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ] && [ -z "${KEEP_ROOTFS_IMAGE}" ] && [ -f "${ARCHIVE_NAME}" ]; then
-		if ask -n "Delete the rootfs archive to save space?"; then
-			msg -e "Deleting '${ARCHIVE_NAME}'"
+		if ask -n "Should I remove the downloaded the rootfs archive to save space?"; then
+			msg -e "Okay, removing '${ARCHIVE_NAME}'"
 			if rm -rf "${ARCHIVE_NAME}"; then
-				msg -s "Deleted rootfs archive successfully."
+				msg -s "Done! The rootfs archive is gone."
 			else
-				msg -e "Failed to delete rootfs archive."
+				msg -e "Unfortunately, I can't remove the rootfs archive."
 			fi
 		else
-			msg "Rootfs archive left."
+			msg "Alright, lemme leave the rootfs archive."
 		fi
 	fi
 }
@@ -813,17 +810,18 @@ clean_up() {
 # Prints a message for successful installation with other useful information   #
 ################################################################################
 complete_msg() {
-	msg -st "${DISTRO_NAME} installed successfully."
-	msg "Launch ${DISTRO_NAME} by executing the commands below."
+	msg -st "That's it! We have successfuly installed ${DISTRO_NAME}."
+	msg "You can launch it by executing:"
 	msg "'${Y}$(basename "${DISTRO_LAUNCHER}") root${C}' to login as root user."
 	msg "or"
-	msg "'${Y}$(basename "${DISTRO_LAUNCHER}") kali${C}' to login as normal user."
-	msg "Use '${Y}$(basename "${DISTRO_SHORTCUT}")${C}' as a short form for '${Y}$(basename "${DISTRO_LAUNCHER}")${C}'"
-	msg -t "For more information, read the documentation at:"
+	msg "'${Y}$(basename "${DISTRO_LAUNCHER}") kali${C}' to login as a normal user."
+	msg -t "I also figured you might need a short form for '${Y}$(basename "${DISTRO_LAUNCHER}")${C}'."
+	msg "In that case, I created '${Y}$(basename "${DISTRO_SHORTCUT}")${C}' that does the same thing."
+	msg -t "If you have further inquiries, read the documentation at:"
 	msg "${U}${GITHUB}/${REPOSITORY}${L}"
-	if ${ACTION_INSTALL} && [ "${SELECTED_INSTALLATION}" != "full" ]; then
-		msg -te "This is a ${SELECTED_INSTALLATION} installation of ${DISTRO_NAME}."
-		msg "Read the documentation on how to install additional components."
+	if ${ACTION_INSTALL} && [ -n "${SELECTED_INSTALLATION}" ] && [ "${SELECTED_INSTALLATION}" != "full" ]; then
+		msg -te "Remember, this is a ${SELECTED_INSTALLATION} installation of ${DISTRO_NAME}."
+		msg "If you need to install additional packages, read the docs for a detailed guide."
 	fi
 }
 
@@ -834,17 +832,17 @@ uninstall_rootfs() {
 	if [ -d "${ROOTFS_DIRECTORY}" ] && [ -n "$(ls -AU "${ROOTFS_DIRECTORY}")" ]; then
 		msg -ate "You are about to uninstall ${DISTRO_NAME} from '${ROOTFS_DIRECTORY}'."
 		if ask -n0 -- -a "Confirm action."; then
-			msg -a "Uninstalling ${DISTRO_NAME}, please wait..."
+			msg -a "Uninstalling ${DISTRO_NAME}, just a sec..."
 			if rm -rf "${ROOTFS_DIRECTORY}"; then
-				msg -as "${DISTRO_NAME} uninstalled successfully."
+				msg -as "Done! ${DISTRO_NAME} uninstalled successfully."
 				msg -a "Removing commands."
 				if rm -rf "${DISTRO_LAUNCHER}" "${DISTRO_SHORTCUT}"; then
 					msg -as "Commands removed successfully."
 				else
-					msg -ae "Failed to remove commnds."
+					msg -ae "Unfortunately, I can't remove the commnds."
 				fi
 			else
-				msg -aqm0 "Failed to uninstall ${DISTRO_NAME}."
+				msg -aqm0 "Unfortunately, I can't uninstall ${DISTRO_NAME}."
 			fi
 		else
 			msg -a "Uninstallation aborted."
@@ -869,7 +867,7 @@ print_version() {
 # Prints the program usage information                                       #
 ################################################################################
 print_usage() {
-	msg -a "Usage: ${PROGRAM_NAME} [OPTION]... [DIR]"
+	msg -a "Usage: ${NAME} [OPTION]... [DIR]"
 	msg -aN "Install ${DISTRO_NAME} in directory DIR."
 	msg -a "(default='${DEFAULT_ROOTFS_DIR}')"
 	msg -aN "Options:"
@@ -1270,16 +1268,16 @@ settings_configurations() {
 # Sets a custom login shell in distro                                          #
 ################################################################################
 set_user_shell() {
-	if [ -x "${ROOTFS_DIRECTORY}/usr/bin/chsh" ] && { if [ -z "${shell}" ]; then ask -n -- -t "Change the default login shell?"; fi; }; then
+	if [ -x "${ROOTFS_DIRECTORY}/usr/bin/chsh" ] && { if [ -z "${shell}" ]; then ask -n -- -t "Should I change the default login shell?"; fi; }; then
 		local shells=("bash" "zsh" "fish" "dash" "tcsh" "csh" "ksh")
 		msg "Available shells: ${shells[*]}"
 		msg -n "Enter shell name:"
 		read -rep " " -i "${shells[0]}" shell
 		if [[ ${shells[*]} == *"${shell}"* ]] && [ -x "${ROOTFS_DIRECTORY}/usr/bin/${shell}" ] && distro_exec /usr/bin/chsh -s "/usr/bin/${shell}" kali && distro_exec /usr/bin/chsh -s "/usr/bin/${shell}" root; then
-			msg -s "Default login shell set to '${shell}'."
+			msg -s "The default login shell is now '${shell}'."
 		else
-			msg -ne "Failed to set default login shell."
-			ask -n -- -a " Try again?" && set_user_shell
+			msg -e "Unfortunately, I can't set the default login shell."
+			ask -n -- " Should I try again?" && set_user_shell
 		fi
 		unset shell
 	fi
@@ -1289,14 +1287,14 @@ set_user_shell() {
 # Sets a custom time zone in distro                                            #
 ################################################################################
 set_zone_info() {
-	if [ -x "${ROOTFS_DIRECTORY}/usr/bin/ln" ] && { if [ -z "${zone}" ]; then ask -n -- -t "Change the default time zone?"; fi; }; then
+	if [ -x "${ROOTFS_DIRECTORY}/usr/bin/ln" ] && { if [ -z "${zone}" ]; then ask -n -- -t "Should I change the default time zone?"; fi; }; then
 		msg -n "Enter time zone (format='Country/City'):"
 		read -rep " " -i "America/New_York" zone
 		if [ -f "${ROOTFS_DIRECTORY}/usr/share/zoneinfo/${zone}" ] && echo "${zone}" >"${ROOTFS_DIRECTORY}/etc/timezone" && distro_exec /usr/bin/ln -fs -T "/usr/share/zoneinfo/${zone}" /etc/localtime; then
-			msg -s "Time zone set to '${zone}'."
+			msg -s "TThe default time zone is now '${zone}'."
 		else
-			msg -ne "Failed to set time zone."
-			ask -n -- -a " Try again?" && set_zone_info
+			msg -e "Unfortunately, I can't set the default time zone."
+			ask -n -- " Should I try again?" && set_zone_info
 		fi
 		unset zone
 	fi
@@ -1371,7 +1369,7 @@ colors() {
 ################################################################################
 msg() {
 	local color="${C}"
-	local prefix="    "
+	local prefix="   "
 	local postfix=""
 	local quit=false
 	local append=false
@@ -1382,7 +1380,7 @@ msg() {
 	while getopts ":tseanNqm:l" opt; do
 		case "${opt}" in
 			t)
-				prefix="\n  ${Y}# "
+				prefix=" ${Y}✔ "
 				continue
 				;;
 			s)
@@ -1413,8 +1411,8 @@ msg() {
 			m)
 				local msgs=(
 					"Try running this script again"
-					"Internet connection required"
-					"Try '${PROGRAM_NAME} --help' for more information")
+					"An active internet connection is required"
+					"Try '${NAME} --help' for more information")
 				extra_msg="${C}${msgs[${OPTARG}]}${N}"
 				continue
 				;;
@@ -1431,7 +1429,7 @@ msg() {
 	if ${list_items}; then
 		local i=1
 		for item in "${@}"; do
-			echo -ne "\r${prefix}    ${color}[${Y}${i}${color}] ${item}${postfix}${N}\n"
+			echo -ne "\r${prefix}    ${color}<${Y}${i}${color}> ${item}${postfix}${N}\n"
 			((i++))
 		done
 		unset item
@@ -1539,11 +1537,8 @@ KERNEL_RELEASE="6.2.1-nethunter-proot"
 # Default installation directory
 DEFAULT_ROOTFS_DIR="${TERMUX_FILES_DIR}/kali"
 
-# Password for user root
-ROOT_PASSWORD="root"
-
 # Output for unwanted messages
-LOG_FILE="/dev/null" # "${PROGRAM_NAME}.log"
+LOG_FILE="/dev/null" # "${NAME}.log"
 
 # Enable color by default
 COLOR_SUPPORT=on
@@ -1627,7 +1622,7 @@ fi
 if [ -n "${1}" ]; then
 	ROOTFS_DIRECTORY="$(realpath "${1}")"
 	if [[ "${ROOTFS_DIRECTORY}" != "${TERMUX_FILES_DIR}"* ]]; then
-		msg -aqm2 "Supplied directory '${ROOTFS_DIRECTORY}' is not within '${TERMUX_FILES_DIR}'."
+		msg -aqm2 "The supplied directory '${ROOTFS_DIRECTORY}' is not within '${TERMUX_FILES_DIR}'."
 	fi
 else
 	ROOTFS_DIRECTORY="${DEFAULT_ROOTFS_DIR}"
@@ -1641,14 +1636,12 @@ fi
 
 # Pre install actions
 if ${ACTION_INSTALL} || ${ACTION_CONFIGURE}; then
-	check_root
-	print_logo
+	root_check
+	print_intro
 	check_arch
-	check_dependencies
+	check_pkgs
+	msg -t "I shall now install ${DISTRO_NAME} in '${ROOTFS_DIRECTORY}'."
 fi
-
-# Print rootfs directory
-msg -t "Using '${ROOTFS_DIRECTORY}' as rootfs directory."
 
 # Install actions
 if ${ACTION_INSTALL}; then
@@ -1660,14 +1653,14 @@ if ${ACTION_INSTALL}; then
 	extract_rootfs_archive
 fi
 
-# Create distro launcher
+# Create launchers
 if ${ACTION_INSTALL} || ${ACTION_CONFIGURE}; then
 	create_rootfs_launcher
+	create_vnc_launcher
 fi
 
 # Post install configurations
 if ${ACTION_CONFIGURE}; then
-	create_vnc_launcher
 	make_configurations
 fi
 
