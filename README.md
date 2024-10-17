@@ -8,9 +8,9 @@
 
 Are you a linux fan or do you just love playing with the terminal and executing cool commands, just to look like a tech genius? Well, for whatever reason it is that you want to install linux on your phone, I got you covered.
 
-Installing linux on your phone might not make you a hacker, but it will certainly make you look like one.
+Installing linux on your phone might not make you a hacker, but it will certainly make you look and feel like one.
 
-With this guide, you will be able to run a full linux system, including every linux command you can think of and install different pc software, all on your phone! Wait that's not all, you can run a desktop environment and enjoy the pc graphical interface and probably try to hack into NASA using your phone like the guy in that one movie.
+With this guide, you will be able to run a full linux system, including every linux command you can think of and install different PC software, all on your phone! Wait that's not all, you can run a desktop environment and enjoy the pc graphical interface and probably try to hack into NASA using your phone like the guy in that one movie.
 
 Did I mention that you do not require root access to do all this? All you have to do is follow these simple installation instructions and you are a few keystrokes away from running all the cool programs created by the linux community.
 
@@ -63,7 +63,7 @@ wget -O install-nethunter.sh https://raw.githubusercontent.com/jorexdeveloper/te
 bash install-nethunter.sh
 ```
 
-> The install script displays usage information with the `--help` option.
+> The install script displays usage information if parsed the `--help` option.
 
 It's probably a good idea to inspect the install script from projects you don't yet know. You can do that by downloading the install script, looking through it so everything looks fine before running it.
 
@@ -96,7 +96,7 @@ pkg update -y && pkg upgrade -y && pkg install -y wget && wget -O install-nethun
 
 ## Launch & set up
 
-After successful installation, we need to launch the system and make a few set ups.
+After successful installation, you need to launch the system and make a few set ups.
 
 ### How to launch
 
@@ -112,11 +112,11 @@ or with a shorter version
 nh root
 ```
 
-You shall be logged in as the root user. You can always login as another user by replacing **root** with their user name.
+You shall be logged in as the **root user**. You can always login as another user by replacing **root** with their user name.
 
 ### How to install desktop and vnc server
 
-Now we need to install a desktop environment as it is not pre-installed and a vnc server which will be used for purposes of viewing and interacting with your desktop environment.
+Now you need to install a desktop environment, as it is not pre-installed and a vnc server which will be used for viewing and interacting with your desktop environment.
 
 [Launch](#how-to-launch "How to launch.") the system and execute the following commands.
 
@@ -138,11 +138,11 @@ apt install tigervnc-standalone-server dbus-x11 sudo
 apt install kali-desktop-xfce
 ```
 
-This command will take a while to complete, just grab a coffee and keep termux open during the installation or you might run into some problems later.
+This command will take a while to complete, grab a coffee and make sure keep termux open during the installation or you might run into some problems later.
 
 ## Login
 
-Now all that's left is to login into the system and start playing around with some commands. To do that, we need to start a vnc server in our system and connect to it through a vnc viewer.
+Now all that's left is to login into the system and start playing around with some commands. To do that, you need to start a vnc server in the system and connect to it through a vnc viewer.
 
 ### How to start vnc server
 
@@ -152,9 +152,9 @@ Now all that's left is to login into the system and start playing around with so
 vnc
 ```
 
-> The vnc command displays usage information with the `--help` option.
+> The vnc command displays usage information is parsed the `--help` option.
 
-On the first run of the above command, you will be prompted for a **vnc password**. This is the password that will be used to securely connect to the vnc server, in the vnc viewer.
+On the first run of the command above, you will be prompted for a **vnc password**. This is the password that will be used to securely connect to the vnc server, in the vnc viewer.
 
 ### How to connect to vnc server
 
@@ -162,7 +162,7 @@ To connect to the vnc server, you will need to download and install a vnc viewer
 
 [Start the vnc server](#how-to-start-vnc-server "How to start vnc server.") and **minimize the termux app**.
 
-Now open the vnc viewer app, click add server and fill in with the following details.
+Now open the vnc viewer app, click add server and fill in with the following details:
 
 **Name**
 
@@ -178,16 +178,16 @@ localhost
 
 **Port**
 
-The default display port differs for the root user and other users and don't ask me why, I just got here.
+The default display port differs for the **root user** and **other users**, don't ask me why, I just got here.
 
 | user        | port |
 | ----------- | ---- |
-| user root   | 5900 |
+| root user   | 5900 |
 | other users | 5901 |
 
 **Password**
 
-Enter the **vnc password** you set [before](#how-to-start-vnc-server "How to start vnc server.").
+Enter the **vnc password** you set when [starting the vnc server](#how-to-start-vnc-server "How to start vnc server.") for the first time.
 
 ## Have fun
 
@@ -203,7 +203,7 @@ If for some reason you need to uninstall the system from termux, just follow the
 
 ### How to uninstall
 
-Simply execute the [install script](#how-to-install "How to install.") again in termux with option `--uninstall`.
+Simply execute the [install script](#how-to-install "How to install.") again in termux with the option `--uninstall`.
 
 ```bash
 bash install-nethunter.sh --uninstall
@@ -213,7 +213,9 @@ If you installed the system in a custom directory, supply the path to the instal
 
 ## FAQ
 
-If you got some hickups during the installation or have some burning questions, you are probably not the first one and a few frequently asked questions have been answered below.
+If you got some hickups during the installation or have some burning questions, you are probably not the first one. Feel free to document them in the [issues section](https://github.com/jorexdeveloper/termux-nethunter/issues "The issues section.")
+
+However, a few frequently asked questions have been answered below.
 
 ### What happens if termux has root access?
 
@@ -221,7 +223,7 @@ This guide assumes that termux has no root access and the only root privileges t
 
 However, if you have tried following the steps above with root access in termux, then you have probably not succeeded because installing and running the system with root access in termux can have unintended effects, and should only be done when you are sure of what you are doing or you might end up **damaging your device**.
 
-For that reason, I added an **anti-root-fuse** to the install script that prevents the installation process if termux has root access.
+For that reason, I added an **anti-root fuse** to the install script that prevents the installation process if termux has root access.
 
 There should not be a good enough reason to launch the system when termux has root access because harmless root privileges are still simulated in the system with help of proot.
 
@@ -229,15 +231,13 @@ There should not be a good enough reason to launch the system when termux has ro
 
 If you **don't mind damaging your device** (probably making it unusable) and are **ready to get your hands dirty**, this section might resonate.
 
-Disabling the anti-root-fuse will require a deeper understanding of the install script and the installation process. You will need to edit the install script as follows:
+Disabling the anti-root fuse will require a deeper understanding of the install script and the installation process. You will need to edit the install script as follows:
 
 - Find and comment the function call to **check_root**.
 
-**This is definitely a bad idea and you are completely liable for any unintended effects of this action**.
+Not very helpful, is it? That becaause **this is definitely a bad idea and you are completely liable for any unintended effects of this action**.
 
-Just remember, I am mostly lazy and would never implement an anti-root-fuse for absolutely no reason.
-
-Let me know if you find any issues or suggest any improvements in the [issues section](https://github.com/jorexdeveloper/termux-nethunter/issues "The issues section.")
+Just remember, I am mostly lazy and would never implement an anti-root fuse for absolutely no reason.
 
 ## License
 
