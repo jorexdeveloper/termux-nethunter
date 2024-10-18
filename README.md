@@ -235,7 +235,7 @@ Disabling the anti-root fuse will require a deeper understanding of the install 
 
 - Find and comment the call to the function checking root access.
 
-Not very helpful, is it? That becaause **this is definitely a bad idea and you are completely liable for any unintended effects of this action**.
+Not very helpful, is it? That because **this is definitely a bad idea and you are completely liable for any unintended effects of this action**.
 
 Just remember, I am mostly lazy and would never implement an anti-root fuse for absolutely no reason.
 
