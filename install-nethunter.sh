@@ -244,7 +244,7 @@ verify_rootfs_archive() {
 extract_rootfs_archive() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
 		msg -t "Grab a coffee while I extract the rootfs archive. This will take a while..."
-		trap 'rm -rf "${ROOTFS_DIRECTORY}"; msg -q "Exiting immediately as requested.                        "' HUP INT TERM
+		trap 'rm -rf "${ROOTFS_DIRECTORY}"; msg -q "Exiting immediately as requested.                           "' HUP INT TERM
 		mkdir -p "${ROOTFS_DIRECTORY}"
 		set +e
 		if # unzip -p "${ARCHIVE_NAME}" "kalifs-${SYS_ARCH}-${SELECTED_INSTALLATION}.tar.xz" |
