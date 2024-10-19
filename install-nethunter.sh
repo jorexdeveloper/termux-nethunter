@@ -172,17 +172,17 @@ select_installation() {
 
 ################################################################################
 # Downloads the rootfs archive if it does not exist in the current directory   #
-# Sets global variables: KEEP_ROOTFS_IMAGE                                     #
+# Sets global variables: KEEP_ROOTFS_ARCHIVE                                     #
 ################################################################################
 download_rootfs_archive() {
-	unset KEEP_ROOTFS_IMAGE
+	unset KEEP_ROOTFS_ARCHIVE
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
 		if [ -e "${ARCHIVE_NAME}" ]; then
 			if [ -f "${ARCHIVE_NAME}" ]; then
 				msg -t "Hold on! I have found an existing rootfs archive."
 				if ! ask -n "Should I delete it and download a new one?"; then
 					msg "Okay, I shall use the existing rootfs archive."
-					KEEP_ROOTFS_IMAGE=1
+					KEEP_ROOTFS_ARCHIVE=1
 					return
 				fi
 			else
@@ -792,8 +792,8 @@ make_configurations() {
 # Makes the necessary clean ups                                                #
 ################################################################################
 clean_up() {
-	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ] && [ -z "${KEEP_ROOTFS_IMAGE}" ] && [ -f "${ARCHIVE_NAME}" ]; then
-		if ask -n "Should I remove the downloaded the rootfs archive to save space?"; then
+	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ] && [ -z "${KEEP_ROOTFS_ARCHIVE}" ] && [ -f "${ARCHIVE_NAME}" ]; then
+		if ask -n -- -t "Should I remove the downloaded the rootfs archive to save space?"; then
 			msg -e "Okay, removing '${ARCHIVE_NAME}'"
 			if rm -rf "${ARCHIVE_NAME}"; then
 				msg -s "Done! The rootfs archive is gone."
@@ -1291,7 +1291,7 @@ set_zone_info() {
 		msg -n "Enter time zone (format='Country/City'):"
 		read -rep " " -i "America/New_York" zone
 		if [ -f "${ROOTFS_DIRECTORY}/usr/share/zoneinfo/${zone}" ] && echo "${zone}" >"${ROOTFS_DIRECTORY}/etc/timezone" && distro_exec /usr/bin/ln -fs -T "/usr/share/zoneinfo/${zone}" /etc/localtime; then
-			msg -s "TThe default time zone is now '${zone}'."
+			msg -s "The default time zone is now '${zone}'."
 		else
 			msg -e "Unfortunately, I can't set the default time zone."
 			ask -n -- " Should I try again?" && set_zone_info
