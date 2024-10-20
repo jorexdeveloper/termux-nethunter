@@ -405,7 +405,7 @@ create_rootfs_launcher() {
 		        echo "    --id[=UID:GID]"
 		        echo "            Make the current user and group appear as UID and GID."
 		        echo "    --kernel-release[=STRING]"
-		        echo "            Make current kernel realease appear as STRING."
+		        echo "            Make current kernel release appear as STRING."
 		        echo "            (default='${KERNEL_RELEASE}')"
 		        echo "    -h, --help"
 		        echo "            Print this information and exit."
