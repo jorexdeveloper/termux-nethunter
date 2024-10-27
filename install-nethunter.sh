@@ -661,10 +661,10 @@ create_vnc_launcher() {
 		set_geometry() {
 		    case "\${ORIENTATION_STYLE}" in
 		    "potrait")
-		        geometry="\${WIDTH_VALUE}x\${HEIGHT_VALUE}"
+		        geometry="\${HEIGHT_VALUE}x\${WIDTH_VALUE}"
 		        ;;
 		    *)
-		        geometry="\${HEIGHT_VALUE}x\${WIDTH_VALUE}"
+		        geometry="\${WIDTH_VALUE}x\${HEIGHT_VALUE}"
 		        ;;
 		    esac
 		}
@@ -728,8 +728,8 @@ create_vnc_launcher() {
 		#############
 
 		DEPTH_VALUE=24
-		WIDTH_VALUE=720
-		HEIGHT_VALUE=1600
+		WIDTH_VALUE=1440
+		HEIGHT_VALUE=720
 		ORIENTATION_STYLE="landscape"
 		DISPLAY_VALUE="\$(cut -d: -f2 <<< "\${DISPLAY}")"
 
