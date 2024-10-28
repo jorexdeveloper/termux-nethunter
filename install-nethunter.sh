@@ -43,7 +43,7 @@ root_check() {
 ################################################################################
 print_intro() {
 	local spaces=""
-	for ((i = $(((($(stty size | cut -d ' ' -f2) - 56) / 2))); i > 0; i--)); do
+	for ((i = $((($(stty size | cut -d ' ' -f2) - 56) / 2)); i > 0; i--)); do
 		spaces+=" "
 	done
 	clear
@@ -159,7 +159,7 @@ check_rootfs_directory() {
 ################################################################################
 select_installation() {
 	msg -t "Select your prefered installation."
-	msg -l "  full    (Large but contains everything you need)" "  minimal (Light-weight with basic packages only)" "> nano    (Like minimal with a few more packages)"
+	msg -l "  full    (Large but contains everything you need)" "  minimal (Light-weight with essential packages only)" "> nano    (Like minimal with a few more packages)"
 	msg -n "Enter choice: "
 	read -ren 1 SELECTED_INSTALLATION
 	case "${SELECTED_INSTALLATION}" in
@@ -247,9 +247,7 @@ extract_rootfs_archive() {
 		trap 'rm -rf "${ROOTFS_DIRECTORY}"; msg -q "Exiting immediately as requested.                           "' HUP INT TERM
 		mkdir -p "${ROOTFS_DIRECTORY}"
 		set +e
-		if # unzip -p "${ARCHIVE_NAME}" "kalifs-${SYS_ARCH}-${SELECTED_INSTALLATION}.tar.xz" |
-			proot --link2symlink tar --strip=2 --delay-directory-restore --warning=no-unknown-keyword --extract --xz --exclude="dev" --file="${ARCHIVE_NAME}" --directory="${ROOTFS_DIRECTORY}" --checkpoint=1 --checkpoint-action=ttyout="${I}${Y}   I have extracted %{}T in %ds so far.%*\r${N}${V}" &>>"${LOG_FILE}"
-		then
+		if proot --link2symlink tar --strip=2 --delay-directory-restore --warning=no-unknown-keyword --extract --xz --exclude="dev" --file="${ARCHIVE_NAME}" --directory="${ROOTFS_DIRECTORY}" --checkpoint=1 --checkpoint-action=ttyout="${I}${Y}   I have extracted %{}T in %ds so far.%*\r${N}${V}" &>>"${LOG_FILE}"; then
 			msg -s "Finally, I am done extracting the rootfs archive."
 		else
 			rm -rf "${ROOTFS_DIRECTORY}"
@@ -877,8 +875,10 @@ print_usage() {
 	msg "        Skip the installation steps."
 	msg -- "--no-configs"
 	msg "        Skip the configuration steps."
-	msg -- "--uninstall"
+	msg -- "-u, --uninstall"
 	msg "        Uninstall ${DISTRO_NAME}."
+	msg -- "-l, --log"
+	msg "        Create log file."
 	msg -- "-h, --help"
 	msg "        Print this information and exit."
 	msg -- "-v, --version"
@@ -1276,8 +1276,8 @@ set_user_shell() {
 		if [[ ${shells[*]} == *"${shell}"* ]] && [ -x "${ROOTFS_DIRECTORY}/usr/bin/${shell}" ] && distro_exec /usr/bin/chsh -s "/usr/bin/${shell}" kali && distro_exec /usr/bin/chsh -s "/usr/bin/${shell}" root; then
 			msg -s "The default login shell is now '${shell}'."
 		else
-			msg -e "Unfortunately, I can't set the default login shell."
-			ask -n -- " Should I try again?" && set_user_shell
+			msg -e "Unfortunately, I couldn't set the default login shell to '${shell}'."
+			ask -n -- "Should I try again?" && set_user_shell
 		fi
 		unset shell
 	fi
@@ -1293,8 +1293,8 @@ set_zone_info() {
 		if [ -f "${ROOTFS_DIRECTORY}/usr/share/zoneinfo/${zone}" ] && echo "${zone}" >"${ROOTFS_DIRECTORY}/etc/timezone" && distro_exec /usr/bin/ln -fs -T "/usr/share/zoneinfo/${zone}" /etc/localtime; then
 			msg -s "The default time zone is now '${zone}'."
 		else
-			msg -e "Unfortunately, I can't set the default time zone."
-			ask -n -- " Should I try again?" && set_zone_info
+			msg -e "Unfortunately, I couldn't set the default time zone to '${zone}'."
+			ask -n -- "Should I try again?" && set_zone_info
 		fi
 		unset zone
 	fi
@@ -1538,7 +1538,7 @@ KERNEL_RELEASE="6.2.1-nethunter-proot"
 DEFAULT_ROOTFS_DIR="${TERMUX_FILES_DIR}/kali"
 
 # Output for unwanted messages
-LOG_FILE="/dev/null" # "${NAME}.log"
+LOG_FILE="/dev/null"
 
 # Enable color by default
 COLOR_SUPPORT=on
@@ -1573,7 +1573,8 @@ while [ "${#}" -gt 0 ]; do
 			;;
 		--no-install) ACTION_INSTALL=false ;;
 		--no-configs) ACTION_CONFIGURE=false ;;
-		--uninstall) ACTION_UNINSTALL=true ;;
+		-u | --uninstall) ACTION_UNINSTALL=true ;;
+		-l | --log) LOG_FILE="${NAME}.log" ;;
 		-v | --version)
 			print_version
 			exit 0
