@@ -776,7 +776,7 @@ make_configurations() {
 	msg -t "Now let me make some configurations for you."
 	for config in fake_proc_setup android_ids_setup settings_configurations environment_variables_setup; do
 		status="$(${config} 2>"${LOG_FILE}")"
-		if ! [ -z "${status//-0/}" ]; then
+		if [ -n "${status//-0/}" ]; then
 			msg -e "Oops, ${config//_/ } failed with error code: (${status})"
 		fi
 	done
