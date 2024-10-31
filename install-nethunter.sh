@@ -43,15 +43,15 @@ root_check() {
 ################################################################################
 print_intro() {
 	local spaces=""
-	for ((i = $((($(stty size | cut -d ' ' -f2) - 56) / 2)); i > 0; i--)); do
+	for ((i = $((($(stty size | cut -d ' ' -f2) - 59) / 2)); i > 0; i--)); do
 		spaces+=" "
 	done
 	clear
-	msg -a "${spaces} _  __     _ _   _  _     _   _  _          _"
-	msg -a "${spaces}| |/ /__ _| (_) | \| |___| |_| || |_  _ _ _| |_ ___ _ _"
-	msg -a "${spaces}| ' </ _' | | | | .' / -_)  _| __ | || | ' \  _/ -_) '_|"
-	msg -a "${spaces}|_|\_\__,_|_|_| |_|\_\___|\__|_||_|\_,_|_||_\__\___|_|"
-	msg -a "${spaces}                         ${VERSION}"
+	msg -a "${spaces}   __ __     ___   _  __    __  __ __          __"
+	msg -a "${spaces}  / //_/__ _/ (_) / |/ /__ / /_/ // /_ _____  / /____ ____"
+	msg -a "${spaces} / ,< / _ '/ / / /    / -_) __/ _  / // / _ \/ __/ -_) __/"
+	msg -a "${spaces}/_/|_|\_,_/_/_/ /_/|_/\__/\__/_//_/\_,_/_//_/\__/\__/_/"
+	msg -a "${spaces}                          ${VERSION}"
 	msg -t "Hey there,👋 I'm ${AUTHOR}"
 	msg "I am here to help you to install ${DISTRO_NAME}."
 }
@@ -263,6 +263,7 @@ extract_rootfs_archive() {
 ################################################################################
 create_rootfs_launcher() {
 	msg -t "Lemme create a command to launch ${DISTRO_NAME}."
+	# shellcheck disable=SC2094
 	mkdir -p "$(dirname "${DISTRO_LAUNCHER}")" && cat >"${DISTRO_LAUNCHER}" <<-EOF
 		#!/bin/bash -e
 
@@ -625,16 +626,16 @@ create_rootfs_launcher() {
 # Creates a script used to launch the vnc server in the distro                 #
 ################################################################################
 create_vnc_launcher() {
-	msg -t "Lemme create a command to launch VNC in ${DISTRO_NAME}."
+	msg -t "Lemme create a command to launch vnc in ${DISTRO_NAME}."
 	local vnc_launcher="${ROOTFS_DIRECTORY}/usr/local/bin/vnc"
 	mkdir -p "${ROOTFS_DIRECTORY}/usr/local/bin" && cat >"${vnc_launcher}" <<-EOF
 		#!/bin/bash -e
 
 		################################################################################
 		#                                                                              #
-		#     VNC launcher, version ${VERSION}                                             #
+		#     vnc wrapper.                                                             #
 		#                                                                              #
-		#     This script starts the VNC server.                                       #
+		#     This script starts the vnc server.                                       #
 		#                                                                              #
 		#     Copyright (C) 2023  ${AUTHOR} <${GITHUB}>             #
 		#                                                                              #
@@ -642,130 +643,117 @@ create_vnc_launcher() {
 
 		root_check() {
 		    if [ "\${EUID}" = "0" ] || [ "\$(whoami)" = "root" ]; then
-		        echo "Some applications are not meant to be run as root and may not work properly."
-		        read -rep "Continue anyway? (y/N) " -n 1 reply
+		        echo "Some applications may not work properly if run as root."
+		        echo -n "Continue anyway? (y/N) "
+		        read -r reply
 		        case "\${reply}" in
-		        y | Y) return ;;
+		            y | Y) return ;;
 		        esac
 		        echo "Abort."
-		        exit 1
-		    fi
-		}
-
-		clean_tmp() {
-		    rm -rf "/tmp/.X\${DISPLAY_VALUE}-lock" "/tmp/.X11-unix/X\${DISPLAY_VALUE}"
-		}
-
-		set_geometry() {
-		    case "\${ORIENTATION_STYLE}" in
-		    "potrait")
-		        geometry="\${HEIGHT_VALUE}x\${WIDTH_VALUE}"
-		        ;;
-		    *)
-		        geometry="\${WIDTH_VALUE}x\${HEIGHT_VALUE}"
-		        ;;
-		    esac
-		}
-
-		set_passwd() {
-		    if [ -x "\$(command -v vncpasswd)" ]; then
-		        vncpasswd
-		    else
-		        echo "No VNC server found."
 		        return 1
 		    fi
 		}
 
-		start_server() {
-		    if [ -x "\$(command -v vncserver)" ]; then
-		        if [ -f "\${HOME}/.vnc/passwd" ] && [ -r "\${HOME}/.vnc/passwd" ]; then
-		            export HOME="\${HOME-/root}"
-		            export USER="\${USER-root}"
-		            LD_PRELOAD="${LIB_GCC_PATH}"
-		            # nohup \\
-		            vncserver ":\${DISPLAY_VALUE}" -geometry "\${geometry}" -depth "\${DEPTH_VALUE}" "\${@}" && echo "VNC server started successfully."
-		        else
-		            set_passwd && start_server
-		        fi
-		    else
-		        echo "No VNC server found."
+		clean_tmp() {
+		    if [ -n "\${DISPLAY}" ]; then
+		        rm -rf "\${TMPDIR-/tmp}/.X\${DISPLAY}-lock" "/tmp/.X11-unix/X\${DISPLAY}"
 		    fi
 		}
 
-		kill_server() {
-		    if [ -x "\$(command -v vncserver)" ]; then
-		        vncserver -clean -kill ":\${DISPLAY_VALUE}" && clean_tmp
-		        return \${?}
+		set_geometry() {
+		    case "\${ORIENTATION}" in
+		        p) geometry="\${HEIGHT}x\${WIDTH}" ;;
+		        *) geometry="\${WIDTH}x\${HEIGHT}" ;;
+		    esac
+		}
+
+		start_session() {
+		    if [ -f "\${HOME}/.vnc/passwd" ] && [ -r "\${HOME}/.vnc/passwd" ]; then
+		        export HOME="\${HOME-/root}"
+		        export USER="\${USER-root}"
+		        LD_PRELOAD="${LIB_GCC_PATH}"
+		        vncserver \${DISPLAY} -geometry "\${geometry}" -depth "\${DEPTH}" "\${@}"
 		    else
-		        echo "No VNC server found."
+		        vncpasswd && start_session
 		    fi
+		}
+
+		check_status() {
+		    vncserver -list "\${@}"
+		}
+
+		kill_session() {
+		    vncserver -clean -kill \${DISPLAY} "\${@}" && clean_tmp
 		}
 
 		print_usage() {
 		    echo "Usage \$(basename "\${0}") [option]..."
 		    echo ""
-		    echo "Start the VNC server."
+		    echo "Start vnc session."
 		    echo ""
 		    echo "Options:"
-		    echo "   -p, --potrait"
-		    echo "         Use potrait (\${WIDTH_VALUE}x\${HEIGHT_VALUE}) orientation."
-		    echo "   -l, --landscape"
-		    echo "         Use landscape (\${HEIGHT_VALUE}x\${WIDTH_VALUE}) orientation. (default)"
-		    echo "   --password"
-		    echo "         Set or change the VNC password."
-		    echo "   -k, --kill"
-		    echo "         Kill the vncserver."
-		    echo "   -h, --help"
+		    echo "   p, potrait"
+		    echo "         Use potrait (\${WIDTH}x\${HEIGHT}) orientation."
+		    echo "   l, landscape"
+		    echo "         Use landscape (\${HEIGHT}x\${WIDTH}) orientation. (default)"
+		    echo "   s, status"
+		    echo "         List active vnc sessions."
+		    echo "   k, kill"
+		    echo "         Kill vnc session."
+		    echo "   h, help"
 		    echo "          Print this message and exit."
 		    echo ""
-		    echo "Extra options are parsed to the installed VNC server."
+		    echo "Extra options are parsed to the installed vnc server, see vncserver(1)."
 		}
 
 		#############
 		# Entry point
 		#############
 
-		DEPTH_VALUE=24
-		WIDTH_VALUE=1440
-		HEIGHT_VALUE=720
-		ORIENTATION_STYLE="landscape"
-		DISPLAY_VALUE="\$(cut -d: -f2 <<< "\${DISPLAY}")"
+		DEPTH=24
+		WIDTH=1440
+		HEIGHT=720
+		ORIENTATION="l"
 
-		extra_opts=()
+		if ! [ -x "\$(command -v vncserver)" ] && [ -x "\$(command -v vncpasswd)" ]; then
+		    echo "No vnc server found."
+		    return 1
+		fi
+
+		opts=()
 		while [ "\${#}" -gt 0 ]; do
 		    case "\${1}" in
-		    -p | --potrait)
-		        ORIENTATION_STYLE=potrait
-		        ;;
-		    -l | --landscape)
-		        ORIENTATION_STYLE=landscape
-		        ;;
-		    --password)
-		        set_passwd
-		        exit
-		        ;;
-		    -k | --kill)
-		        kill_server
-		        exit
-		        ;;
-		    -h | --help)
-		        print_usage
-		        exit 0
-		        ;;
-		    *) extra_opts=("\${extra_opts[@]}" "\${1}") ;;
+		        p | potrait)
+		            ORIENTATION=p
+		            ;;
+		        l | landscape)
+		            ORIENTATION=l
+		            ;;
+		        s | status)
+		            action=s
+		            ;;
+		        k | kill)
+		            action=k
+		            ;;
+		        h | help)
+		            print_usage
+		            exit 0
+		            ;;
+		        *) opts=("\${opts[@]}" "\${1}") ;;
 		    esac
 		    shift
 		done
-		set -- "\${extra_opts[@]}"
-		unset extra_opts
 
-		# Start VNC server
-		root_check && clean_tmp && set_geometry && start_server "\${@}"
+		case "\${action}" in
+		    k) kill_session "\${opts}" ;;
+		    s) check_status "\${opts}" ;;
+		    *) root_check && clean_tmp && set_geometry && start_session "\${opts}" ;;
+		esac
 	EOF
 	if chmod 700 "${vnc_launcher}"; then
 		msg -s "Command created successfully."
 	else
-		msg -e "Unfortunately, I can't create the VNC launcher."
+		msg -e "Unfortunately, I can't create the vnc launcher."
 	fi
 }
 
@@ -1152,7 +1140,7 @@ environment_variables_setup() {
 		# pulseaudio server
 		export PULSE_SERVER=127.0.0.1
 
-		# Display (for VNC)
+		# Display (for vnc)
 		if [ "\${EUID}" -eq 0 ] || [ "\$(id -u)" -eq 0 ] || [ "\$(whoami)" = "root" ]; then
 		    export DISPLAY=:0
 		else
@@ -1574,7 +1562,7 @@ while [ "${#}" -gt 0 ]; do
 		--no-install) ACTION_INSTALL=false ;;
 		--no-configs) ACTION_CONFIGURE=false ;;
 		-u | --uninstall) ACTION_UNINSTALL=true ;;
-		-l | --log) LOG_FILE="${NAME}.log" ;;
+		-l | --log) LOG_FILE="${NAME%.sh}.log" ;;
 		-v | --version)
 			print_version
 			exit 0
@@ -1674,6 +1662,4 @@ fi
 if ${ACTION_INSTALL} || ${ACTION_CONFIGURE}; then
 	complete_msg
 fi
-
-# Exit successfully
 exit 0
