@@ -444,6 +444,7 @@ create_rootfs_launcher() {
 		        exit 1
 		    fi
 		fi
+
 		# unset LD_PRELOAD in case termux-exec is installed
 		unset LD_PRELOAD
 
@@ -1662,4 +1663,6 @@ fi
 if ${ACTION_INSTALL} || ${ACTION_CONFIGURE}; then
 	complete_msg
 fi
+
+# Exit
 exit 0

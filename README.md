@@ -152,7 +152,7 @@ Now all that's left is to login into the system and start playing around with so
 vnc
 ```
 
-> The vnc command displays usage information is parsed the `--help` option.
+> The vnc command displays usage information if parsed the `help` option.
 
 On the first run of the command above, you will be prompted for a **vnc password**. This is the password that will be used to securely connect to the vnc server, in the vnc viewer.
 
