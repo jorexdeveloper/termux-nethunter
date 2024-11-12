@@ -188,7 +188,7 @@ distro_template="$(realpath "$(dirname "${0}")")/termux-distro.sh"
 # shellcheck disable=SC1090
 if [ -f "${distro_template}" ] && [ -r "${distro_template}" ]; then
 	source "${distro_template}" "${@}"
-elif curl -fsSLO "https://raw.githubusercontent.com/jorexdeveloper/termux-distro/termux-distro.sh" 2>"/dev/null" && [ -f "${distro_template}" ]; then
+elif curl -fsSLO "https://github.com/jorexdeveloper/termux-distro/blob/main/termux-distro.sh" 2>"/dev/null" && [ -f "${distro_template}" ]; then
 	source "${distro_template}"
 else
 	echo "You need an active internet connection to run this script."
