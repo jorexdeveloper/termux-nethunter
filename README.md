@@ -53,7 +53,7 @@ Did I mention that you do not require root access to do all this? All you have t
       <li>configurations only (if already installed)</li>
       <li>uninstall</li>
       <li>color</li>
-      <li>log</>
+      <li>log</li>
     </ul>
     <li>creates vnc wrapper</li>
     <li>automatic configurations</li>
