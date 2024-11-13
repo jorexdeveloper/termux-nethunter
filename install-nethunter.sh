@@ -95,11 +95,11 @@ post_install_actions() {
 	local xstartup="$(
 		# Customize depending on distribution defaults
 		cat 2>>"${LOG_FILE}" <<-EOF
-			#!/usr/bin/bash
+			#!/bin/bash
 			#############################
 			##          All            ##
 			export XDG_RUNTIME_DIR=/tmp/runtime-"\${USER-root}"
-			export SHELL="\${SHELL-/usr/bin/sh}"
+			export SHELL="\${SHELL-/bin/sh}"
 
 			unset SESSION_MANAGER
 			unset DBUS_SESSION_BUS_ADDRESS
@@ -134,7 +134,7 @@ post_install_actions() {
 		echo "${xstartup}" >"${ROOTFS_DIRECTORY}/root/.vnc/xstartup"
 		chmod 744 "${ROOTFS_DIRECTORY}/root/.vnc/xstartup"
 		if [ "${DEFAULT_LOGIN}" != "root" ]; then
-			mkdir -p "${ROOTFS_DIRECTORY}/${DEFAULT_LOGIN}/.vnc"
+			mkdir -p "${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc"
 			echo "${xstartup}" >"${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc/xstartup"
 			chmod 744 "${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc/xstartup"
 		fi
@@ -158,8 +158,8 @@ post_config_actions() {
 	if [ -f "${ROOTFS_DIRECTORY}/etc/locale.gen" ] && [ -x "${ROOTFS_DIRECTORY}/sbin/dpkg-reconfigure" ]; then
 		msg -t "Hold on while I generate the locales for you."
 		sed -i -E 's/#[[:space:]]?(en_US.UTF-8[[:space:]]+UTF-8)/\1/g' "${ROOTFS_DIRECTORY}/etc/locale.gen"
-		if distro_exec DEBIAN_FRONTEND=noninteractive /sbin/dpkg-reconfigure locales &>"${LOG_FILE}"; then
-			msg -s "Yup, locales are ready!"
+		if distro_exec DEBIAN_FRONTEND=noninteractive /sbin/dpkg-reconfigure locales &>>"${LOG_FILE}"; then
+			msg -s "Done, the locales are ready!"
 		else
 			msg -e "Sorry, I failed to generate the locales."
 		fi
@@ -187,7 +187,7 @@ PROGRAM_NAME="$(basename "${0}")"
 DISTRO_REPOSITORY="termux-nethunter"
 VERSION_NAME="2024.3"
 
-SHASUM_TYPE=512
+SHASUM_CMD=sha512sum
 TRUSTED_SHASUMS="$(
 	cat <<-EOF
 		aba9be5d08d982da1e4726d1073284446d67c4d9b571b1dfa6ff1963e0050212dd0a78613565b4ff3443e8fc581726b58133d89dd6f6cd664562aa4611346b17  kali-nethunter-rootfs-full-arm64.tar.xz
