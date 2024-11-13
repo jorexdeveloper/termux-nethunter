@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/env bash
+#!/data/data/com.termux/files/usr/bin/bash
 
 ################################################################################
 #                                                                              #
@@ -24,7 +24,7 @@
 ################################################################################
 # shellcheck disable=SC2034
 
-# ATTENTION!!! CHANGE BELOW!!!
+# ATTENTION!!! CHANGE BELOW FUNTIONS FOR DISTRO DEPENDENT ACTIONS!!!
 
 # Called before any safety checks
 # New Variables: AUTHOR GITHUB LOG_FILE ACTION_INSTALL ACTION_CONFIGURE
@@ -33,19 +33,34 @@ pre_check_actions() {
 	return
 }
 
-# Called when printing intro
+# Called before printing intro
 # New Variables: none
 distro_banner() {
 	local spaces=''
-	for ((i = $((($(stty size | cut -d ' ' -f2) - 56) / 2)); i > 0; i--)); do
+	for ((i = $((($(stty size | cut -d ' ' -f2) - 49) / 2)); i > 0; i--)); do
 		spaces+=' '
 	done
-	msg -a "${spaces}┌──────────────────────────────────────────────────────┐"
-	msg -a "${spaces}│░█░█░█▀█░█░░░▀█▀░░░█▀█░█▀▀░▀█▀░█░█░█░█░█▀█░▀█▀░█▀▀░█▀▄│"
-	msg -a "${spaces}│░█▀▄░█▀█░█░░░░█░░░░█░█░█▀▀░░█░░█▀█░█░█░█░█░░█░░█▀▀░█▀▄│"
-	msg -a "${spaces}│░▀░▀░▀░▀░▀▀▀░▀▀▀░░░▀░▀░▀▀▀░░▀░░▀░▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀│"
-	msg -a "${spaces}│░░░░░░░░░░░░░░░░░░░░░░░░${Y}${VERSION_NAME}${C}░░░░░░░░░░░░░░░░░░░░░░░░│"
-	msg -a "${spaces}└──────────────────────────────────────────────────────┘"
+	msg -a "${spaces}${B}.............."
+	msg -a "${spaces}${B}            ..,;:ccc,."
+	msg -a "${spaces}${B}          ......''';lxO."
+	msg -a "${spaces}${B}.....''''..........,:ld;"
+	msg -a "${spaces}${B}           .';;;:::;,,.x,"
+	msg -a "${spaces}${B}      ..'''.            0Xxoc:,.  ..."
+	msg -a "${spaces}${B}  ....                ,ONkc;,;cokOdc',."
+	msg -a "${spaces}${B} .                   OMo           ':${R}dd${B}o."
+	msg -a "${spaces}${B}                    dMc               :OO;"
+	msg -a "${spaces}${B}                    0M.                 .:o."
+	msg -a "${spaces}${B}                    ;Wd"
+	msg -a "${spaces}${B}                     ;XO,"
+	msg -a "${spaces}${B}                       ,d0Odlc;,.."
+	msg -a "${spaces}${B}                           ..',;:cdOOd::,."
+	msg -a "${spaces}${B}                                    .:d;.':;."
+	msg -a "${spaces}${B}                                       'd,  .'"
+	msg -a "${spaces}${C}${DISTRO_NAME}${B}                           ;l   .."
+	msg -a "${spaces}${Y}    ${VERSION_NAME}${B}                                    .o"
+	msg -a "${spaces}${B}                                            c"
+	msg -a "${spaces}${B}                                            .'"
+	msg -a "${spaces}${B}                                             ."
 }
 
 # Called after checking architecture and required pkgs
@@ -76,21 +91,11 @@ pre_install_actions() {
 # Called after extracting rootfs
 # New Variables: KEEP_ROOTFS_ARCHIVE
 post_install_actions() {
-	return
-}
-
-# Called before making configurations
-# New Variables: none
-pre_config_actions() {
-	return
-}
-
-# Called after configurations
-# New Variables: none
-post_config_actions() {
+	msg -t "Lemme create an xstartup script for vnc."
 	local xstartup="$(
+		# Customize depending on distribution defaults
 		cat 2>>"${LOG_FILE}" <<-EOF
-			#!/bin/bash
+			#!/usr/bin/bash
 			#############################
 			##          All            ##
 			export XDG_RUNTIME_DIR=/tmp/runtime-"\${USER-root}"
@@ -124,7 +129,7 @@ post_config_actions() {
 			# exec i3
 		EOF
 	)"
-	{
+	if {
 		mkdir -p "${ROOTFS_DIRECTORY}/root/.vnc"
 		echo "${xstartup}" >"${ROOTFS_DIRECTORY}/root/.vnc/xstartup"
 		chmod 744 "${ROOTFS_DIRECTORY}/root/.vnc/xstartup"
@@ -133,7 +138,32 @@ post_config_actions() {
 			echo "${xstartup}" >"${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc/xstartup"
 			chmod 744 "${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc/xstartup"
 		fi
-	} 2>>"${LOG_FILE}"
+	} 2>>"${LOG_FILE}"; then
+		msg -s "Done, xstartup script created successfully!"
+	else
+		msg -e "Sorry, I failed to create the xstartup script for vnc."
+	fi
+}
+
+# Called before making configurations
+# New Variables: none
+pre_config_actions() {
+	return
+}
+
+# Called after configurations
+# New Variables: none
+post_config_actions() {
+	# execute distro specific command for locale generation
+	if [ -f "${ROOTFS_DIRECTORY}/etc/locale.gen" ] && [ -x "${ROOTFS_DIRECTORY}/sbin/dpkg-reconfigure" ]; then
+		msg -t "Hold on while I generate the locales for you."
+		sed -i -E 's/#[[:space:]]?(en_US.UTF-8[[:space:]]+UTF-8)/\1/g' "${ROOTFS_DIRECTORY}/etc/locale.gen"
+		if distro_exec DEBIAN_FRONTEND=noninteractive /sbin/dpkg-reconfigure locales &>"${LOG_FILE}"; then
+			msg -s "Yup, locales are ready!"
+		else
+			msg -e "Sorry, I failed to generate the locales."
+		fi
+	fi
 }
 
 # Called before complete message
@@ -169,7 +199,7 @@ TRUSTED_SHASUMS="$(
 	EOF
 )"
 
-ARCHIVE_STRIP_DIRS=2
+ARCHIVE_STRIP_DIRS=2 # directories stripped by tar when extracting rootfs archive
 KERNEL_RELEASE="6.2.1-nethunter-proot"
 BASE_URL="https://kali.download/nethunter-images/kali-${VERSION}/rootfs"
 
