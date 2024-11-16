@@ -148,7 +148,7 @@ post_install_actions() {
 # Called before making configurations
 # New Variables: none
 pre_config_actions() {
-	return
+	echo "${ROOTFS_DIRECTORY}" >"${ROOTFS_DIRECTORY}/etc/debian_chroot"
 }
 
 # Called after configurations
