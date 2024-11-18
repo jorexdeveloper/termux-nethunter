@@ -72,7 +72,6 @@ post_check_actions() {
 # Called after checking for rootfs directory
 # New Variables: KEEP_ROOTFS_DIRECTORY
 pre_install_actions() {
-	# No need to select installation if using existing directory
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
 		msg -t "Select your prefered installation."
 		msg -l "  full    (Large but contains everything you need)" "  minimal (Light-weight with essential packages only)" "${Y}>${G} nano    (Like minimal with a few more packages)"
@@ -154,6 +153,13 @@ pre_config_actions() {
 # Called after configurations
 # New Variables: none
 post_config_actions() {
+	# Fix environment variables on login or su. (#17 fix)
+	local fix="session  required  pam_env.so readenv=1"
+	for f in su su-l system-local-login system-remote-login; do
+		if [ -f "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" ] && ! grep -q "${fix}" "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" &>>"${LOG_FILE}"; then
+			echo "${fix}" >>"${ROOTFS_DIRECTORY}/etc/pam.d/${f}"
+		fi
+	done
 	# execute distro specific command for locale generation
 	if [ -f "${ROOTFS_DIRECTORY}/etc/locale.gen" ] && [ -x "${ROOTFS_DIRECTORY}/sbin/dpkg-reconfigure" ]; then
 		msg -t "Hold on while I generate the locales for you."
@@ -175,8 +181,7 @@ pre_complete_actions() {
 # Called after complete message
 # New Variables: none
 post_complete_actions() {
-	# Print only when installation is made
-	if ${ACTION_INSTALL} && [ "${SELECTED_INSTALLATION}" != "full" ]; then
+	if ${ACTION_INSTALL} && [ -n "${SELECTED_INSTALLATION}" ] && [ "${SELECTED_INSTALLATION}" != "full" ]; then
 		msg -te "Remember, this is a ${SELECTED_INSTALLATION} installation of ${DISTRO_NAME}."
 		msg "If you need to install additional packages, check out the documentation for a guide."
 	fi
