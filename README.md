@@ -93,7 +93,7 @@ curl -fsSLO https://raw.githubusercontent.com/jorexdeveloper/termux-nethunter/ma
 bash install-nethunter.sh
 ```
 
-> The install script displays usage information if parsed the `--help` option.
+> See `bash install-nethunter.sh --help` for usage information.
 
 It's probably a good idea to inspect any install script from projects you don't yet know. You can do that by downloading the install script, looking through it so everything looks fine before running it.
 
@@ -121,7 +121,7 @@ or with a shorter version
 nh
 ```
 
-You will be logged in with the default user name, **kali** (You can login as another user by providing their user name as an argument).
+You will be logged in with the default user name, **kali** (You can login as another user by providing their user name as an argument. See `nethunter --help` for usage information).
 
 ### How to install desktop and vnc server
 
@@ -161,7 +161,7 @@ Now all that's left is to login into your newly installed system and start playi
 vnc
 ```
 
-> The vnc command displays usage information if parsed the `help` option.
+> See `vnc help` for usage information.
 
 On the first run of the command above, you will be prompted for a **vnc password**. This is the password that will be used to securely connect to the vnc server, in the vnc viewer, so save it somewhere.
 
