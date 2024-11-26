@@ -32,11 +32,17 @@ Did I mention that you do not require root access to do all this? All you have t
       <li><a href="#how-to-connect-to-vnc-server" title="View this section.">How to connect to vnc server</a></li>
     </ul>
     <li><a href="#have-fun" title="View this section.">Have fun</a></li>
+    <li><a href="#backup-and-restore" title="View this section.">Backup and Restore</a></li>
+    <ul>
+      <li><a href="#how-to-backup" title="View this section.">How to backup</a></li>
+      <li><a href="#how-to-restore" title="View this section.">How to restore</a></li>
+    </ul>
     <li><a href="#uninstallation" title="View this section.">Uninstallation</a></li>
     <ul>
       <li><a href="#how-to-uninstall" title="View this section.">How to uninstall</a></li>
     </ul>
     <li><a href="#faq" title="View this section.">FAQ</a></li>
+    <li><a href="#contribution" title="View this section.">Contribution</a></li>
   </ul>
 </details>
 
@@ -208,6 +214,93 @@ The possibilities are endless and the only limits that exist are the ones you se
 
 You might wan't to google for some cool commands and programs to execute or even when get you stuck, good luck.
 
+## Backup and Restore
+
+I stubbornly refuse to add a backup feature to the install script because it defeats the whole design structure of _making the program do one thing extremely well_.
+
+But, backing up the installed rootfs is more complicated than just running an ordinary **tar** command.
+
+### How to backup
+
+To backup your installed rootfs, you need to execute the **tar** command with a few extra options to ensure that file permissions are properly handled and your system remains usable.
+
+Here is a simple shell function to help you do that.
+
+**Note:** This process requires you to backup and restore the rootfs to the same directory as the original installation, otherwise the proot links get broken and some system files get corrupted.
+
+```bash
+backup() {
+	if [ -n "${1}" ] && [ -d "${1}" ]; then
+		if [ -n "${2}" ]; then
+			local file="${2}"
+		else
+			# Default archive name if not given.
+			local file="${HOME}/$(basename "${1}").tar.xz"
+		fi
+		# Directories to include in the archive some read-only directories
+    # like /dev need to be ignored but you can add your own if you wish
+		local dirs=(.l2s bin boot etc home lib media mnt opt proc root run sbin snap srv sys tmp usr var)
+		echo "Packing chroot into '${file}'."
+		echo "Including ${dirs[*]}"
+		# Make sure all directories exist
+		for i in "${dirs[@]}"; do
+			mkdir -p "${1}/${i}"
+		done
+		unset i
+		# Switch to the chroot directory and
+		# backup the given directories
+		tar \
+			--warning=no-file-ignored \
+			--one-file-system \
+			--xattrs \
+			--xattrs-include='*' \
+			--preserve-permissions \
+			--create \
+			--auto-compress \
+			-C "${1}" --file "${file}" "${dirs[@]}"
+	else
+		echo "Usage: chroot-backup PATH [FILE]"
+	fi
+}
+```
+
+Just copy and paste the above code in Termux and then run the command below.
+
+```bash
+backup <path-to-rootfs-directory>
+```
+
+### How to restore
+
+To restore your installation from the archive, execute the following commands.
+
+Restore **your previous installation directory** first. (using another directory breaks the installed system because the proot links get broken).
+
+```bash
+mkdir -p <path-to-rootfs-directory>
+```
+
+Switch to the directory.
+
+```bash
+cd <path-to-rootfs-directory>
+```
+
+Unpack the archive.
+
+```bash
+tar \
+    --delay-directory-restore \
+    --preserve-permissions \
+    --warning=no-unknown-keyword \
+    --extract \
+    --auto-compress \
+    --file "<path-to-rootfs-archive>"
+```
+
+If you feel like all that is too technical, feel free to contribute a backup/restore script that automates the entire process because i'm just lil lazy for that right now
+(see the contributions section).
+
 ## Uninstallation
 
 If for some reason you need to uninstall the system from Termux, just follow the steps below.
@@ -249,6 +342,23 @@ Disabling the anti-root fuse will require a deeper understanding of the install 
 Not very helpful, is it? That because **this is definitely a bad idea and you are completely liable for any unintended effects of this action**.
 
 Just remember, I am mostly lazy and would never implement an anti-root fuse for absolutely no reason.
+
+## Contribution
+
+Contributions to this project are not only welcome, but also encouraged.
+
+Here is the current TODO list.
+
+1. Create a backup/restore script that:
+
+   - Is intuitive and not boring.
+   - Can be back up and restore into another directory (proot links are kept intact).
+   - Includes usage information.
+
+2. Utilize the dialog command to perform the installation using GUI (the dialog command comes pre-installed in Termux).
+3. Any other improvements.
+
+And most imporantly, make sure any new programs/scripts/functions _do only one thing and extrenely well_.
 
 ## License
 
