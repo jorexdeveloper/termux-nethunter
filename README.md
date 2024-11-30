@@ -32,40 +32,15 @@ Did I mention that you do not require root access to do all this? All you have t
       <li><a href="#how-to-connect-to-vnc-server" title="View this section.">How to connect to vnc server</a></li>
     </ul>
     <li><a href="#have-fun" title="View this section.">Have fun</a></li>
-    <li><a href="#backup-and-restore" title="View this section.">Backup and Restore</a></li>
+    <li><a href="#management" title="View this section.">Management</a></li>
     <ul>
+      <li><a href="#how-to-rename" title="View this section.">How to rename</a></li>
       <li><a href="#how-to-backup" title="View this section.">How to backup</a></li>
       <li><a href="#how-to-restore" title="View this section.">How to restore</a></li>
-    </ul>
-    <li><a href="#uninstallation" title="View this section.">Uninstallation</a></li>
-    <ul>
       <li><a href="#how-to-uninstall" title="View this section.">How to uninstall</a></li>
     </ul>
     <li><a href="#faq" title="View this section.">FAQ</a></li>
     <li><a href="#contribution" title="View this section.">Contribution</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Features</summary>
-  <ul class="simple">
-    <li>anti-root fuse</li>
-    <li>interactive installation</li>
-    <li>color output (if supported)</li>
-    <li>command line options</li>
-    <ul>
-      <li>install in custom directory</li>
-      <li>make clean install (no configurations)</li>
-      <li>configurations only (if already installed)</li>
-      <li>uninstall</li>
-      <li>color</li>
-      <li>log</li>
-    </ul>
-    <li>creates vnc wrapper</li>
-    <li>automatic configurations</li>
-    <li>provides access to system and Termux commands</li>
-    <li>customize default shell and local time during installation</li>
-    <li>minor tweaks</li>
   </ul>
 </details>
 
@@ -214,19 +189,70 @@ The possibilities are endless and the only limits that exist are the ones you se
 
 You might wan't to google for some cool commands and programs to execute or even when get you stuck, good luck.
 
-## Backup and Restore
+## Management
 
-I stubbornly refuse to add a backup feature to the install script because it defeats the whole design structure of _making the program do one thing extremely well_.
+I stubbornly refuse to add some of these management features to the install script directly because it defeats the whole design structure of _making the program do one thing extremely well_.
 
-But, backing up the installed rootfs is more complicated than just running an ordinary **tar** command.
+### How to rename
 
-### How to backup
+Renaming the installed system is far more complicated than just executing a regular `mv` command.
 
-To backup your installed rootfs, you need to execute the **tar** command with a few extra options to ensure that file permissions are properly handled and your system remains usable.
+To rename your installed system need to locate and change all the proot links within the system to point to the new directory.
 
 Here is a simple shell function to help you do that.
 
-**Note:** This process requires you to backup and restore the rootfs to the same directory as the original installation, otherwise the proot links get broken and some system files get corrupted.
+```bash
+rename() {
+	if [ -n "${1}" ] && [ -d "${1}" ] && [ -n "${2}" ]; then
+		if [ -e "${2}" ]; then
+			# Prevent overwriting any existing files.
+			echo "'${2}' already exists, aborting."
+		else
+			local old="$(realpath "${1}")"
+			local new="$(realpath "${2}")"
+			echo "Renaming '${old}' to '${new}'."
+			# Rename the the directory
+			mv "${old}" "${new}"
+			echo "Updating proot links, this can take a while."
+			local name old_target new_target
+			# Find all proot links
+			find "${new}" -type l | while read -r name; do
+				# get old link destination
+				old_target=$(readlink "${name}")
+				if [ "${old_target:0:${#old}}" = "${old}" ]; then
+					# Set new link destination
+					new_target="$(sed "s@${old}@${new}@g" <<<"${old_target}")"
+          # Create new link and eplace old one
+					ln -sf "${new_target}" "${name}"
+				fi
+			done
+			echo "Done, but I didn't rename any launch commands!"
+		fi
+	else
+		echo "Usage: rename <old-directory> <new-directory>"
+	fi
+}
+```
+
+Just copy and paste the above code in Termux and then execute the command below.
+
+```bash
+rename <old-directory> <new-directory>
+```
+
+**NOTE:** This does not update the launch commands to use the new directory, to do that, just execute the install script again giving it the new directory as an argument.
+
+```bash
+bash install-nethunter.sh --config-only <new-directory>
+```
+
+### How to backup
+
+Backing up the installed system is more complicated than just executing an ordinary `tar` command.
+
+To backup your installed system, you need to execute the `tar` command with a few extra options to ensure that file permissions are properly preserved and your system remains usable.
+
+Here is a simple shell function to help you do that.
 
 ```bash
 backup() {
@@ -240,7 +266,7 @@ backup() {
 		# Directories to include in the archive some read-only directories
     # like /dev need to be ignored but you can add your own if you wish
 		local dirs=(.l2s bin boot etc home lib media mnt opt proc root run sbin snap srv sys tmp usr var)
-		echo "Packing chroot into '${file}'."
+		echo "Packing chroot into '${file}', this can take a while."
 		echo "Including ${dirs[*]}"
 		# Make sure all directories exist
 		for i in "${dirs[@]}"; do
@@ -259,34 +285,32 @@ backup() {
 			--auto-compress \
 			-C "${1}" --file "${file}" "${dirs[@]}"
 	else
-		echo "Usage: chroot-backup PATH [FILE]"
+		echo "Usage: backup <directory> [<archive>]"
 	fi
 }
 ```
 
-Just copy and paste the above code in Termux and then run the command below.
+Just copy and paste the above code in Termux and then execute the command below.
 
 ```bash
-backup <path-to-rootfs-directory>
+backup <directory>
 ```
 
 ### How to restore
 
-To restore your installation from the archive, execute the following commands.
-
-Restore **your previous installation directory** first. (using another directory breaks the installed system because the proot links get broken).
+To restore your installation from the archive, execute the following commands in Termux.
 
 ```bash
-mkdir -p <path-to-rootfs-directory>
+mkdir -p <original-directory>
 ```
 
 Switch to the directory.
 
 ```bash
-cd <path-to-rootfs-directory>
+cd <original-directory>
 ```
 
-Unpack the archive.
+Unpack the archive (This can take some time).
 
 ```bash
 tar \
@@ -295,25 +319,22 @@ tar \
     --warning=no-unknown-keyword \
     --extract \
     --auto-compress \
-    --file "<path-to-rootfs-archive>"
+    --file "<archive>"
 ```
 
-If you feel like all that is too technical, feel free to contribute a backup/restore script that automates the entire process because i'm just lil lazy for that right now
-(see the contributions section).
-
-## Uninstallation
-
-If for some reason you need to uninstall the system from Termux, just follow the steps below.
+**NOTE:** This process requires you to restore the system to the same directory as the original installation, otherwise the proot links get broken and the system gets corrupted.
 
 ### How to uninstall
 
-Simply execute the [install](#how-to-install "View this section.") script again in Termux with the option `--uninstall`.
+To uninstall the system, just execute the install script again in Termux with the option `--uninstall`.
 
 ```bash
 bash install-nethunter.sh --uninstall
 ```
 
-**Note:** If you installed the system in a custom directory, supply the path to the installation directory as an additional argument.
+**NOTE:** If you installed the system in a custom directory, add the path to the installation directory as an additional argument.
+
+If you feel like all that is too technical, feel free to contribute a management script that automates these actions because i'm still lazy for that right now (see the [contributions section](#contribution "View this section")).
 
 ## FAQ
 
@@ -349,21 +370,20 @@ Contributions to this project are not only welcome, but also encouraged.
 
 Here is the current TODO list.
 
-1. Create a backup/restore script that:
+1. Create a management script that:
 
-   - Is intuitive and not boring.
-   - Can be back up and restore into another directory (proot links are kept intact).
-   - Includes usage information.
+   - Can be backup, restore and rename an existing installation.
+   - Is intuitive and not boring and includes usage information.
 
 2. Utilize the dialog command to perform the installation using GUI (the dialog command comes pre-installed in Termux).
 3. Any other improvements.
 
-And most imporantly, make sure any new programs/scripts/functions _do only one thing and extrenely well_.
+And most imporantly, make sure any new programs/scripts/functions _do only one thing, and extremely well_.
 
 ## License
 
 ```txt
-    Copyright (C) 2023  Jore
+    Copyright (C) 2023-2025  Jore
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
