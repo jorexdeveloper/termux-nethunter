@@ -1,9 +1,22 @@
 <h1 align="center">TERMUX NETHUNTER</h1>
 
-<div align="center";background-color:black;border:3px solid black;border-radius:6px;margin:5px 0;padding:2px 5px">
-<img src="./logo.webp"
-    alt="Image could not be loaded!"
-    style="color:red;background-color:black;font-weight:bold"/>
+<p align="center">
+	<a href="https://github.com/jorexdeveloper/termux-nethunter/stargazers">
+		<img
+			src="https://img.shields.io/github/stars/jorexdeveloper/termux-nethunter?colorA=23272a&colorB=007bff&style=for-the-badge">
+	</a>
+	<a href="https://github.com/jorexdeveloper/termux-nethunter/issues">
+		<img
+			src="https://img.shields.io/github/issues/jorexdeveloper/termux-nethunter?colorA=23272a&colorB=ff4500&style=for-the-badge">
+	</a>
+	<a href="https://github.com/jorexdeveloper/termux-nethunter/contributors">
+		<img
+			src="https://img.shields.io/github/contributors/jorexdeveloper/termux-nethunter?colorA=23272a&colorB=28a745&style=for-the-badge">
+	</a>
+</p>
+
+<div align="center" ;background-color:black;border:3px solid black;border-radius:6px;margin:5px 0;padding:2px 5px">
+	<img src="./logo.webp" alt="Image could not be loaded!" style="color:red;background-color:black;font-weight:bold" />
 </div>
 
 Are you a linux fan or do you just love playing with the terminal and executing cool commands, just to look like a tech genius? Well, for whatever reason it is that you want to install linux on your phone, I got you covered.
@@ -15,40 +28,40 @@ With this guide, you will be able to run a full linux system, including every li
 Did I mention that you do not require root access to do all this? All you have to do is follow these simple installation instructions and you are a few keystrokes away from running all the cool programs created by the linux community.
 
 <details>
-  <summary>Contents</summary>
-  <ul class="simple" title="View this section.">
-    <li><a href="#installation" title="View this section.">Installation</a></li>
-    <ul>
-      <li><a href="#how-to-install" title="View this section.">How to install</a></li>
-    </ul>
-    <li><a href="#launch-and-set-up" title="View this section.">Launch and set up</a></li>
-    <ul>
-      <li><a href="#how-to-launch" title="View this section.">How to launch</a></li>
-      <li><a href="#how-to-install-desktop-and-vnc-server" title="View this section.">How to install desktop and vnc server</a></li>
-    </ul>
-    <li><a href="#login" title="View this section.">Login</a></li>
-    <ul>
-      <li><a href="#how-to-start-vnc-server" title="View this section.">How to start vnc server</a></li>
-      <li><a href="#how-to-connect-to-vnc-server" title="View this section.">How to connect to vnc server</a></li>
-    </ul>
-    <li><a href="#have-fun" title="View this section.">Have fun</a></li>
-    <li><a href="#management" title="View this section.">Management</a></li>
-    <ul>
-      <li><a href="#how-to-rename" title="View this section.">How to rename</a></li>
-      <li><a href="#how-to-backup" title="View this section.">How to backup</a></li>
-      <li><a href="#how-to-restore" title="View this section.">How to restore</a></li>
-      <li><a href="#how-to-uninstall" title="View this section.">How to uninstall</a></li>
-    </ul>
-    <li><a href="#faq" title="View this section.">FAQ</a></li>
-    <li><a href="#contribution" title="View this section.">Contribution</a></li>
-  </ul>
+	<summary>Contents</summary>
+	<ul class="simple" title="View this section.">
+		<li><a href="#installation" title="View this section.">Installation</a></li>
+		<ul>
+			<li><a href="#how-to-install" title="View this section.">How to install</a></li>
+		</ul>
+		<li><a href="#launch-and-set-up" title="View this section.">Launch and set up</a></li>
+		<ul>
+			<li><a href="#how-to-launch" title="View this section.">How to launch</a></li>
+			<li><a href="#how-to-setup-the-desktop" title="View this section.">How to setup the desktop</a></li>
+		</ul>
+		<li><a href="#login" title="View this section.">Login</a></li>
+		<ul>
+			<li><a href="#how-to-start-the-desktop" title="View this section.">How to start the desktop</a></li>
+			<li><a href="#how-to-connect-to-the-desktop" title="View this section.">How to connect to the desktop</a></li>
+		</ul>
+		<li><a href="#have-fun" title="View this section.">Have fun</a></li>
+		<li><a href="#management" title="View this section.">Management</a></li>
+		<ul>
+			<li><a href="#how-to-rename" title="View this section.">How to rename</a></li>
+			<li><a href="#how-to-backup" title="View this section.">How to backup</a></li>
+			<li><a href="#how-to-restore" title="View this section.">How to restore</a></li>
+			<li><a href="#how-to-uninstall" title="View this section.">How to uninstall</a></li>
+		</ul>
+		<li><a href="#faq" title="View this section.">FAQ</a></li>
+		<li><a href="#contribution" title="View this section.">Contribution</a></li>
+	</ul>
 </details>
 
 ## Installation
 
 ### How to install
 
-Download and install the [Termux](https://fdroid.org/packages/com.termux "Download Termux from Fdroid.") app on your phone, then open it and execute the following commands.
+Download and install the [Termux](https://github.com/termux/termux-app/releases/latest "Download Termux from the official repository.") app on your phone, then open it and execute the following commands.
 
 1.  Upgrade Termux packages
 
@@ -104,7 +117,7 @@ nh
 
 You will be logged in with the default user name, **kali** (You can login as another user by providing their user name as an argument. See `nethunter --help` for usage information).
 
-### How to install desktop and vnc server
+### How to setup the desktop
 
 For the **minimal** and **nano** installations, you will need to install a desktop environment and a vnc server to get a graphical interface to interact with.
 
@@ -134,7 +147,7 @@ This command will not only take several gigabytes of your storage but also take 
 
 Now all that's left is to login into your newly installed system and start playing around with some commands. To do that, you need to start a vnc server in the system and connect to it through a vnc viewer.
 
-### How to start vnc server
+### How to start the desktop
 
 [Launch](#how-to-launch "View this section.") the system and execute the following command.
 
@@ -144,13 +157,13 @@ vnc
 
 > See `vnc help` for usage information.
 
-On the first run of the command above, you will be prompted for a **vnc password**. This is the password that will be used to securely connect to the vnc server, in the vnc viewer, so save it somewhere.
+On the first run of the command above, you will be prompted for a **vnc password**. This is the password that will be used to securely connect to the vnc server, in the vnc viewer app, so save it somewhere.
 
-### How to connect to vnc server
+### How to connect to the desktop
 
-To connect to the vnc server, you will need to download and install a vnc viewer app of your choice (I recommend [AVNC](https://f-droid.org/packages/com.gaurav.avnc "Download AVNC from Fdroid.")).
+To connect to the vnc server and view the desktop, you will need to download and install a vnc viewer app of your choice (I recommend [AVNC](https://github.com/gujjwal00/avnc/releases/latest "Download AVNC from the official repository.")).
 
-[Start the vnc server](#how-to-start-vnc-server "View this section.") and **minimize** Termux.
+[Start the desktop](#how-to-start-the-desktop "View this section.") and **minimize** Termux.
 
 Then open the vnc viewer app, click add server and fill in with the following details:
 
@@ -179,7 +192,7 @@ You shall use the second one if you are logged in as **kali** (The default login
 
 **Password**
 
-Enter the **vnc password** you set when [starting the vnc server](#how-to-start-vnc-server "View this section.") for the first time.
+Enter the **vnc password** you set when [starting the desktop](#how-to-start-the-desktop "View this section.") for the first time.
 
 ## Have fun
 
@@ -202,34 +215,35 @@ To rename your installed system need to locate and change all the proot links wi
 Here is a simple shell function to help you do that.
 
 ```bash
-rename() {
-	if [ -n "${1}" ] && [ -d "${1}" ] && [ -n "${2}" ]; then
+chroot-rename() {
+	if [ -n "${1}" ] && [ -n "${2}" ] && [ -d "${1}" ]; then
 		if [ -e "${2}" ]; then
 			# Prevent overwriting any existing files.
-			echo "'${2}' already exists, aborting."
+			echo ">> '${2}' already exists, aborting."
 		else
-			local old="$(realpath "${1}")"
-			local new="$(realpath "${2}")"
-			echo "Renaming '${old}' to '${new}'."
+			local old_chroot="$(realpath "${1}")"
+			local new_chroot="$(realpath "${2}")"
+			echo ">> Renaming '${old_chroot}' to '${new_chroot}'."
 			# Rename the the directory
-			mv "${old}" "${new}"
-			echo "Updating proot links, this can take a while."
+			mv "${old_chroot}" "${new_chroot}"
+			echo ">> Updating proot links, this may take a while."
 			local name old_target new_target
 			# Find all proot links
-			find "${new}" -type l | while read -r name; do
+			find "${new_chroot}" -type l | while read -r name; do
 				# get old link destination
 				old_target=$(readlink "${name}")
-				if [ "${old_target:0:${#old}}" = "${old}" ]; then
+				if [ "${old_target:0:${#old}}" = "${old_chroot}" ]; then
 					# Set new link destination
-					new_target="$(sed "s@${old}@${new}@g" <<<"${old_target}")"
-          # Create new link and eplace old one
+					new_target="${old_target//${old_chroot}/${new_chroot}}"
+					# Create new link and eplace old one
 					ln -sf "${new_target}" "${name}"
 				fi
 			done
-			echo "Done, but I didn't rename any launch commands!"
+			echo ">> Done, but I didn't rename any launch commands!"
+			echo ">> Just run the install script again with option '--config-only'"
 		fi
 	else
-		echo "Usage: rename <old-directory> <new-directory>"
+		echo "Usage: chroot-rename <old-directory> <new-directory>"
 	fi
 }
 ```
@@ -237,7 +251,7 @@ rename() {
 Just copy and paste the above code in Termux and then execute the command below.
 
 ```bash
-rename <old-directory> <new-directory>
+chroot-rename <old-directory> <new-directory>
 ```
 
 **NOTE:** This does not update the launch commands to use the new directory, to do that, just execute the install script again giving it the new directory as an argument.
@@ -255,7 +269,7 @@ To backup your installed system, you need to execute the `tar` command with a fe
 Here is a simple shell function to help you do that.
 
 ```bash
-backup() {
+chroot-backup() {
 	if [ -n "${1}" ] && [ -d "${1}" ]; then
 		if [ -n "${2}" ]; then
 			local file="${2}"
@@ -263,18 +277,30 @@ backup() {
 			# Default archive name if not given.
 			local file="${HOME}/$(basename "${1}").tar.xz"
 		fi
-		# Directories to include in the archive some read-only directories
-    # like /dev need to be ignored but you can add your own if you wish
-		local dirs=(.l2s bin boot etc home lib media mnt opt proc root run sbin snap srv sys tmp usr var)
-		echo "Packing chroot into '${file}', this can take a while."
-		echo "Including ${dirs[*]}"
+		# Directories to include/exclude in the archive some read-only directories
+		# like /dev need to be ignored but you can add your own if you wish
+		local include=(.l2s bin boot etc home lib media mnt opt proc root run sbin snap srv sys tmp usr var)
+		local exclude=()
+		echo ">> Packing chroot into '${file}'."
+		echo ">> Including:"
+		local i
+		for i in "${include[@]}"; do
+			echo -e "\t${i}"
+		done
+		echo ">> Excluding:"
+		local exclude_args=()
+		# Prepent the '--exclude' tag to all exclude dirs
+		for i in "${exclude[@]}"; do
+			echo -e "\t${i}"
+			exclude_args=("${exclude_args[@]}" "--exclude=${i}")
+		done
+		rmdir "${1}"/* &>/dev/null
+		rm -rvf "${1}"/linkerconfig "${1}"/data "${1}"/storage &>/dev/null
 		# Make sure all directories exist
-		for i in "${dirs[@]}"; do
+		for i in "${include[@]}" "${exclude[@]}"; do
 			mkdir -p "${1}/${i}"
 		done
-		unset i
-		# Switch to the chroot directory and
-		# backup the given directories
+		# Switch to the chroot directory and backup the given directories
 		tar \
 			--warning=no-file-ignored \
 			--one-file-system \
@@ -283,9 +309,13 @@ backup() {
 			--preserve-permissions \
 			--create \
 			--auto-compress \
-			-C "${1}" --file "${file}" "${dirs[@]}"
+			-C \
+			"${1}" \
+			--file="${file}" \
+			"${exclude_args[@]}" \
+			"${include[@]}"
 	else
-		echo "Usage: backup <directory> [<archive>]"
+		echo "Usage: chroot-backup <directory> [<file>]"
 	fi
 }
 ```
@@ -293,7 +323,7 @@ backup() {
 Just copy and paste the above code in Termux and then execute the command below.
 
 ```bash
-backup <directory>
+chroot-backup <directory>
 ```
 
 ### How to restore
@@ -358,7 +388,7 @@ If you **don't mind damaging your device** (probably making it unusable) and are
 
 Disabling the anti-root fuse will require a deeper understanding of the install script and the installation process. You will need to edit the install script as follows:
 
-- Find and comment the call to the function checking root access.
+-   Find and comment the call to the function checking root access.
 
 Not very helpful, is it? That because **this is definitely a bad idea and you are completely liable for any unintended effects of this action**.
 
@@ -372,8 +402,8 @@ Here is the current TODO list.
 
 1. Create a management script that:
 
-   - Can be backup, restore and rename an existing installation.
-   - Is intuitive and not boring and includes usage information.
+    - Can be backup, restore and rename an existing installation.
+    - Is intuitive and not boring and includes usage information.
 
 2. Utilize the dialog command to perform the installation using GUI (the dialog command comes pre-installed in Termux).
 3. Any other improvements.
