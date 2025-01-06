@@ -97,17 +97,18 @@ post_install_actions() {
 			#!/bin/bash
 			#############################
 			##          All            ##
-			export XDG_RUNTIME_DIR=/tmp/runtime-"\${USER-root}"
-			export SHELL="\${SHELL-/bin/sh}"
-
 			unset SESSION_MANAGER
 			unset DBUS_SESSION_BUS_ADDRESS
 
-			xrdb "\${HOME-/tmp}"/.Xresources
+			export XDG_RUNTIME_DIR=/tmp/runtime-"\${USER:-root}"
+			export SHELL="\${SHELL:-/bin/sh}"
+
+			if [ -r ~/.Xresources ]; then
+			    xrdb ~/.Xresources
+			fi
 
 			#############################
 			##          Gnome          ##
-			# export XKL_XMODMAP_DISABLE=1
 			# exec gnome-session
 
 			############################
@@ -126,6 +127,10 @@ post_install_actions() {
 			############################
 			##           i3           ##
 			# exec i3
+
+			############################
+			##        BLACKBOX        ##
+			# exec blackbox
 		EOF
 	)"
 	if {
