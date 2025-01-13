@@ -181,14 +181,9 @@ localhost
 
 **Port**
 
-The default display port differs for the root user and other users (Don't ask me why, I just got here).
-
 | user name                  | port |
 | -------------------------- | ---- |
-| root                       | 5900 |
-| kali (and any other users) | 5901 |
-
-You shall use the second one if you are logged in as **kali** (The default login).
+| kali (works for all users) | 5900 |
 
 **Password**
 
