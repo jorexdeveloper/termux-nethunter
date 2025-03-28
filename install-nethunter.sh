@@ -195,21 +195,21 @@ post_complete_actions() {
 DISTRO_NAME="Kali NetHunter"
 PROGRAM_NAME="$(basename "${0}")"
 DISTRO_REPOSITORY="termux-nethunter"
-VERSION_NAME="2024.3"
+VERSION_NAME="2025.1a"
 
-SHASUM_CMD=sha512sum
+SHASUM_CMD=sha256sum
 TRUSTED_SHASUMS="$(
 	cat <<-EOF
-		aba9be5d08d982da1e4726d1073284446d67c4d9b571b1dfa6ff1963e0050212dd0a78613565b4ff3443e8fc581726b58133d89dd6f6cd664562aa4611346b17  kali-nethunter-rootfs-full-arm64.tar.xz
-		c045d0d5bbb08667803b23d653cd1de1869d42b7437c3de8dce241361c28a75396e879e01fb68060321b97af9ceea81142b44ef71558d2b60ff292d7a7dc5aaa  kali-nethunter-rootfs-full-armhf.tar.xz
-		9bd6e478b0ffaf8ef64664a0cac3f6900ad43919a6595b81ad3c317a974224b088ac78e1357aae1dbd2359f9de1510bc840674709cd5ae75e883a07aa65ad2ed  kali-nethunter-rootfs-minimal-arm64.tar.xz
-		6f143c93a1a0cca739ecf51d0091a7850e4ec135e66b5dc66d30969ef924ea9ba71186b8bf9b725f670785867e2ba5ac57afbd577eb6850d35cb5adbdefc1cd8  kali-nethunter-rootfs-minimal-armhf.tar.xz
-		4cf9db4ffd68a35895dfbe7cd90058a671a32e24959e6fc89e6645b9b6c0275d2398fbea82b1f3efd80664b4c324f9cb1c631c76717c0b7573a0d86e12231b99  kali-nethunter-rootfs-nano-arm64.tar.xz
-		10e5bf2e7a950a8ebdf7f0410feff52c6067c3ffbba7cb1164b082329c3b5759e81573839c63184be642a44e7cd581186f645910f29bd85c5f488a1ae8692fd9  kali-nethunter-rootfs-nano-armhf.tar.xz
+		bc77fc4e67ef3fb6fedee76c23a4368509a949982c6b745441d82f32e562816c  kali-nethunter-rootfs-full-arm64.tar.xz
+		a5c3e87748c41c711771c16a60811c114cb8abaa8a5e1c9ac1c52e833bbe611d  kali-nethunter-rootfs-full-armhf.tar.xz
+		7bfb05c8b29813932f09999c9ad32d6b0aa0ca40667c2d1c926ecf0c3ed3c51e  kali-nethunter-rootfs-minimal-arm64.tar.xz
+		f424766aa5371f6a9588380c95ea9b16dffcdb39b0ab1f3630fdd613fa2ebbf3  kali-nethunter-rootfs-minimal-armhf.tar.xz
+		9a785eb238151d0822a33f182658262c08d97cc231024cf54de0c0e5d6f338d4  kali-nethunter-rootfs-nano-arm64.tar.xz
+		1aedc42b5a2d64064fc3916a973d15a176ed294b56d06c091da2247f11a5fb05  kali-nethunter-rootfs-nano-armhf.tar.xz
 	EOF
 )"
 
-ARCHIVE_STRIP_DIRS=2 # directories stripped by tar when extracting rootfs archive
+ARCHIVE_STRIP_DIRS=1 # directories stripped by tar when extracting rootfs archive
 KERNEL_RELEASE="6.2.1-nethunter-proot"
 BASE_URL="https://kali.download/nethunter-images/kali-${VERSION_NAME}/rootfs"
 
