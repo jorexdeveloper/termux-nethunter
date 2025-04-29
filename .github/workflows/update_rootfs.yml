@@ -59,14 +59,14 @@ jobs:
 
           echo "::notice::Branch $BRANCH_NAME created and changes pushed.""
           echo "created=true" >> $GITHUB_ENV
-          echo "branch=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "newbranch=$BRANCH_NAME" >> $GITHUB_ENV
           echo "::notice::Changes pushed to branch $BRANCH_NAME."
 
       - name: Create Pull Request
         if: env.created == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          branch: ${{ env.BRANCH_NAME }}
+          branch: ${{ env.newbranch }}
           title: "Updated RootFS to version ${{ env.version }}"
           body: "Automated update of RootFS to version ${{ env.version }}."
           labels: |
