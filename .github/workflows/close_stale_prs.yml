@@ -1,0 +1,23 @@
+name: Close Stale PRs
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close stale RootFS update PRs
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-pr-message: 'This automated update PR has gone stale and is being closed. If still needed, please reopen.'
+          days-before-stale: 5
+          days-before-close: 2
+          only-pr-labels: automated,update
+          exempt-pr-labels: do-not-close
+          operations-per-run: 30
+          close-pr-message: 'Closed stale automated RootFS update PR.'
+          close-pr-message: 'Closed stale automated RootFS update PR.'

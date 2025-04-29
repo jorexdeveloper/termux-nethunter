@@ -9,7 +9,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed to push and create PR
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -21,40 +21,55 @@ jobs:
           python-version: "3.x"
 
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          echo "::notice::Installing Python dependencies..."
+          pip install requests
 
       - name: Run update script
-        run: python scripts/update_rootfs.py
+        run: |
+          echo "::notice::Running update_rootfs.py..."
+          python scripts/update_rootfs.py
 
       - name: Read updated version
         id: version
         run: |
+          echo "::notice::Reading updated version from install-nethunter.sh..."
           version=$(grep -oP 'VERSION_NAME="\K[^"]+' install-nethunter.sh)
           echo "version=$version" >> $GITHUB_ENV
 
       - name: Create and push update branch
+        id: push
         run: |
           BRANCH_NAME="bot/rootfs-update-${{ env.version }}"
-
+          echo "::notice::Creating update branch $BRANCH_NAME..."
           git checkout -b "$BRANCH_NAME"
 
           if git diff --quiet; then
-            echo "No changes to commit."
+            echo "::notice::No changes detected. Skipping commit and PR."
+            echo "created=false" >> $GITHUB_ENV
             exit 0
           fi
 
+          echo "::notice::Changes detected. Committing and pushing...""
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add install-nethunter.sh README.md status.json
           git commit -m "Update RootFS to version ${{ env.version }}"
           git push --set-upstream origin "$BRANCH_NAME"
 
+          echo "::notice::Branch $BRANCH_NAME created and changes pushed.""
+          echo "created=true" >> $GITHUB_ENV
+          echo "branch=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "::notice::Changes pushed to branch $BRANCH_NAME."
+
       - name: Create Pull Request
+        if: env.created == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          branch: bot/rootfs-update-${{ env.version }}
+          branch: ${{ env.branch }}
           title: "Updated RootFS to version ${{ env.version }}"
           body: "Automated update of RootFS to version ${{ env.version }}."
           labels: |
             automated
             update
+          delete-branch: true
