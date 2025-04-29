@@ -46,21 +46,20 @@ jobs:
             echo "::notice::No changes to commit. Exiting..."
             exit 0
           fi
-          echo "::notice::Changes found! Preparing for pull request."
+
+          echo "::notice::Changes found! Preparing for pull request..."
           echo "branch=auto-rootfs-update-${{ env.version }}" >> $GITHUB_ENV
           echo "create_pull_request=true" >> $GITHUB_ENV
+          echo "::notice::Branch name: ${{ env.branch }}"
+          echo "::notice::Create pull request: ${{ env.create_pull_request }}"
 
       - name: Create Pull Request
-        if:
-          env.create_pull_request == 'true'
+        if: env.create_pull_request == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           title: RootFS auto-update
           commit-message: Updated RootFS to version ${{ env.version }}
           body: Automated changes by github workflow [update_rootfs.yml](https://github.com/jorexdeveloper/termux-nethunter/main/.github/workflows/update_rootfs.yml)
           branch: ${{ env.branch }}
-          labels: 
-            automated
-            update
+          labels: automated,update
           delete-branch: true
-          
