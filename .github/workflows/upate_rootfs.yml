@@ -1,0 +1,60 @@
+name: Update Nethunter RootFS
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to push and create PR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run update script
+        run: python scripts/update_rootfs.py
+
+      - name: Read updated version
+        id: version
+        run: |
+          version=$(grep -oP 'VERSION_NAME="\K[^"]+' install-nethunter.sh)
+          echo "version=$version" >> $GITHUB_ENV
+
+      - name: Create and push update branch
+        run: |
+          BRANCH_NAME="bot/rootfs-update-${{ env.version }}"
+
+          git checkout -b "$BRANCH_NAME"
+
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add install-nethunter.sh README.md status.json
+          git commit -m "Update RootFS to version ${{ env.version }}"
+          git push --set-upstream origin "$BRANCH_NAME"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: bot/rootfs-update-${{ env.version }}
+          title: "Updated RootFS to version ${{ env.version }}"
+          body: "Automated update of RootFS to version ${{ env.version }}."
+          labels: |
+            automated
+            update
