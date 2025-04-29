@@ -39,46 +39,28 @@ jobs:
           echo "version=$version" >> $GITHUB_ENV
           echo "::notice::VERSION = $version"
 
-      - name: Create and push update branch
+      - name: Check for changes
         run: |
-          BRANCH_NAME="bot/rootfs-update-${{ env.version }}"
-          echo "branch=$BRANCH_NAME" >> $GITHUB_ENV
-
-          echo "::notice::Creating branch $BRANCH_NAME..."
-          git checkout -b "$BRANCH_NAME"
-
+          echo "::notice::Checking for changes..."
           if git diff --quiet; then
-            echo "::notice::No changes to commit. Exiting."
+            echo "::notice::No changes to commit. Exiting..."
             exit 0
           fi
-
-          echo "::notice::Committing changes..."
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add install-nethunter.sh README.md status.json
-          git commit -m "Updated RootFS to version ${{ env.version }}"
-          git push --set-upstream origin "$BRANCH_NAME"
-
-          echo "created=true" >> $GITHUB_ENV
-          echo "::notice::Changes pushed to $BRANCH_NAME"
-
-      - name: Install GitHub CLI
-        run: |
-          echo "::notice::Installing GitHub CLI..."
-          sudo apt-get update
-          sudo apt-get install -y gh
+          echo "::notice::Changes found! Preparing for pull request."
+          echo "branch=auto-rootfs-update-${{ env.version }}" >> $GITHUB_ENV
+          echo "create_pull_request=true" >> $GITHUB_ENV
 
       - name: Create Pull Request
         if:
-          env.created == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "::notice::Creating pull request from branch ${{ env.branch }}..."
-          gh pr create \
-            --head "${{ env.branch }}" \
-            --base main \
-            --title "Update RootFS to version ${{ env.version }}" \
-            --body "Automated update of RootFS to version ${{ env.version }}." \
-            --label "automated,update"
-          echo "::notice::Pull request created successfully."
+          env.create_pull_request == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          title: RootFS auto-update
+          commit-message: Updated RootFS to version ${{ env.version }}
+          body: Automated changes by github workflow [update_rootfs.yml](https://github.com/jorexdeveloper/termux-nethunter/main/.github/workflows/update_rootfs.yml)
+          branch: ${{ env.branch }}
+          labels: 
+            automated
+            update
+          delete-branch: true
+          
