@@ -66,7 +66,7 @@ jobs:
         if: env.created == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          branch: ${{ env.branch }}
+          branch: ${{ env.BRANCH_NAME }}
           title: "Updated RootFS to version ${{ env.version }}"
           body: "Automated update of RootFS to version ${{ env.version }}."
           labels: |
