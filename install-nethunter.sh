@@ -195,17 +195,17 @@ post_complete_actions() {
 DISTRO_NAME="Kali NetHunter"
 PROGRAM_NAME="$(basename "${0}")"
 DISTRO_REPOSITORY="termux-nethunter"
-VERSION_NAME="2025.1a"
+VERSION_NAME="2025.1c"
 
 SHASUM_CMD=sha256sum
 TRUSTED_SHASUMS="$(
 	cat <<-EOF
-		bc77fc4e67ef3fb6fedee76c23a4368509a949982c6b745441d82f32e562816c  kali-nethunter-rootfs-full-arm64.tar.xz
-		a5c3e87748c41c711771c16a60811c114cb8abaa8a5e1c9ac1c52e833bbe611d  kali-nethunter-rootfs-full-armhf.tar.xz
-		7bfb05c8b29813932f09999c9ad32d6b0aa0ca40667c2d1c926ecf0c3ed3c51e  kali-nethunter-rootfs-minimal-arm64.tar.xz
-		f424766aa5371f6a9588380c95ea9b16dffcdb39b0ab1f3630fdd613fa2ebbf3  kali-nethunter-rootfs-minimal-armhf.tar.xz
-		9a785eb238151d0822a33f182658262c08d97cc231024cf54de0c0e5d6f338d4  kali-nethunter-rootfs-nano-arm64.tar.xz
-		1aedc42b5a2d64064fc3916a973d15a176ed294b56d06c091da2247f11a5fb05  kali-nethunter-rootfs-nano-armhf.tar.xz
+		45b1aa4c704603eac5de0ac29d45013fce69fac473e2000422bb693c5a6fa39a  kali-nethunter-rootfs-full-arm64.tar.xz
+		0514312ef23aacfceb408aecd6a835d80e98edb34ba524250c74b857847f2818  kali-nethunter-rootfs-full-armhf.tar.xz
+		cdcc9698d9d4089f6d7c63bfc783de6563a0afbba7000ecf90e6338dfd929b8a  kali-nethunter-rootfs-minimal-arm64.tar.xz
+		9b869e6e96cd47ebf7255d072f8059f64685544bcd93865af7a52706d0deb058  kali-nethunter-rootfs-minimal-armhf.tar.xz
+		f69ec5b92b3c41f603cf157565325e7957ddde83122ddce8a2d6b09902ec6403  kali-nethunter-rootfs-nano-arm64.tar.xz
+		e22b0ed7b936a68e4531495132353f357507fa3c3287f8e69b5dbd197bcd0221  kali-nethunter-rootfs-nano-armhf.tar.xz
 	EOF
 )"
 
