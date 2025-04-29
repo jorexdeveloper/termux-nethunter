@@ -9,7 +9,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to push and create PR
 
     steps:
       - name: Checkout repository
@@ -27,7 +27,7 @@ jobs:
 
       - name: Run update script
         run: |
-          echo "::notice::Running update_rootfs.py..."
+          echo "::notice::Running RootFS update script..."
           python scripts/update_rootfs.py
 
       - name: Read updated version
@@ -36,40 +36,50 @@ jobs:
           echo "::notice::Reading updated version from install-nethunter.sh..."
           version=$(grep -oP 'VERSION_NAME="\K[^"]+' install-nethunter.sh)
           echo "version=$version" >> $GITHUB_ENV
+          echo "::notice::VERSION = $version"
 
       - name: Create and push update branch
-        id: push
         run: |
           BRANCH_NAME="bot/rootfs-update-${{ env.version }}"
-          echo "::notice::Creating update branch $BRANCH_NAME..."
+          echo "branch=$BRANCH_NAME" >> $GITHUB_ENV
+
+          echo "::notice::Creating branch $BRANCH_NAME..."
           git checkout -b "$BRANCH_NAME"
 
           if git diff --quiet; then
-            echo "::notice::No changes detected. Skipping commit and PR."
-            echo "created=false" >> $GITHUB_ENV
+            echo "::notice::No changes to commit. Exiting."
             exit 0
           fi
 
-          echo "::notice::Changes detected. Committing and pushing...""
+          echo "::notice::Committing changes..."
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add install-nethunter.sh README.md status.json
-          git commit -m "Update RootFS to version ${{ env.version }}"
+          git commit -m "Updated RootFS to version ${{ env.version }}"
           git push --set-upstream origin "$BRANCH_NAME"
 
-          echo "::notice::Branch $BRANCH_NAME created and changes pushed.""
           echo "created=true" >> $GITHUB_ENV
-          echo "newbranch=$BRANCH_NAME" >> $GITHUB_ENV
-          echo "::notice::Changes pushed to branch $BRANCH_NAME."
+          echo "::notice::Changes pushed to $BRANCH_NAME"
+
+      - name: Install GitHub CLI
+        run: |
+          echo "::notice::Installing GitHub CLI..."
+          sudo apt-get update
+          sudo apt-get install -y gh
+
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "::notice::Authenticating gh CLI with GITHUB_TOKEN..."
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
       - name: Create Pull Request
         if: env.created == 'true'
-        uses: peter-evans/create-pull-request@v5
-        with:
-          branch: ${{ env.newbranch }}
-          title: "Updated RootFS to version ${{ env.version }}"
-          body: "Automated update of RootFS to version ${{ env.version }}."
-          labels: |
-            automated
-            update
-          delete-branch: true
+        run: |
+          echo "::notice::Creating pull request from branch ${{ env.branch }}..."
+          gh pr create \
+            --head "${{ env.branch }}" \
+            --base main \
+            --title "Update RootFS to version ${{ env.version }}" \
+            --body "Automated update of RootFS to version ${{ env.version }}." \
+            --label "automated,update"
+          echo "::notice::Pull request created successfully."
