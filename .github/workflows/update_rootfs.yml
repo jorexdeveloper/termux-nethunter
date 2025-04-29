@@ -9,7 +9,8 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed to push and create PR
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
