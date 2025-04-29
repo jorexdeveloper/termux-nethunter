@@ -150,9 +150,9 @@ def main():
             raise FileNotFoundError(
                 f"One or more required files are missing: {INSTALLER_SCRIPT}, {STATUS_SCRIPT}, {README}".format())
         print("[+] Fetching available versions...")
+        selected_version = None
         all_versions = fetch_all_versions()
         desired_version = sys.argv[1] if len(sys.argv) > 1 else None
-        selected_version = None
         if desired_version:
             if desired_version in all_versions:
                 selected_version = desired_version
@@ -189,7 +189,7 @@ def main():
         print(f"[-] {e}")
     finally:
         if update_success:
-            update_status_json(STATUS_SCRIPT, "Available")
+            update_status_json(STATUS_SCRIPT, f"{selected_version} Available")
         else:
             update_status_json(STATUS_SCRIPT, "Unavailable")
         if not update_success:
