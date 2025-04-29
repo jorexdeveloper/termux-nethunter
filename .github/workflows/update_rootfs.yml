@@ -68,13 +68,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gh
 
-      - name: Authenticate GitHub CLI
-        run: |
-          echo "::notice::Authenticating gh CLI with GITHUB_TOKEN..."
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-
       - name: Create Pull Request
-        if: env.created == 'true'
+        if:
+          env.created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "::notice::Creating pull request from branch ${{ env.branch }}..."
           gh pr create \
