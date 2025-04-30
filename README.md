@@ -91,7 +91,7 @@ curl -fsSLO https://raw.githubusercontent.com/jorexdeveloper/termux-nethunter/ma
 bash install-nethunter.sh
 ```
 
-> See `bash install-nethunter.sh --help` for usage information.
+You can also customize the installation with command-line options. (See `bash install-ubuntu.sh --help` for more information.)
 
 It's probably a good idea to inspect any install script from projects you don't yet know. You can do that by downloading the install script, looking through it so everything looks fine before running it.
 
@@ -159,7 +159,7 @@ Now all that's left is to log in to your newly installed system and start playin
 vnc
 ```
 
-> See `vnc help` for usage information.
+Use `vnc kill` to stop the VNC server and terminate the Desktop session. the Desktop. (See `vnc help` for more information.)
 
 On the first run of the command above, you will be prompted for a **VNC password**. This is the password that will be used to securely connect to the VNC server in the VNC viewer app, so save it somewhere.
 
