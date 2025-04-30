@@ -19,7 +19,7 @@
 	</a>
 	<a href="https://kali.download/nethunter-images/kali-2025.1c/rootfs">
 		<img
-			src="https://img.shields.io/badge/dynamic/json?label=RootFS%20status%20&query=$.status&url=https%3A%2F%2Fraw.githubusercontent.com%2Fjorexdeveloper%2Ftermux-nethunter%2Fmain%2Fstatus.json&color=lightgray&logo=kalilinux&logoSize=auto&style=for-the-badge">
+			src="https://img.shields.io/badge/dynamic/json?label=RootFS%20status%20&query=$.status&url=https%3A%2F%2Fraw.githubusercontent.com%2Fjorexdeveloper%2Ftermux-nethunter%2Fmain%2Fstatus.json&color=lightgray&logo=kalilinux&logoColor=white&logoSize=auto&style=for-the-badge">
 	</a>
 </p>
 
