@@ -1,20 +1,30 @@
-name: Close Stale PRs
+name: Close Stale Issues and PRs
 
 on:
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
   stale:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
     steps:
-      - name: Close stale RootFS update PRs
+      - name: Close Stale Issues and PRs
         uses: actions/stale@v9
         with:
-          stale-pr-message: "This automated update PR has gone stale and is being closed. If still needed, please reopen."
-          days-before-stale: 5
-          days-before-close: 2
-          only-pr-labels: automated,update
+          days-before-issue-stale: 30
+          days-before-issue-close: 5
+          stale-issue-message: 'This issue has been inactive for 30 days and is now marked as stale. Comment or remove the stale label to keep it open. It will be closed automatically in 5 days.'
+          close-issue-message: 'This issue was closed because it has been stalled for 5 days with no activity.'
+          close-issue-reason: not_planned
+          close-issue-label: closed-by-bot
+          exempt-issue-labels: do-not-close
+          days-before-pr-stale: 30
+          days-before-pr-close: 5
+          stale-pr-message: 'This pull request has been inactive for 30 days and is now marked as stale. Comment or remove the stale label to keep it open. It will be closed automatically in 5 days.'
+          close-pr-message: 'This pull request was closed because it has been stalled for 5 days with no activity.'
+          close-pr-label: closed-by-bot
           exempt-pr-labels: do-not-close
-          operations-per-run: 30
