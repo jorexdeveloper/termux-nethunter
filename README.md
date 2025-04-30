@@ -79,13 +79,13 @@ pkg update && pkg upgrade
 pkg install curl
 ```
 
-3.  Download the install script
+3. Download the install script
 
 ```bash
 curl -fsSLO https://raw.githubusercontent.com/jorexdeveloper/termux-nethunter/main/install-nethunter.sh
 ```
 
-4.  Execute install script
+4. Execute install script
 
 ```bash
 bash install-nethunter.sh
@@ -127,13 +127,13 @@ For the **minimal** and **nano** installations, you will need to install a deskt
 
 [Launch](#how-to-launch "View this section.") the system and execute the following commands.
 
-1.  Upgrade system packages
+1. Upgrade system packages
 
 ```bash
 sudo apt update && apt full-upgrade
 ```
 
-2.  Install VNC server
+2. Install VNC server
 
 ```bash
 sudo apt install tigervnc-standalone-server dbus-x11
@@ -203,7 +203,7 @@ You might want to Google for some cool commands and programs to execute or even 
 
 ## Management
 
-I stubbornly refuse to add some of these management features to the install script directly because it defeats the whole design structure of _making the program do one thing extremely well_.
+I **stubbornly refuse** to add some of these management features to the install script directly because it defeats the whole design structure of _making the program do one thing extremely well_.
 
 ### How to Rename
 
@@ -400,18 +400,23 @@ Contributions to this project are not only welcome but also encouraged.
 Here is the current TODO list:
 
 - [ ] **Create a management script**
+
   - Features:
+
     - Back up, restore, and rename an existing installation.
     - Intuitive and user-friendly with clear usage information.
 
 - [ ] **Utilize the `dialog` command**
+
   - Perform the installation using a GUI.
   - Note: The `dialog` command comes pre-installed in Termux.
 
 - [x] **Automate RootFS updates**
+
   - Implemented using GitHub Actions.
 
 - [x] **Other improvements**
+
   - Ensure all new programs, scripts, or functions adhere to the principle:
     _Perform only one task and do it extremely well._
 

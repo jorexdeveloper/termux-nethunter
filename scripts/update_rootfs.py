@@ -12,11 +12,12 @@ README = "README.md"
 
 def fetch_all_versions():
     try:
-        r = requests.get(BASE_URL, timeout=10)
+        url = f"{BASE_URL}"
+        r = requests.get(url, timeout=10)
         r.raise_for_status()
         matches = re.findall(r'(\d{4}\.\d[a-z]?)\/', r.text)
         if not matches:
-            raise Exception(f"No versions found on page '{BASE_URL}'.")
+            raise Exception(f"No versions found on page '{url}'.")
         return sorted(set(matches), reverse=True)
     except Exception as e:
         raise Exception(f"Failed to fetch available versions: {str(e)}")
@@ -46,16 +47,15 @@ def fetch_latest_checksums(version):
             "rootfs-minimal-arm64.tar.xz",
             "rootfs-minimal-armhf.tar.xz",
             "rootfs-nano-arm64.tar.xz",
-            "rootfs-nano-armhf.tar.xz",
-        ]
+            "rootfs-nano-armhf.tar.xz"]
         filtered = []
         for line in raw_checksums:
             line = line.strip()
             match = re.match(
-                r'^([a-f0-9]+)\s+(kali-nethunter-\d{4}\.\d[a-z]?-(rootfs-.+))$', line)
+                r'^([a-f0-9]+)\s+(kali-nethunter(-\d{4}\.\d[a-z]?)?-(rootfs-.+))$', line)
             if match:
                 checksum = match.group(1)
-                cleaned_filename = f'kali-nethunter-{match.group(3)}'
+                cleaned_filename = f'kali-nethunter-{match.group(4)}'
                 for suffix in expected_suffixes:
                     if cleaned_filename.endswith(suffix):
                         filtered.append(f"{checksum}  {cleaned_filename}")
@@ -65,8 +65,7 @@ def fetch_latest_checksums(version):
         return "\n".join(filtered)
     except Exception as e:
         raise Exception(
-            f"Failed to fetch and filter latest checksums: {
-                str(e)}")
+            f"Failed to fetch and filter latest checksums: {str(e)}")
 
 
 def verify_rootfs_links(version, checksums_text):
@@ -103,11 +102,11 @@ def update_script(script_path, new_version, new_checksums):
         content = re.sub(
             r'TRUSTED_SHASUMS="\$\([\s\S]+?EOF\n\)"',
             new_shasums_block,
-            content
-        )
+            content)
         with open(script_path, "w") as f:
             f.write(content)
-        print(f"[+] Updated {script_path} to version '{new_version}'.")
+        print(
+            f"[+] Updated {script_path} to {new_version}.")
     except Exception as e:
         raise Exception(f"Failed to update installer script: {str(e)}")
 
@@ -129,8 +128,7 @@ def update_readme(readme_path, new_version):
         updated_content = re.sub(
             r'(<a href="https:\/\/kali\.download\/nethunter-images\/kali-)(\d{4}\.\d[a-z]?)(\/rootfs">)',
             fr'\g<1>{new_version}\g<3>',
-            content
-        )
+            content)
         if content != updated_content:
             with open(readme_path, "w") as f:
                 f.write(updated_content)
@@ -189,7 +187,9 @@ def main():
         print(f"[-] {e}")
     finally:
         if update_success:
-            update_status_json(STATUS_SCRIPT, f"{selected_version} Available")
+            update_status_json(
+                STATUS_SCRIPT,
+                f"Kali NetHunter ({selected_version}) Available")
         else:
             update_status_json(STATUS_SCRIPT, "Unavailable")
         if not update_success:

@@ -2,7 +2,7 @@ name: Update Nethunter RootFS
 
 on:
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
 
     steps:
       - name: Checkout repository
@@ -34,10 +35,10 @@ jobs:
       - name: Read updated version
         id: version
         run: |
-          echo "::notice::Reading updated version from install-nethunter.sh..."
+          echo "::notice::Reading rootfs version from install-nethunter.sh..."
           version=$(grep -oP 'VERSION_NAME="\K[^"]+' install-nethunter.sh)
           echo "version=$version" >> $GITHUB_ENV
-          echo "::notice::VERSION = $version"
+          echo "::notice::RootFS Version = '$version'"
 
       - name: Check for changes
         run: |
@@ -46,7 +47,6 @@ jobs:
             echo "::notice::No changes to commit. Exiting..."
             exit 0
           fi
-
           echo "::notice::Changes found! Preparing for pull request..."
           echo "branch=auto-rootfs-update-${{ env.version }}" >> $GITHUB_ENV
           echo "create_pull_request=true" >> $GITHUB_ENV
