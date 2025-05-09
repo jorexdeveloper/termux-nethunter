@@ -269,7 +269,7 @@ If you **don't mind damaging your device** (probably making it unusable) and are
 
 Disabling the safety check will require a deeper understanding of the install script and the installation process. You will need to edit the install script as follows:
 
-- Find and comment the call to the safety check function .
+- Find and comment the call to the safety check function.
 
 Not very helpful, is it? That's because **this is definitely a bad idea, and you are completely liable for any unintended effects of this action**.
 

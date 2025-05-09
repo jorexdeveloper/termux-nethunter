@@ -6,7 +6,7 @@
 #                                                                              #
 #     Installs Kali NetHunter in Termux.                                       #
 #                                                                              #
-#     Copyright (C) 2023  Jore <https://github.com/jorexdeveloper>             #
+#     Copyright (C) 2023-2025  Jore <https://github.com/jorexdeveloper>        #
 #                                                                              #
 #     This program is free software: you can redistribute it and/or modify     #
 #     it under the terms of the GNU General Public License as published by     #
