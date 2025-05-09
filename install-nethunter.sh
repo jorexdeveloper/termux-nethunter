@@ -152,7 +152,7 @@ post_install_actions() {
 # Called before making configurations
 # New Variables: none
 pre_config_actions() {
-	echo "${ROOTFS_DIRECTORY}" >"${ROOTFS_DIRECTORY}/etc/debian_chroot"
+	echo "${ROOTFS_DIRECTORY}" >"${ROOTFS_DIRECTORY}/etc/debian_chroot" 2>>"${LOG_FILE}"
 }
 
 # Called after configurations
@@ -161,7 +161,7 @@ post_config_actions() {
 	# Fix environment variables on login or su. (#17 fix)
 	local fix="session  required  pam_env.so readenv=1"
 	for f in su su-l system-local-login system-remote-login; do
-		if [ -f "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" ] && ! grep -q "${fix}" "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" &>>"${LOG_FILE}"; then
+		if [ -f "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" ] && ! grep -q "${fix}" "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" >>"${LOG_FILE}" 2>&1; then
 			echo "${fix}" >>"${ROOTFS_DIRECTORY}/etc/pam.d/${f}"
 		fi
 	done
@@ -169,7 +169,7 @@ post_config_actions() {
 	if [ -f "${ROOTFS_DIRECTORY}/etc/locale.gen" ] && [ -x "${ROOTFS_DIRECTORY}/sbin/dpkg-reconfigure" ]; then
 		msg -t "Hold on while I generate the locales for you."
 		sed -i -E 's/#[[:space:]]?(en_US.UTF-8[[:space:]]+UTF-8)/\1/g' "${ROOTFS_DIRECTORY}/etc/locale.gen"
-		if distro_exec DEBIAN_FRONTEND=noninteractive /sbin/dpkg-reconfigure locales &>>"${LOG_FILE}"; then
+		if distro_exec DEBIAN_FRONTEND=noninteractive /sbin/dpkg-reconfigure locales >>"${LOG_FILE}" 2>&1; then
 			msg -s "Done, the locales are ready!"
 		else
 			msg -e "Sorry, I failed to generate the locales."
