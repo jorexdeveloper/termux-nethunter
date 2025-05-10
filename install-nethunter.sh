@@ -74,13 +74,13 @@ post_check_actions() {
 pre_install_actions() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
 		msg -t "Select your prefered installation."
-		msg -l "  full    (Large but contains everything you need)" "  minimal (Light-weight with essential packages only)" "${Y}>${G} nano    (Like minimal with a few more packages)"
+		msg -l "  full    (Large but contains everything you need)" "${Y}⇒${G} minimal (Light-weight with essential packages only)" "  nano    (Like minimal with a few more packages)"
 		msg -n "Select choice: "
 		read -ren 1 SELECTED_INSTALLATION
 		case "${SELECTED_INSTALLATION}" in
 			1 | f | F) SELECTED_INSTALLATION="full" ;;
-			2 | m | M) SELECTED_INSTALLATION="minimal" ;;
-			*) SELECTED_INSTALLATION="nano" ;;
+			2 | n | N) SELECTED_INSTALLATION="nano" ;;
+			*) SELECTED_INSTALLATION="minimal" ;;
 		esac
 		msg "Okay then, I shall install a '${Y}${SELECTED_INSTALLATION}${C}' rootfs."
 		ARCHIVE_NAME="kali-nethunter-rootfs-${SELECTED_INSTALLATION}-${SYS_ARCH}.tar.xz"
@@ -187,8 +187,8 @@ pre_complete_actions() {
 # New Variables: none
 post_complete_actions() {
 	if ${ACTION_INSTALL} && [ -n "${SELECTED_INSTALLATION}" ] && [ "${SELECTED_INSTALLATION}" != "full" ]; then
-		msg -te "Remember, this is a ${SELECTED_INSTALLATION} installation of ${DISTRO_NAME}."
-		msg "If you need to install additional packages, check out the documentation for a guide."
+		msg -t "Remember, this is a ${R}${SELECTED_INSTALLATION}${C} installation of ${DISTRO_NAME}."
+		msg "Read the documentation to learn how to set up the GUI."
 	fi
 }
 
