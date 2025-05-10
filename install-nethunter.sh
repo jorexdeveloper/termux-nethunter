@@ -152,7 +152,7 @@ post_install_actions() {
 # Called before making configurations
 # New Variables: none
 pre_config_actions() {
-	echo "${ROOTFS_DIRECTORY}" >"${ROOTFS_DIRECTORY}/etc/debian_chroot" 2>>"${LOG_FILE}"
+	mkdir -p "${ROOTFS_DIRECTORY}/etc" >>"${LOG_FILE}" 2>&1 && echo "${ROOTFS_DIRECTORY}" >"${ROOTFS_DIRECTORY}/etc/debian_chroot"
 }
 
 # Called after configurations
