@@ -22,19 +22,23 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.   #
 #                                                                              #
 ################################################################################
-# shellcheck disable=SC2034
+# shellcheck disable=SC2034,SC2155
 
 # ATTENTION!!! CHANGE BELOW FUNTIONS FOR DISTRO DEPENDENT ACTIONS!!!
 
-# Called before any safety checks
-# New Variables: AUTHOR GITHUB LOG_FILE ACTION_INSTALL ACTION_CONFIGURE
-#                ROOTFS_DIRECTORY COLOR_SUPPORT all_available_colors
+################################################################################
+# Called before any safety checks                                              #
+# New Variables: AUTHOR GITHUB LOG_FILE ACTION_INSTALL ACTION_CONFIGURE        #
+#                ROOTFS_DIRECTORY COLOR_SUPPORT all_available_colors           #
+################################################################################
 pre_check_actions() {
 	return
 }
 
-# Called before printing intro
-# New Variables: none
+################################################################################
+# Called before printing intro                                                 #
+# New Variables: none                                                          #
+################################################################################
 distro_banner() {
 	local spaces=''
 	for ((i = $((($(stty size | cut -d ' ' -f2) - 49) / 2)); i > 0; i--)); do
@@ -63,100 +67,55 @@ distro_banner() {
 	msg -a "${spaces}${B}                                             ."
 }
 
-# Called after checking architecture and required pkgs
-# New Variables: SYS_ARCH LIB_GCC_PATH
+################################################################################
+# Called after checking architecture and required pkgs                         #
+# New Variables: SYS_ARCH LIB_GCC_PATH                                         #
+################################################################################
 post_check_actions() {
 	return
 }
 
-# Called after checking for rootfs directory
-# New Variables: KEEP_ROOTFS_DIRECTORY
+################################################################################
+# Called after checking for rootfs directory                                   #
+# New Variables: KEEP_ROOTFS_DIRECTORY                                         #
+################################################################################
 pre_install_actions() {
 	if [ -z "${KEEP_ROOTFS_DIRECTORY}" ]; then
-		msg -t "Select your prefered installation."
-		msg -l "  full    (Large but contains everything you need)" "${Y}⇒${G} minimal (Light-weight with essential packages only)" "  nano    (Like minimal with a few more packages)"
-		msg -n "Select choice: "
-		read -ren 1 SELECTED_INSTALLATION
+		choose -d2 -t "Select your prefered installation." \
+			"full - GUI + All ${DISTRO_NAME} Packages" \
+			"mini - Essential Packages Only" \
+			"nano - Essential Packages++"
+		SELECTED_INSTALLATION=${?}
 		case "${SELECTED_INSTALLATION}" in
-			1 | f | F) SELECTED_INSTALLATION="full" ;;
-			2 | n | N) SELECTED_INSTALLATION="nano" ;;
-			*) SELECTED_INSTALLATION="minimal" ;;
+			1) SELECTED_INSTALLATION="full" GUI_INSTALLED=true ;;
+			3) SELECTED_INSTALLATION="nano" ;;
+			*) SELECTED_INSTALLATION="mini" GUI_INSTALLED=true ;;
 		esac
 		msg "Okay then, I shall install a '${Y}${SELECTED_INSTALLATION}${C}' rootfs."
-		ARCHIVE_NAME="kali-nethunter-rootfs-${SELECTED_INSTALLATION}-${SYS_ARCH}.tar.xz"
+		ARCHIVE_NAME="kali-nethunter-rootfs-${SELECTED_INSTALLATION/mini/minimal}-${SYS_ARCH}.tar.xz"
 	fi
 }
 
-# Called after extracting rootfs
-# New Variables: KEEP_ROOTFS_ARCHIVE
+################################################################################
+# Called after extracting rootfs                                               #
+# New Variables: KEEP_ROOTFS_ARCHIVE                                           #
+################################################################################
 post_install_actions() {
-	msg -t "Lemme create an xstartup script for vnc."
-	local xstartup="$(
-		# Customize depending on distribution defaults
-		cat 2>>"${LOG_FILE}" <<-EOF
-			#!/bin/bash
-			#############################
-			##          All            ##
-			unset SESSION_MANAGER
-			unset DBUS_SESSION_BUS_ADDRESS
-
-			export XDG_RUNTIME_DIR=/tmp/runtime-"\${USER:-root}"
-			export SHELL="\${SHELL:-/bin/sh}"
-
-			if [ -r ~/.Xresources ]; then
-			    xrdb ~/.Xresources
-			fi
-
-			#############################
-			##          Gnome          ##
-			# exec gnome-session
-
-			############################
-			##           LXQT         ##
-			# exec startlxqt
-
-			############################
-			##          KDE           ##
-			# exec startplasma-x11
-
-			############################
-			##          XFCE          ##
-			export QT_QPA_PLATFORMTHEME=qt5ct
-			exec startxfce4
-
-			############################
-			##           i3           ##
-			# exec i3
-
-			############################
-			##        BLACKBOX        ##
-			# exec blackbox
-		EOF
-	)"
-	if {
-		mkdir -p "${ROOTFS_DIRECTORY}/root/.vnc"
-		echo "${xstartup}" >"${ROOTFS_DIRECTORY}/root/.vnc/xstartup"
-		chmod 744 "${ROOTFS_DIRECTORY}/root/.vnc/xstartup"
-		if [ "${DEFAULT_LOGIN}" != "root" ]; then
-			mkdir -p "${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc"
-			echo "${xstartup}" >"${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc/xstartup"
-			chmod 744 "${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc/xstartup"
-		fi
-	} 2>>"${LOG_FILE}"; then
-		msg -s "Done, xstartup script created successfully!"
-	else
-		msg -e "Sorry, I failed to create the xstartup script for vnc."
-	fi
+	return
 }
 
-# Called before making configurations
-# New Variables: none
+################################################################################
+# Called before making configurations                                          #
+# New Variables: none                                                          #
+################################################################################
 pre_config_actions() {
 	mkdir -p "${ROOTFS_DIRECTORY}/etc" >>"${LOG_FILE}" 2>&1 && echo "${ROOTFS_DIRECTORY}" >"${ROOTFS_DIRECTORY}/etc/debian_chroot"
 }
 
-# Called after configurations
-# New Variables: none
+################################################################################
+# Called after configurations                                                  #
+# New Variables: none                                                          #
+################################################################################
 post_config_actions() {
 	# Fix environment variables on login or su. (#17 fix)
 	local fix="session  required  pam_env.so readenv=1"
@@ -172,23 +131,129 @@ post_config_actions() {
 		if distro_exec DEBIAN_FRONTEND=noninteractive /sbin/dpkg-reconfigure locales >>"${LOG_FILE}" 2>&1; then
 			msg -s "Done, the locales are ready!"
 		else
-			msg -e "Sorry, I failed to generate the locales."
+			msg -e "I failed to generate the locales."
 		fi
 	fi
 }
 
-# Called before complete message
-# New Variables: none
+################################################################################
+# Called before complete message                                               #
+# New Variables: none                                                          #
+################################################################################
 pre_complete_actions() {
+	if ${ACTION_INSTALL} && [ -n "${SELECTED_INSTALLATION}" ] && [ "${SELECTED_INSTALLATION}" != "full" ]; then
+		msg -t "This is a ${Y}${SELECTED_INSTALLATION}${C} installation of ${DISTRO_NAME}."
+	fi
+	if [ "${SELECTED_INSTALLATION}" != "full" ] && ask -y "Should I set up the GUI now?"; then
+		set_up_gui && set_up_browser && GUI_INSTALLED=true
+	fi
+}
+
+################################################################################
+# Called after complete message                                                #
+# New Variables: none                                                          #
+################################################################################
+post_complete_actions() {
 	return
 }
 
-# Called after complete message
-# New Variables: none
-post_complete_actions() {
-	if ${ACTION_INSTALL} && [ -n "${SELECTED_INSTALLATION}" ] && [ "${SELECTED_INSTALLATION}" != "full" ]; then
-		msg -t "Remember, this is a ${R}${SELECTED_INSTALLATION}${C} installation of ${DISTRO_NAME}."
-		msg "Read the documentation to learn how to set up the GUI."
+################################################################################
+# Local Functions                                                              #
+################################################################################
+
+# Sets up the GUI
+set_up_gui() {
+	local available_desktops=("E17" "GNOME" "i3" "KDE" "LXDE" "MATE" "Xfce")
+	local -A xstartups=(
+		["e17"]="enlightenment_start"
+		["gnome"]="gnome-session"
+		["i3"]="i3"
+		["kde"]="startplasma-x11"
+		["lxde"]="startlxde"
+		["mate"]="mate-session"
+		["xfce"]="startxfce4"
+	)
+	choose -d7 -t "Select your prefered Desktop Environment." \
+		"${available_desktops[@]}"
+	selected_desktop="${available_desktops[$((${?} - 1))]}"
+	msg "Okay then, I shall install the '${Y}${selected_desktop}${C}' Desktop."
+	if [ -x "$(command -v termux-wake-lock)" ]; then
+		msg -t "The installation is going to take very long."
+		msg "Lemme me acquire the '${Y}Termux wake lock${C}'."
+		if termux-wake-lock >>"${LOG_FILE}" 2>&1; then
+			msg "Great, the Termux wake lock is now activated."
+		else
+			msg -e "I have failed to set up the Termux wake lock."
+			msg "Keep Termux open during the installation."
+		fi
+	else
+		msg -e "I could not find the '${Y}termux-wake-lock${R}' command."
+		msg "Keep Termux open during the installation."
+	fi
+	msg -t "Lemme first upgrade the packages in ${DISTRO_NAME}."
+	msg "This won't take long."
+	if distro_exec apt update && distro_exec apt full-upgrade; then
+		msg -s "Done, all the ${DISTRO_NAME} packages are upgraded."
+		msg -t "Now lemme install the GUI in ${DISTRO_NAME}."
+		msg "This will take very long."
+		if distro_exec apt install -y tigervnc-standalone-server dbus-x11 kali-desktop-"${selected_desktop,,}"; then
+			msg -s "Finally, the GUI is now installed in ${DISTRO_NAME}."
+			msg -t "Now lemme add the xstartup script for VNC."
+			if {
+				local xstartup="$(
+					cat 2>>"${LOG_FILE}" <<-EOF
+						#!/usr/bin/bash
+						unset SESSION_MANAGER
+						unset DBUS_SESSION_BUS_ADDRESS
+						export XDG_RUNTIME_DIR=\${TMPDIR:-/tmp}/runtime-"\${USER:-root}"
+						export SHELL="\${SHELL:-/bin/sh}"
+						if [ -r ~/.Xresources ]; then
+						    xrdb ~/.Xresources
+						fi
+						exec ${xstartups["${selected_desktop,,}"]}
+					EOF
+				)"
+				mkdir -p "${ROOTFS_DIRECTORY}/root/.vnc"
+				echo "${xstartup}" >"${ROOTFS_DIRECTORY}/root/.vnc/xstartup"
+				chmod 744 "${ROOTFS_DIRECTORY}/root/.vnc/xstartup"
+				if [ "${DEFAULT_LOGIN}" != "root" ]; then
+					mkdir -p "${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc"
+					echo "${xstartup}" >"${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc/xstartup"
+					chmod 744 "${ROOTFS_DIRECTORY}/home/${DEFAULT_LOGIN}/.vnc/xstartup"
+				fi
+			} 2>>"${LOG_FILE}"; then
+				msg -s "Done, xstartup script added successfully!"
+			else
+				msg -e "I failed to add the xstartup script."
+			fi
+		else
+			msg -qm0 "I have failed to install the GUI in ${DISTRO_NAME}."
+		fi
+	else
+		msg -qm0 "I have failed to upgrade the packages in ${DISTRO_NAME}."
+	fi
+}
+
+# Sets up the Browser
+set_up_browser() {
+	local available_browsers=("Chromium" "Firefox ESR" "Both Browsers")
+	choose -d2 -t "Select your prefered Browser." \
+		"${available_browsers[@]}"
+	local selected_browser="${available_browsers[$((${?} - 1))]}"
+	local selected_browsers verb
+	if [ "${selected_browser}" = "${available_browsers[-1]}" ]; then
+		selected_browsers=("${available_browsers[@]:0:${#available_browsers[@]}-1}")
+		selected_browsers=("${selected_browsers[@]// /-}")
+		verb="are"
+	else
+		selected_browsers=("${selected_browser// /-}")
+		verb="is"
+	fi
+	msg "Okay then, I shall install '${Y}${selected_browser}${C}'."
+	if distro_exec apt install -y "${selected_browsers[@],,}"; then
+		msg "Done, ${selected_browser} ${verb} now installed in ${DISTRO_NAME}."
+	else
+		msg -qm0 "I have failed to install ${selected_browser} in ${DISTRO_NAME}."
 	fi
 }
 
