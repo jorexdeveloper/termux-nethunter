@@ -121,12 +121,12 @@ pre_config_actions() {
 ################################################################################
 post_config_actions() {
 	# Fix environment variables on login or su. (#17 fix)
-	local fix="session  required  pam_env.so readenv=1"
-	for f in su su-l system-local-login system-remote-login; do
-		if [ -f "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" ] && ! grep -q "${fix}" "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" >>"${LOG_FILE}" 2>&1; then
-			echo "${fix}" >>"${ROOTFS_DIRECTORY}/etc/pam.d/${f}"
-		fi
-	done
+	# local fix="session  required  pam_env.so readenv=1"
+	# for f in su su-l system-local-login system-remote-login; do
+	# 	if [ -f "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" ] && ! grep -q "${fix}" "${ROOTFS_DIRECTORY}/etc/pam.d/${f}" >>"${LOG_FILE}" 2>&1; then
+	# 		echo "${fix}" >>"${ROOTFS_DIRECTORY}/etc/pam.d/${f}"
+	# 	fi
+	# done
 	# execute distro specific command for locale generation
 	if [ -f "${ROOTFS_DIRECTORY}/etc/locale.gen" ] && [ -x "${ROOTFS_DIRECTORY}/sbin/dpkg-reconfigure" ]; then
 		msg -t "Hold on while I generate the locales for you."
@@ -163,25 +163,21 @@ post_complete_actions() {
 
 # Sets up the GUI
 set_up_gui() {
-	local available_desktops=("E17" "GNOME" "i3" "KDE" "LXDE" "MATE" "Xfce")
+	local available_desktops=(
+		"E17" "GNOME" "i3" "KDE" "LXDE" "MATE" "Xfce"
+	)
 	local -A xstartups=(
-		["e17"]="enlightenment_start"
-		["gnome"]="gnome-session"
-		["i3"]="i3"
-		["kde"]="startplasma-x11"
-		["lxde"]="startlxde"
-		["mate"]="mate-session"
-		["xfce"]="startxfce4"
+		["e17"]="enlightenment_start" ["gnome"]="gnome-session" ["i3"]="i3" ["kde"]="startplasma-x11" ["lxde"]="startlxde" ["mate"]="mate-session" ["xfce"]="startxfce4"
 	)
 	choose -d7 -t "Select your prefered Desktop Environment." \
 		"${available_desktops[@]}"
 	selected_desktop="${available_desktops[$((${?} - 1))]}"
 	msg "Okay then, I shall install the '${Y}${selected_desktop}${C}' Desktop."
+	msg -t "The installation is going to take very long."
+	msg "Lemme me acquire the '${Y}Termux wake lock${C}'."
 	if [ -x "$(command -v termux-wake-lock)" ]; then
-		msg -t "The installation is going to take very long."
-		msg "Lemme me acquire the '${Y}Termux wake lock${C}'."
 		if termux-wake-lock >>"${LOG_FILE}" 2>&1; then
-			msg "Great, the Termux wake lock is now activated."
+			msg -s "Great, the Termux wake lock is now activated."
 		else
 			msg -e "I have failed to set up the Termux wake lock."
 			msg "Keep Termux open during the installation."
@@ -236,7 +232,9 @@ set_up_gui() {
 
 # Sets up the Browser
 set_up_browser() {
-	local available_browsers=("Chromium" "Firefox ESR" "Both Browsers")
+	local available_browsers=(
+		"Chromium" "Firefox ESR" "Both Browsers"
+	)
 	choose -d2 -t "Select your prefered Browser." \
 		"${available_browsers[@]}"
 	local selected_browser="${available_browsers[$((${?} - 1))]}"
@@ -251,9 +249,12 @@ set_up_browser() {
 	fi
 	msg "Okay then, I shall install '${Y}${selected_browser}${C}'."
 	if distro_exec apt install -y "${selected_browsers[@],,}"; then
+		if [ "${selected_browsers[0]}" = "${available_browsers[0]}" ]; then
+			sed -Ei 's/^(Exec=.*chromium).*(%U)$/\1 --no-sandbox \2/' "${ROOTFS_DIRECTORY}/usr/share/applications/chromium.desktop"
+		fi
 		msg "Done, ${selected_browser} ${verb} now installed in ${DISTRO_NAME}."
 	else
-		msg -qm0 "I have failed to install ${selected_browser} in ${DISTRO_NAME}."
+		msg -e "I have failed to install ${selected_browser} in ${DISTRO_NAME}."
 	fi
 }
 
@@ -261,6 +262,7 @@ DISTRO_NAME="Kali NetHunter"
 PROGRAM_NAME="$(basename "${0}")"
 DISTRO_REPOSITORY="termux-nethunter"
 VERSION_NAME="2025.1c"
+KERNEL_RELEASE="${DISTRO_NAME// /-}-${VERSION_NAME}-proot"
 
 SHASUM_CMD=sha256sum
 TRUSTED_SHASUMS="$(
@@ -275,9 +277,7 @@ TRUSTED_SHASUMS="$(
 )"
 
 ARCHIVE_STRIP_DIRS=1 # directories stripped by tar when extracting rootfs archive
-KERNEL_RELEASE="${VERSION_NAME}-nethunter-proot"
 BASE_URL="https://kali.download/nethunter-images/kali-${VERSION_NAME}/rootfs"
-
 TERMUX_FILES_DIR="/data/data/com.termux/files"
 
 DISTRO_SHORTCUT="${TERMUX_FILES_DIR}/usr/bin/nh"
