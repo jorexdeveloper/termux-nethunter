@@ -275,7 +275,7 @@ TRUSTED_SHASUMS="$(
 )"
 
 ARCHIVE_STRIP_DIRS=1 # directories stripped by tar when extracting rootfs archive
-KERNEL_RELEASE="6.2.1-nethunter-proot"
+KERNEL_RELEASE="${VERSION_NAME}-nethunter-proot"
 BASE_URL="https://kali.download/nethunter-images/kali-${VERSION_NAME}/rootfs"
 
 TERMUX_FILES_DIR="/data/data/com.termux/files"
