@@ -87,9 +87,12 @@ pre_install_actions() {
 			"nano - Essential Packages++"
 		SELECTED_INSTALLATION=${?}
 		case "${SELECTED_INSTALLATION}" in
-			1) SELECTED_INSTALLATION="full" GUI_INSTALLED=true ;;
+			1)
+				SELECTED_INSTALLATION="full"
+				GUI_INSTALLED=true
+				;;
 			3) SELECTED_INSTALLATION="nano" ;;
-			*) SELECTED_INSTALLATION="mini" GUI_INSTALLED=true ;;
+			*) SELECTED_INSTALLATION="mini" ;;
 		esac
 		msg "Okay then, I shall install a '${Y}${SELECTED_INSTALLATION}${C}' rootfs."
 		ARCHIVE_NAME="kali-nethunter-rootfs-${SELECTED_INSTALLATION/mini/minimal}-${SYS_ARCH}.tar.xz"
@@ -141,10 +144,7 @@ post_config_actions() {
 # New Variables: none                                                          #
 ################################################################################
 pre_complete_actions() {
-	if ${ACTION_INSTALL} && [ -n "${SELECTED_INSTALLATION}" ] && [ "${SELECTED_INSTALLATION}" != "full" ]; then
-		msg -t "This is a ${Y}${SELECTED_INSTALLATION}${C} installation of ${DISTRO_NAME}."
-	fi
-	if [ "${SELECTED_INSTALLATION}" != "full" ] && ask -y "Should I set up the GUI now?"; then
+	if ! ${GUI_INSTALLED:-false} && [ "${SELECTED_INSTALLATION}" != "full" ] && ask -y -- -t "Should I set up the GUI now?"; then
 		set_up_gui && set_up_browser && GUI_INSTALLED=true
 	fi
 }
