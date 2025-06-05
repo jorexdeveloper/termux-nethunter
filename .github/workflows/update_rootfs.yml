@@ -57,9 +57,9 @@ jobs:
         if: env.create_pull_request == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          title: RootFS auto-update
+          title: RootFS auto-update to ${{ env.version }}
           commit-message: Updated RootFS to version ${{ env.version }}
-          body: Automated changes by github workflow [update_rootfs.yml](https://github.com/jorexdeveloper/termux-nethunter/main/.github/workflows/update_rootfs.yml)
+          body: The RootFS has been automatically updated to ${{ env.version }} by github workflow [update_rootfs.yml](https://github.com/jorexdeveloper/termux-ubuntu/blob/main/.github/workflows/update_rootfs.yml).
           branch: ${{ env.branch }}
           labels: automated,update
           delete-branch: true
