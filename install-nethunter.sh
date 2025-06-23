@@ -262,7 +262,7 @@ DISTRO_NAME="Kali NetHunter"
 PROGRAM_NAME="$(basename "${0}")"
 DISTRO_REPOSITORY="termux-nethunter"
 VERSION_NAME="2025.2"
-KERNEL_RELEASE="${DISTRO_NAME// /-}-${VERSION_NAME}-proot"
+KERNEL_RELEASE="$(uname -r)"
 
 SHASUM_CMD=sha256sum
 TRUSTED_SHASUMS="$(
