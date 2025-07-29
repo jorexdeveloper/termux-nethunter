@@ -41,7 +41,7 @@ Did I mention that you do not require root access to do all this? All you have t
 		<li><a href="#launch-and-set-up" title="View this section.">Launch and Set Up</a></li>
 		<ul>
 			<li><a href="#how-to-launch" title="View this section.">How to Launch</a></li>
-			<li><a href="#how-to-setup-the-desktop" title="View this section.">How to Set Up the Desktop</a></li>
+			<li><a href="#how-to-set-up-the-desktop" title="View this section.">How to Set Up the Desktop</a></li>
 		</ul>
 		<li><a href="#login" title="View this section.">Login</a></li>
 		<ul>
