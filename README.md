@@ -17,7 +17,7 @@
 		<img
 			src="https://img.shields.io/github/contributors/jorexdeveloper/termux-nethunter?colorA=23272a&colorB=28a745&style=for-the-badge">
 	</a>
-	<a href="https://kali.download/nethunter-images/kali-2025.2/rootfs">
+	<a href="https://kali.download/nethunter-images/kali-2025.3/rootfs">
 		<img
 			src="https://img.shields.io/badge/dynamic/json?label=Status%20&query=$.status&url=https%3A%2F%2Fraw.githubusercontent.com%2Fjorexdeveloper%2Ftermux-nethunter%2Fmain%2Fstatus.json&color=lightgray&logo=kalilinux&logoColor=white&logoSize=auto&style=for-the-badge">
 	</a>
