@@ -27,7 +27,7 @@ def get_current_version(script_path):
     try:
         with open(script_path, "r") as f:
             content = f.read()
-        match = re.search(r'VERSION_NAME="(.+?)"', content)
+        match = re.search(r'VERSION_NAME=(.+)?', content)
         if not match:
             raise Exception(f"Current version not found in '{script_path}'.")
         return match.group(1)
@@ -94,13 +94,13 @@ def update_script(script_path, new_version, new_checksums):
         with open(script_path, "r") as f:
             content = f.read()
         content = re.sub(
-            r'VERSION_NAME=".+?"',
-            f'VERSION_NAME="{new_version}"',
+            r'VERSION_NAME=(.+)?',
+            f'VERSION_NAME={new_version}',
             content)
         new_shasums_formatted = '\n\t\t'.join(new_checksums.splitlines())
-        new_shasums_block = f'TRUSTED_SHASUMS="$(\n\tcat <<-EOF\n\t\t{new_shasums_formatted}\n\tEOF\n)"'
+        new_shasums_block = f'TRUSTED_SHASUMS=$(\n\tcat <<-EOF\n\t\t{new_shasums_formatted}\n\tEOF\n)'
         content = re.sub(
-            r'TRUSTED_SHASUMS="\$\([\s\S]+?EOF\n\)"',
+            r'TRUSTED_SHASUMS=\$\(([\s\S]+)?EOF\n\)',
             new_shasums_block,
             content)
         with open(script_path, "w") as f:
