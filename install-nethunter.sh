@@ -207,8 +207,8 @@ set_up_de() {
 				unset SESSION_MANAGER
 				unset DBUS_SESSION_BUS_ADDRESS
 
-				export XDG_RUNTIME_DIR=\${TMPDIR}/runtime-"\${USER}"
-				export SHELL=\${SHELL}
+				export XDG_RUNTIME_DIR=\${TMPDIR:-/tmp}/runtime-"\$(id -u)"
+				export SHELL=\${SHELL:-/bin/sh}
 
 				if [[ -r ~/.Xresources ]]; then
 				    xrdb ~/.Xresources
