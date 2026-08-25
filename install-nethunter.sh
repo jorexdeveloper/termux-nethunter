@@ -159,86 +159,204 @@ post_complete_actions() {
 # Local Functions                                                              #
 ################################################################################
 
-# Sets up the desktop environment
+# Sets up X11 environment (Optimized for Unrooted Samsung A05s)
 set_up_de() {
-	local available_desktops=(
-		E17 GNOME i3 KDE LXDE MATE Xfce
+	msg -t "Setting up X11 Display Server Environment"
+	msg -a "Display: :1 (via TigerVNC)"
+	
+	# X11 server options
+	local x11_server="tigervnc"
+	local display_number=1
+	local display_res="720x1280"  # Portrait mode for phone screen
+	local display_depth=24
+	
+	# Lightweight window managers suitable for X11 + unrooted device
+	local available_wm=(
+		"Openbox (Ultra-light WM)"
+		"i3 (Tiling WM)"
+		"Xfce (Full DE with X11)"
+		"Fluxbox (Lightweight WM)"
 	)
-	local -A xstartups=(
-		[e17]=enlightenment_start [gnome]=gnome-session [i3]=i3 [kde]=startplasma-x11 [lxde]=startlxde [mate]=mate-session [xfce]=startxfce4
+	
+	local -A wm_commands=(
+		[openbox]="openbox"
+		[i3]="i3"
+		[xfce]="startxfce4"
+		[fluxbox]="fluxbox"
+	)
+	
+	local -A wm_packages=(
+		[openbox]="openbox"
+		[i3]="i3"
+		[xfce]="kali-desktop-xfce"
+		[fluxbox]="fluxbox"
 	)
 
-	choose -d7 -t "Select Desktop Environment" \
-		"${available_desktops[@]}"
-	selected_desktop=${available_desktops[$((${?} - 1))]}
+	choose -d3 -t "Select Window Manager for X11" \
+		"${available_wm[@]}"
+	local selected_choice=${?}
 
-	msg -t "Installing ${selected_desktop} Desktop"
+	local selected_wm selected_pkg
+	case "${selected_choice}" in
+		1) selected_wm="openbox"; selected_pkg="openbox" ;;
+		2) selected_wm="i3"; selected_pkg="i3" ;;
+		3) selected_wm="xfce"; selected_pkg="kali-desktop-xfce" ;;
+		4) selected_wm="fluxbox"; selected_pkg="fluxbox" ;;
+		*) selected_wm="openbox"; selected_pkg="openbox" ;;
+	esac
 
-	if command -v termux-wake-lock &>>"${LOG_FILE}"; then
-		msg -tn "Acquiring Termux wake lock..."
+	msg -t "Installing ${selected_wm} Window Manager with X11"
 
-		if termux-wake-lock &>>"${LOG_FILE}"; then
-			cursor -u1
-			msg -ts "Termux wake lock held"
-		else
-			cursor -u1
-			msg -te "Failed to acquire Termux wake lock"
-		fi
+	# Check for unrooted device limitations
+	if ! command -v termux-wake-lock &>/dev/null; then
+		msg -tw "Device is likely unrooted - wake-lock unavailable (expected)"
 	fi
 
-	msg -tn "Installing ${selected_desktop} packages in ${DISTRO_NAME}..."
+	msg -tn "Installing X11 and display server packages..."
 	trap 'buffer -h; echo; msg -fem2; exit 130' INT
 	buffer -s
 
-	local pkgs=(tigervnc-standalone-server dbus-x11 kali-desktop-"${selected_desktop,,}")
-	if buffer -i apt update && distro_exec apt update &&
-		buffer -i apt full-upgrade && distro_exec apt full-upgrade &&
-		buffer -i apt install -y "${pkgs[@]}" && distro_exec apt install -y "${pkgs[@]}"; then
+	# Minimal X11 package set for unrooted device
+	local x11_pkgs=(
+		"tigervnc-standalone-server"
+		"dbus-x11"
+		"xserver-xorg-core"
+		"xfonts-base"
+		"x11-utils"
+		"x11-xserver-utils"
+		"${selected_pkg}"
+	)
+	
+	if buffer -i apt update && distro_exec apt update && \
+	   buffer -i apt install -y --no-install-recommends "${x11_pkgs[@]}" && \
+	   distro_exec apt install -y --no-install-recommends "${x11_pkgs[@]}"; then
 		buffer -h3
 		trap - INT
 		cursor -u1
-		msg -ts "${selected_desktop} packages installed in ${DISTRO_NAME}"
+		msg -ts "X11 and ${selected_wm} installed successfully"
 
-		msg -tn "Creating xstartup program..."
+		msg -tn "Configuring X11 environment..."
 
+		# Create X11-optimized xstartup script
 		local xstartup=$(
-			cat 2>>"${LOG_FILE}" <<-EOF
+			cat 2>>"${LOG_FILE}" <<-'XEOF'
 				#!/bin/bash
+				# X11 Environment Startup Script
+				# Optimized for Unrooted Android Devices
+				
+				# Clean X11 environment
 				unset SESSION_MANAGER
 				unset DBUS_SESSION_BUS_ADDRESS
-
-				export XDG_RUNTIME_DIR=\${TMPDIR:-/tmp}/runtime-"\$(id -u)"
-				export SHELL=\${SHELL:-/bin/sh}
-
-				if [[ -r ~/.Xresources ]]; then
-				    xrdb ~/.Xresources
+				
+				# X11 Display setup
+				export DISPLAY=:1
+				export XAUTHORITY=$HOME/.Xauthority
+				
+				# Runtime directories
+				export XDG_RUNTIME_DIR=${TMPDIR:-/tmp}/runtime-"$(id -u)"
+				mkdir -p "$XDG_RUNTIME_DIR"
+				chmod 700 "$XDG_RUNTIME_DIR"
+				
+				export SHELL=${SHELL:-/bin/bash}
+				
+				# Memory optimization for limited resources (A05s: 4GB RAM)
+				export MALLOC_TRIM_THRESHOLD_=131072
+				export MALLOC_MMAP_THRESHOLD_=131072
+				
+				# DBus setup for X11 applications
+				if [[ ! -S "$XDG_RUNTIME_DIR/dbus-socket" ]]; then
+					eval "$(dbus-launch --sh-syntax)"
+					export DBUS_SESSION_BUS_ADDRESS
+					export DBUS_SESSION_BUS_PID
 				fi
-
-				exec ${xstartups["${selected_desktop,,}"]}
-			EOF
+				
+				# Load X resources if available
+				if [[ -r ~/.Xresources ]]; then
+					xrdb -merge ~/.Xresources
+				fi
+				
+				# Start window manager
+				exec XEOF
 		)
-
+		
+		# Append the window manager command
+		xstartup+="${wm_commands[${selected_wm}]}"
+		
 		if {
 			mkdir -p "${ROOTFS_DIRECTORY}"/root/.vnc &&
-				echo "${xstartup}" >"${ROOTFS_DIRECTORY}"/root/.vnc/xstartup &&
-				chmod 744 "${ROOTFS_DIRECTORY}"/root/.vnc/xstartup &&
-				if [[ ${DEFAULT_LOGIN} != root ]]; then
-					mkdir -p "${ROOTFS_DIRECTORY}"/home/"${DEFAULT_LOGIN}"/.vnc &&
-						echo "${xstartup}" >"${ROOTFS_DIRECTORY}"/home/"${DEFAULT_LOGIN}"/.vnc/xstartup &&
-						chmod 744 "${ROOTFS_DIRECTORY}"/home/"${DEFAULT_LOGIN}"/.vnc/xstartup
-				fi
+			echo "${xstartup}" >"${ROOTFS_DIRECTORY}"/root/.vnc/xstartup &&
+			chmod 755 "${ROOTFS_DIRECTORY}"/root/.vnc/xstartup &&
+			if [[ ${DEFAULT_LOGIN} != root ]]; then
+				mkdir -p "${ROOTFS_DIRECTORY}"/home/"${DEFAULT_LOGIN}"/.vnc &&
+				echo "${xstartup}" >"${ROOTFS_DIRECTORY}"/home/"${DEFAULT_LOGIN}"/.vnc/xstartup &&
+				chmod 755 "${ROOTFS_DIRECTORY}"/home/"${DEFAULT_LOGIN}"/.vnc/xstartup
+			fi
 		} 2>>"${LOG_FILE}"; then
 			cursor -u1
-			msg -ts "Xstartup program created"
+			msg -ts "X11 xstartup script configured"
+			
+			# Create startup helper script in home directory
+			local startup_helper=$(
+				cat 2>>"${LOG_FILE}" <<-'HELPER'
+					#!/bin/bash
+					# VNC Server Startup Helper for X11
+					
+					echo "Starting VNC Server with X11..."
+					echo "Display Resolution: 720x1280 (Portrait)"
+					echo "Color Depth: 24-bit"
+					echo "Port: 5901"
+					echo ""
+					
+					# Kill any existing VNC servers
+					vncserver -kill :1 2>/dev/null
+					sleep 1
+					
+					# Start new VNC server
+					vncserver :1 -geometry 720x1280 -depth 24 -localhost no
+					
+					echo ""
+					echo "VNC Server started!"
+					echo "Connect via: 127.0.0.1:5901"
+					echo "To stop: vncserver -kill :1"
+				HELPER
+			)
+			
+			if echo "${startup_helper}" >"${ROOTFS_DIRECTORY}"/root/start-x11.sh && \
+			   chmod 755 "${ROOTFS_DIRECTORY}"/root/start-x11.sh; then
+				cursor -u1
+				msg -ts "X11 startup helper created"
+			fi
+			
+			# Print usage instructions
+			msg -ta "✓ X11 ENVIRONMENT SETUP COMPLETE"
+			msg -a ""
+			msg -a "START X11 DISPLAY SERVER:"
+			msg -a "  Inside Termux container (as root or kali user):"
+			msg -a "  $ vncserver :1 -geometry 720x1280 -depth 24 -localhost no"
+			msg -a ""
+			msg -a "CONNECT VIA VNC CLIENT:"
+			msg -a "  - Use any VNC viewer app (RealVNC, TightVNC, etc.)"
+			msg -a "  - Address: 127.0.0.1:5901"
+			msg -a "  - Password: (set when first running vncserver)"
+			msg -a ""
+			msg -a "STOP X11 SERVER:"
+			msg -a "  $ vncserver -kill :1"
+			msg -a ""
+			msg -a "NOTES FOR UNROOTED DEVICE:"
+			msg -a "  - Some tools (airmon-ng, iptables) require root"
+			msg -a "  - X11 forwarding works fine without root"
+			msg -a "  - Use SSH for better performance: ssh -X user@localhost"
 		else
 			cursor -u1
-			msg -te "Failed create xstartup program"
+			msg -te "Failed to configure X11 xstartup script"
+			return 1
 		fi
 	else
 		buffer -h5
 		trap - INT
 		cursor -u1
-		msg -te "Failed to install ${selected_desktop} packages in ${DISTRO_NAME}"
+		msg -te "Failed to install X11 packages"
+		msg -a "Ensure sufficient storage (2GB+) and RAM available"
 		return 1
 	fi
 }
